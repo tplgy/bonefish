@@ -9,12 +9,12 @@
 
 namespace bonefish {
 
-class router;
+class realm_routers;
 
 class websocket_server
 {
 public:
-    websocket_server(const std::shared_ptr<router>& r);
+    websocket_server(const std::shared_ptr<realm_routers>& routers);
     ~websocket_server();
 
     void run();
@@ -33,7 +33,7 @@ private:
 
 private:
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
-    std::shared_ptr<router> m_router;
+    std::shared_ptr<realm_routers> m_realm_routers;
     session_id_generator m_session_id_generator;
 };
 

@@ -4,8 +4,9 @@
 
 namespace bonefish {
 
-router::router()
-    : m_io_service()
+router::router(const std::string& realm)
+    : m_realm(realm)
+    , m_io_service()
     , m_work(new boost::asio::io_service::work(m_io_service))
     , m_sessions()
 {
@@ -13,6 +14,11 @@ router::router()
 
 router::~router()
 {
+}
+
+const std::string& router::get_realm() const
+{
+    return m_realm;
 }
 
 bool router::has_session(const session_id& id)

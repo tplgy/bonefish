@@ -1,7 +1,7 @@
 #include <bonefish/websocket_server.hpp>
 #include <bonefish/identifier/session_id.hpp>
 #include <bonefish/message_code.hpp>
-#include <bonefish/router.hpp>
+#include <bonefish/realm_routers.hpp>
 #include <bonefish/session.hpp>
 #include <bonefish/wamp_message.hpp>
 #include <bonefish/websocket_protocol.hpp>
@@ -11,9 +11,10 @@
 
 namespace bonefish {
 
-websocket_server::websocket_server(const std::shared_ptr<router>& r)
+websocket_server::websocket_server(
+        const std::shared_ptr<realm_routers>& routers)
     : m_server(new websocketpp::server<websocket_config>())
-    , m_router(r)
+    , m_realm_routers(routers)
     , m_session_id_generator()
 {
 }
@@ -77,6 +78,7 @@ void websocket_server::shutdown()
 void websocket_server::on_open(websocketpp::connection_hdl handle)
 {
     std::cerr << "open handler called: " << handle.lock().get() << std::endl;
+/*
     session_id id;
     do {
         id = m_session_id_generator.generate();
@@ -87,14 +89,17 @@ void websocket_server::on_open(websocketpp::connection_hdl handle)
     connection->set_session_id(id);
 
     m_router->attach_session(std::make_shared<session>(id, handle, m_server));
+*/
 }
 
 void websocket_server::on_close(websocketpp::connection_hdl handle)
 {
     std::cerr << "close handler called: " << handle.lock().get() << std::endl;
+/*
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
     m_router->detach_session(connection->get_session_id());
+*/
 }
 
 void websocket_server::on_fail(websocketpp::connection_hdl handle)
@@ -161,6 +166,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
 
                 message_code code = static_cast<message_code>(wmessage[0].as<int>());
                 std::cerr << "received message: " << to_string(code) << std::endl;
+                /*
                 switch (code)
                 {
                     case message_code::Hello:
@@ -188,6 +194,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case message_code::Yield:
                         break;
                 }
+                */
             } catch (const msgpack::unpack_error& e) {
                 std::cerr << "failed to unpack message: " << e.what();
             } catch (const msgpack::type_error& e) {

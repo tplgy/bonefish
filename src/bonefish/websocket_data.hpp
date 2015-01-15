@@ -12,15 +12,25 @@ public:
     websocket_data();
     ~websocket_data();
 
-    void set_session_id(session_id id);
-    session_id get_session_id();
+    bool has_realm() const;
+    void set_realm(const std::string& realm);
+    const std::string& get_realm() const;
+
+    bool has_session_id() const;
+    void set_session_id(const session_id& id);
+    const session_id& get_session_id() const;
+
+    void clear_data();
 
 private:
+    std::string m_realm;
     session_id m_session_id;
+
 };
 
 inline websocket_data::websocket_data()
-    : m_session_id()
+    : m_realm()
+    , m_session_id()
 {
 }
 
@@ -28,14 +38,40 @@ inline websocket_data::~websocket_data()
 {
 }
 
-inline void websocket_data::set_session_id(session_id id)
+inline bool websocket_data::has_realm() const
+{
+    return !m_realm.empty();
+}
+
+inline void websocket_data::set_realm(const std::string& realm)
+{
+    m_realm = realm;
+}
+
+inline const std::string& websocket_data::get_realm() const
+{
+    return m_realm;
+}
+
+inline bool websocket_data::has_session_id() const
+{
+    return m_session_id.is_valid();
+}
+
+inline void websocket_data::set_session_id(const session_id& id)
 {
     m_session_id = id;
 }
 
-inline session_id websocket_data::get_session_id()
+inline const session_id& websocket_data::get_session_id() const
 {
     return m_session_id;
+}
+
+inline void websocket_data::clear_data()
+{
+    m_session_id = session_id();
+    m_realm = std::string();
 }
 
 } // namespace bonefish
