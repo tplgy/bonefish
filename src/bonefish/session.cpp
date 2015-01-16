@@ -1,20 +1,18 @@
 #include <bonefish/session.hpp>
+#include <bonefish/session_transport.hpp>
 
 namespace bonefish {
 
 session::session()
     : m_session_id()
-    , m_handle()
-    , m_server()
+    , m_transport()
 {
 }
 
 session::session(const session_id& id,
-        const websocketpp::connection_hdl& handle,
-        const std::shared_ptr<websocketpp::server<websocket_config>>& server)
+        std::unique_ptr<session_transport> transport)
     : m_session_id(id)
-    , m_handle(handle)
-    , m_server(server)
+    , m_transport(std::move(transport))
 {
 }
 

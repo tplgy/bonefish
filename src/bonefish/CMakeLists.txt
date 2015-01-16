@@ -8,7 +8,6 @@ include_directories(
 
 set(SOURCES
     bonefish/messages/message_type.cpp
-    bonefish/roles/role_type.cpp
     bonefish/router.cpp
     bonefish/session.cpp
     bonefish/uri.cpp
@@ -32,13 +31,16 @@ set(PUBLIC_HEADERS
     bonefish/identifier/subscription_id_generator.hpp
     bonefish/messages/hello_message.hpp
     bonefish/messages/message_type.hpp
+    bonefish/messages/wamp_message.hpp
     bonefish/messages/welcome_message.hpp
-    bonefish/roles/role.hpp
-    bonefish/roles/role_features.hpp
-    bonefish/roles/role_type.hpp
+    bonefish/role.hpp
     bonefish/router.hpp
+    bonefish/serialization/serializer.hpp
+    bonefish/serialization/msgpack_hello_message_serializer.hpp
+    bonefish/serialization/msgpack_serializer.hpp
+    bonefish/serialization/msgpack_welcome_message_serializer.hpp
+    bonefish/serialization/.hpp
     bonefish/session.hpp
-    bonefish/session_transport.hpp
     bonefish/uri.hpp
     bonefish/websocket_config.hpp
     bonefish/websocket_data.hpp

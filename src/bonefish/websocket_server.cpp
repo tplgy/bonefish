@@ -1,9 +1,11 @@
 #include <bonefish/websocket_server.hpp>
 #include <bonefish/identifier/session_id.hpp>
-#include <bonefish/message_code.hpp>
+#include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/realm_routers.hpp>
+#include <bonefish/serialization/serializer.hpp>
+#include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/session.hpp>
-#include <bonefish/wamp_message.hpp>
+#include <bonefish/session_transport.hpp>
 #include <bonefish/websocket_protocol.hpp>
 #include <msgpack.hpp>
 #include <websocketpp/common/connection_hdl.hpp>
@@ -151,56 +153,63 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
             m_server->get_con_from_hdl(handle);
 
     if (connection->get_subprotocol() == WAMPV2_MSGPACK_SUBPROTOCOL) {
-        wamp_message wmessage;
-
         try {
-            msgpack::unpacked item;
-            msgpack::unpacker unpacker;
-            unpacker.reserve_buffer(message->get_payload().size());
-            memcpy(unpacker.buffer(), message->get_payload().c_str(), message->get_payload().size());
-            unpacker.buffer_consumed(message->get_payload().size());
+            msgpack_serializer mps;
+            wamp_message* wmsg = mps.deserialize(
+                    message->get_payload().c_str(), message->get_payload().size());
 
-            try {
-                unpacker.next(&item);
-                item.get().convert(&wmessage);
-
-                message_code code = static_cast<message_code>(wmessage[0].as<int>());
-                std::cerr << "received message: " << to_string(code) << std::endl;
-                /*
-                switch (code)
+            if (wmsg) {
+                std::cerr << "received message: " << to_string(wmsg->get_type()) << std::endl;
+                switch (wmsg->get_type())
                 {
-                    case message_code::Hello:
+                    case message_type::Hello:
+                        {
+                            hello_message* hmsg = static_cast<hello_message*>(wmsg);
+                            std::shared_ptr<router> realm_router =
+                                    m_realm_routers->get_router(hmsg->get_realm());
+                            assert(realm_router);
+
+                            session_id id;
+                            do {
+                                id = m_session_id_generator.generate();
+                            } while(realm_router->has_session(id));
+
+                            connection->set_session_id(id);
+                            connection->set_realm(hmsg->get_realm());
+
+                            std::unique_ptr<serializer> mps(new msgpack_serializer);
+                            std::unique_ptr<session_transport> transport(
+                                    new session_transport(std::move(mps), handle, m_server));
+                            realm_router->attach_session(std::make_shared<session>(id, std::move(transport)));
+                        }
                         break;
-                    case message_code::Authenticate:
+                    case message_type::Authenticate:
                         break;
-                    case message_code::Goodbye:
+                    case message_type::Goodbye:
                         break;
-                    case message_code::Error:
+                    case message_type::Error:
                         break;
-                    case message_code::Publish:
+                    case message_type::Publish:
                         break;
-                    case message_code::Subscribe:
+                    case message_type::Subscribe:
                         break;
-                    case message_code::Unsubscribe:
+                    case message_type::Unsubscribe:
                         break;
-                    case message_code::Call:
+                    case message_type::Call:
                         break;
-                    case message_code::Cancel:
+                    case message_type::Cancel:
                         break;
-                    case message_code::Register:
+                    case message_type::Register:
                         break;
-                    case message_code::Unregister:
+                    case message_type::Unregister:
                         break;
-                    case message_code::Yield:
+                    case message_type::Yield:
+                        break;
+                    default:
                         break;
                 }
-                */
-            } catch (const msgpack::unpack_error& e) {
-                std::cerr << "failed to unpack message: " << e.what();
-            } catch (const msgpack::type_error& e) {
-                std::cerr << "failed to parse message: " << e.what();
-            } catch (const std::exception& e) {
-                std::cerr << "unhandled exception: " << e.what() << std::endl;
+            } else {
+                std::cerr << "error: unable to deserialize message" << std::endl;
             }
         } catch (const std::exception& e) {
             std::cerr << "unhandled exception: " << e.what() << std::endl;

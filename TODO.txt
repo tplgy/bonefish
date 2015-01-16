@@ -3,3 +3,5 @@
 - add approriate system/debug logging facilities
 - add appropriate json based daemon configuration
 - add proper uri validation according to the spec
+- add core message definitions for connecting
+- add core serialization abstractions

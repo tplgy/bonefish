@@ -1,11 +1,11 @@
-#ifndef BONEFISH_MESSAGE_CODE_HPP
-#define BONEFISH_MESSAGE_CODE_HPP
+#ifndef BONEFISH_MESSAGE_TYPE_HPP
+#define BONEFISH_MESSAGE_TYPE_HPP
 
 #include <cstdint>
 
 namespace bonefish {
 
-enum class message_code : unsigned
+enum class message_type : unsigned
 {
     Hello = 1,
     Welcome = 2,
@@ -34,8 +34,8 @@ enum class message_code : unsigned
     Yield = 70
 };
 
-const char* to_string(message_code code);
+const char* to_string(const message_type& type);
 
 } // namespace bonefish
 
-#endif // BONEFISH_MESSAGE_CODE_HPP
+#endif // BONEFISH_MESSAGE_TYPE_HPP
