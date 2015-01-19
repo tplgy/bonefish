@@ -10,6 +10,9 @@ set(SOURCES
     bonefish/messages/message_type.cpp
     bonefish/roles/role_type.cpp
     bonefish/router.cpp
+    bonefish/serialization/msgpack_serializer.cpp
+    bonefish/serialization/msgpack_hello_message_serializer.cpp
+    bonefish/serialization/msgpack_welcome_message_serializer.cpp
     bonefish/session.cpp
     bonefish/uri.cpp
     bonefish/websocket_protocol.cpp
@@ -37,6 +40,10 @@ set(PUBLIC_HEADERS
     bonefish/roles/role_features.hpp
     bonefish/roles/role_type.hpp
     bonefish/router.hpp
+    bonefish/serialization/msgpack_serializer.hpp
+    bonefish/serialization/msgpack_hello_message_serializer.hpp
+    bonefish/serialization/msgpack_welcome_message_serializer.hpp
+    bonefish/serialization/serializer.hpp
     bonefish/session.hpp
     bonefish/session_transport.hpp
     bonefish/uri.hpp
@@ -45,9 +52,6 @@ set(PUBLIC_HEADERS
     bonefish/websocket_protocol.hpp
     bonefish/websocket_server.hpp)
 
-set(PRIVATE_HEADERS
-    "")
-
-add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
+add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS})
 install(FILES ${PUBLIC_HEADERS} DESTINATION include/bonefish)
 install(TARGETS bonefish DESTINATION lib)

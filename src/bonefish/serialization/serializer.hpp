@@ -2,6 +2,7 @@
 #define BONEFISH_SERIALIZATION_SERIALIZER_HPP
 
 #include <cstdint>
+#include <memory>
 
 namespace bonefish
 {
@@ -14,8 +15,8 @@ public:
     serializer();
     virtual ~serializer();
 
-    virtual wamp_message* deserialize(const char* buffer, size_t length) = 0;
-    virtual size_t serialize(const wamp_message* message, char* buffer, size_t length) = 0;
+    virtual std::unique_ptr<wamp_message> deserialize(const char* buffer, size_t length) = 0;
+    virtual size_t serialize(const std::unique_ptr<wamp_message>& message, char* buffer, size_t length) = 0;
 };
 
 inline serializer::serializer()

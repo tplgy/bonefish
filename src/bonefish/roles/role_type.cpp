@@ -5,7 +5,7 @@
 
 namespace bonefish {
 
-const char* to_string(const role_type& type)
+const char* role_type_to_string(const role_type& type)
 {
     const char* str = nullptr;
     switch(type)
@@ -36,7 +36,7 @@ const char* to_string(const role_type& type)
     return str;
 }
 
-role_type from_string(const std::string& type)
+role_type role_type_from_string(const std::string& type)
 {
     if (type.compare("callee")) {
         return role_type::callee;

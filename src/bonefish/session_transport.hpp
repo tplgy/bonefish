@@ -16,7 +16,7 @@ public:
             const websocketpp::connection_hdl& handle,
             const std::shared_ptr<websocketpp::server<websocket_config>>& server);
     ~session_transport();
-    bool send_message(const wamp_message* message);
+    bool send_message(const std::unique_ptr<wamp_message>& message);
 
 private:
     std::unique_ptr<serializer> m_serializer;
@@ -37,7 +37,7 @@ inline session_transport::~session_transport()
 {
 }
 
-inline bool session_transport::send_message(const wamp_message* message)
+inline bool session_transport::send_message(const std::unique_ptr<wamp_message>& message)
 {
     // TODO: Fix me to use a proper expandable buffer;
     char buffer[10*1024];

@@ -24,36 +24,36 @@ private:
     role_features m_features;
 };
 
-role::role(role_type type)
+inline role::role(role_type type)
     : m_type(type)
 {
 }
 
-role::~role()
+inline role::~role()
 {
 }
 
-role_type role::get_type() const
+inline role_type role::get_type() const
 {
     return m_type;
 }
 
-role_features& role::get_features()
+inline role_features& role::get_features()
 {
     return m_features;
 }
 
-const role_features& role::get_features() const
+inline const role_features& role::get_features() const
 {
     return m_features;
 }
 
-void role::set_features(const role_features& features)
+inline void role::set_features(const role_features& features)
 {
     m_features = features;
 }
 
-bool role::operator==(const role& other) const
+inline bool role::operator==(const role& other) const
 {
     if (this == &other) {
         return true;
@@ -69,10 +69,12 @@ namespace std {
 
 template<> struct hash<bonefish::role>
 {
-    size_t operator()(const bonefish::role& role) const
-    {
-        return hash<bonefish::role_type>()(role.get_type());
-    }
+
+size_t operator()(const bonefish::role& role) const
+{
+    return hash<bonefish::role_type>()(role.get_type());
+}
+
 };
 
 } // namespace std

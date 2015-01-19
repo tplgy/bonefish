@@ -1,6 +1,8 @@
 #include <bonefish/websocket_server.hpp>
 #include <bonefish/identifier/session_id.hpp>
+#include <bonefish/messages/hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
+#include <bonefish/messages/welcome_message.hpp>
 #include <bonefish/realm_routers.hpp>
 #include <bonefish/serialization/serializer.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
@@ -155,7 +157,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
     if (connection->get_subprotocol() == WAMPV2_MSGPACK_SUBPROTOCOL) {
         try {
             msgpack_serializer mps;
-            wamp_message* wmsg = mps.deserialize(
+            std::unique_ptr<wamp_message> wmsg = mps.deserialize(
                     message->get_payload().c_str(), message->get_payload().size());
 
             if (wmsg) {
@@ -164,10 +166,13 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                 {
                     case message_type::Hello:
                         {
-                            hello_message* hmsg = static_cast<hello_message*>(wmsg);
+                            hello_message* hello = static_cast<hello_message*>(wmsg.get());
                             std::shared_ptr<router> realm_router =
-                                    m_realm_routers->get_router(hmsg->get_realm());
-                            assert(realm_router);
+                                    m_realm_routers->get_router(hello->get_realm());
+                            if (!realm_router) {
+                                std::cerr << "error: no router found in realm " << hello->get_realm() << std::endl;
+                                break;
+                            }
 
                             session_id id;
                             do {
@@ -175,7 +180,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                             } while(realm_router->has_session(id));
 
                             connection->set_session_id(id);
-                            connection->set_realm(hmsg->get_realm());
+                            connection->set_realm(hello->get_realm());
 
                             std::unique_ptr<serializer> mps(new msgpack_serializer);
                             std::unique_ptr<session_transport> transport(

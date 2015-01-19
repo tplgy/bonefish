@@ -14,7 +14,7 @@ public:
 
     void set_feature(const std::string& feature, bool supported);
     bool get_feature(const std::string& feature) const;
-
+    std::unordered_map<std::string, bool> get_features() const;
     bool operator==(const role_features& features) const;
 
 private:
@@ -39,6 +39,11 @@ inline bool role_features::get_feature(const std::string& feature) const
 {
     auto itr = m_features.find(feature);
     return itr != m_features.end() ? itr->second : false;
+}
+
+inline std::unordered_map<std::string, bool> role_features::get_features() const
+{
+    return m_features;
 }
 
 inline bool role_features::operator==(const role_features& other) const
