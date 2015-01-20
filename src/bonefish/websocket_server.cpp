@@ -86,28 +86,21 @@ void websocket_server::shutdown()
 void websocket_server::on_open(websocketpp::connection_hdl handle)
 {
     std::cerr << "open handler called: " << handle.lock().get() << std::endl;
-/*
-    session_id id;
-    do {
-        id = m_session_id_generator.generate();
-    } while(m_router->has_session(id));
-
-    websocketpp::server<websocket_config>::connection_ptr connection =
-            m_server->get_con_from_hdl(handle);
-    connection->set_session_id(id);
-
-    m_router->attach_session(std::make_shared<session>(id, handle, m_server));
-*/
 }
 
 void websocket_server::on_close(websocketpp::connection_hdl handle)
 {
     std::cerr << "close handler called: " << handle.lock().get() << std::endl;
-/*
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
-    m_router->detach_session(connection->get_session_id());
-*/
+
+    if (connection->has_session_id()) {
+        std::shared_ptr<router> realm_router =
+                m_realm_routers->get_router(connection->get_realm());
+        if (realm_router) {
+            realm_router->detach_session(connection->get_session_id());
+        }
+    }
 }
 
 void websocket_server::on_fail(websocketpp::connection_hdl handle)
