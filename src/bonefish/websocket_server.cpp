@@ -9,6 +9,7 @@
 #include <bonefish/session.hpp>
 #include <bonefish/session_transport.hpp>
 #include <bonefish/websocket_protocol.hpp>
+#include <boost/asio/io_service.hpp>
 #include <msgpack.hpp>
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/utilities.hpp>
@@ -16,8 +17,10 @@
 namespace bonefish {
 
 websocket_server::websocket_server(
+        boost::asio::io_service& io_service,
         const std::shared_ptr<realm_routers>& routers)
-    : m_server(new websocketpp::server<websocket_config>())
+    : m_io_service(io_service)
+    , m_server(new websocketpp::server<websocket_config>())
     , m_realm_routers(routers)
     , m_session_id_generator()
 {
@@ -27,7 +30,7 @@ websocket_server::~websocket_server()
 {
 }
 
-void websocket_server::run()
+void websocket_server::start()
 {
     m_server->set_open_handler(
             websocketpp::lib::bind(&websocket_server::on_open, this,
@@ -69,10 +72,11 @@ void websocket_server::run()
     m_server->set_access_channels(websocketpp::log::alevel::all);
     m_server->clear_access_channels(websocketpp::log::alevel::frame_payload);
 
-    m_server->init_asio();
+    m_server->init_asio(&m_io_service);
     m_server->listen(9005);
     m_server->start_accept();
-    m_server->run();
+    // The io_service is run from owning context.
+    //m_server->run();
 }
 
 void websocket_server::shutdown()

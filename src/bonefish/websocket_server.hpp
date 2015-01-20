@@ -7,6 +7,12 @@
 #include <unordered_map>
 #include <websocketpp/server.hpp>
 
+namespace boost {
+namespace asio {
+class io_service;
+} // namespace asio
+} // namespace boost
+
 namespace bonefish {
 
 class realm_routers;
@@ -14,10 +20,11 @@ class realm_routers;
 class websocket_server
 {
 public:
-    websocket_server(const std::shared_ptr<realm_routers>& routers);
+    websocket_server(boost::asio::io_service& io_service,
+            const std::shared_ptr<realm_routers>& routers);
     ~websocket_server();
 
-    void run();
+    void start();
     void shutdown();
 
 private:
@@ -32,6 +39,7 @@ private:
             websocketpp::server<websocket_config>::message_ptr message);
 
 private:
+    boost::asio::io_service& m_io_service;
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
     std::shared_ptr<realm_routers> m_realm_routers;
     session_id_generator m_session_id_generator;
