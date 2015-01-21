@@ -8,7 +8,7 @@ include_directories(
 
 set(SOURCES
     bonefish/messages/message_type.cpp
-    bonefish/roles/role_type.cpp
+    bonefish/roles/wamp_role_type.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
     bonefish/serialization/msgpack_welcome_message_serializer.cpp
@@ -36,9 +36,9 @@ set(PUBLIC_HEADERS
     bonefish/messages/hello_message.hpp
     bonefish/messages/message_type.hpp
     bonefish/messages/welcome_message.hpp
-    bonefish/roles/role.hpp
-    bonefish/roles/role_features.hpp
-    bonefish/roles/role_type.hpp
+    bonefish/roles/wamp_role.hpp
+    bonefish/roles/wamp_role_features.hpp
+    bonefish/roles/wamp_role_type.hpp
     bonefish/serialization/msgpack_serializer.hpp
     bonefish/serialization/msgpack_hello_message_serializer.hpp
     bonefish/serialization/msgpack_welcome_message_serializer.hpp

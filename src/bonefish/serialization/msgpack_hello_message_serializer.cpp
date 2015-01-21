@@ -1,8 +1,8 @@
 #include <bonefish/serialization/msgpack_hello_message_serializer.hpp>
 #include <bonefish/messages/message_type.hpp>
 #include <bonefish/messages/hello_message.hpp>
-#include <bonefish/roles/role.hpp>
-#include <bonefish/roles/role_type.hpp>
+#include <bonefish/roles/wamp_role.hpp>
+#include <bonefish/roles/wamp_role_type.hpp>
 #include <bonefish/uri.hpp>
 #include <memory>
 #include <stdexcept>
@@ -48,7 +48,7 @@ hello_message* msgpack_hello_message_serializer::deserialize(const std::vector<m
     }
 
     for (const auto& role_itr : roles) {
-        hello->add_role(role(role_type_from_string(role_itr.first)));
+        hello->add_role(wamp_role(role_type_from_string(role_itr.first)));
     }
 
     return hello.release();

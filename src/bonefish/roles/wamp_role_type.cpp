@@ -1,31 +1,31 @@
-#include <bonefish/roles/role_type.hpp>
+#include <bonefish/roles/wamp_role_type.hpp>
 
 #include <cassert>
 #include <stdexcept>
 
 namespace bonefish {
 
-const char* role_type_to_string(const role_type& type)
+const char* role_type_to_string(const wamp_role_type& type)
 {
     const char* str = nullptr;
     switch(type)
     {
-        case role_type::callee:
+        case wamp_role_type::CALLEE:
             str = "callee";
             break;
-        case role_type::caller:
+        case wamp_role_type::CALLER:
             str = "caller";
             break;
-        case role_type::publisher:
+        case wamp_role_type::PUBLISHER:
             str = "publisher";
             break;
-        case role_type::subscriber:
+        case wamp_role_type::SUBSCRIBER:
             str = "subscriber";
             break;
-        case role_type::dealer:
+        case wamp_role_type::DEALER:
             str = "dealer";
             break;
-        case role_type::broker:
+        case wamp_role_type::BROKER:
             str = "broker";
             break;
         default:
@@ -36,30 +36,30 @@ const char* role_type_to_string(const role_type& type)
     return str;
 }
 
-role_type role_type_from_string(const std::string& type)
+wamp_role_type role_type_from_string(const std::string& type)
 {
     if (type.compare("callee")) {
-        return role_type::callee;
+        return wamp_role_type::CALLEE;
     }
 
     if (type.compare("caller")) {
-        return role_type::caller;
+        return wamp_role_type::CALLER;
     }
 
     if (type.compare("publisher")) {
-        return role_type::publisher;
+        return wamp_role_type::PUBLISHER;
     }
 
     if (type.compare("subscriber")) {
-        return role_type::subscriber;
+        return wamp_role_type::SUBSCRIBER;
     }
 
     if (type.compare("dealer")) {
-        return role_type::dealer;
+        return wamp_role_type::DEALER;
     }
 
     if (type.compare("broker")) {
-        return role_type::broker;
+        return wamp_role_type::BROKER;
     }
 
     throw(std::invalid_argument("unknown role type"));

@@ -2,7 +2,7 @@
 #define BONEFISH_WAMP_SESSION_HPP
 
 #include <bonefish/identifier/session_id.hpp>
-#include <bonefish/roles/role.hpp>
+#include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/websocket_config.hpp>
 #include <memory>
 #include <string>
@@ -32,7 +32,7 @@ public:
 
 private:
     session_id m_session_id;
-    std::vector<role> m_roles;
+    std::vector<wamp_role> m_roles;
     std::unique_ptr<wamp_transport> m_transport;
 };
 

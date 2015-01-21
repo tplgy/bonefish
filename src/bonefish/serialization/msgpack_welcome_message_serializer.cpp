@@ -1,8 +1,9 @@
 #include <bonefish/serialization/msgpack_welcome_message_serializer.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/welcome_message.hpp>
-#include <bonefish/roles/role.hpp>
-#include <bonefish/roles/role_type.hpp>
+#include <bonefish/roles/wamp_role.hpp>
+#include <bonefish/roles/wamp_role_features.hpp>
+#include <bonefish/roles/wamp_role_type.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -37,11 +38,11 @@ size_t msgpack_welcome_message_serializer::serialize(const welcome_message* mess
     packer.pack_map(1);
     packer.pack(std::string("roles"));
 
-    const std::vector<role>& roles = message->get_roles();
+    const std::vector<wamp_role>& roles = message->get_roles();
     packer.pack_map(roles.size());
-    for (const auto& r : roles) {
-        packer.pack(role_type_to_string(r.get_type()));
-        packer.pack(r.get_features().get_features());
+    for (const auto& role : roles) {
+        packer.pack(role_type_to_string(role.get_type()));
+        packer.pack(role.get_features().get_options());
     }
 
     if (sbuffer.size() > length) {

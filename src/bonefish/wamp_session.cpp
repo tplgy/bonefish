@@ -40,8 +40,8 @@ void wamp_session::process_hello_message(const hello_message* message)
 
     std::unique_ptr<welcome_message> response(new welcome_message);
     response->set_session_id(get_session_id());
-    response->add_role(role(role_type::broker));
-    response->add_role(role(role_type::dealer));
+    response->add_role(wamp_role(wamp_role_type::BROKER));
+    response->add_role(wamp_role(wamp_role_type::DEALER));
     send_message(response.get());
 }
 

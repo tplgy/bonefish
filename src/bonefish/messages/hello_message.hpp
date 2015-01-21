@@ -2,7 +2,7 @@
 #define BONEFISH_HELLO_MESSAGE_HPP
 
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/roles/role.hpp>
+#include <bonefish/roles/wamp_role.hpp>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -21,14 +21,14 @@ public:
     virtual message_type get_type() const;
 
     const std::string& get_realm() const;
-    const std::vector<role>& get_roles() const;
+    const std::vector<wamp_role>& get_roles() const;
 
     void set_realm(const std::string& realm);
-    void add_role(const role& r);
+    void add_role(const wamp_role& role);
 
 private:
     std::string m_realm;
-    std::vector<role> m_roles;
+    std::vector<wamp_role> m_roles;
 };
 
 inline hello_message::hello_message()
@@ -51,7 +51,7 @@ inline const std::string& hello_message::get_realm() const
     return m_realm;
 }
 
-inline const std::vector<role>& hello_message::get_roles() const
+inline const std::vector<wamp_role>& hello_message::get_roles() const
 {
     return m_roles;
 }
@@ -61,9 +61,9 @@ inline void hello_message::set_realm(const std::string& realm)
     m_realm = realm;
 }
 
-inline void hello_message::add_role(const role& r)
+inline void hello_message::add_role(const wamp_role& role)
 {
-    m_roles.push_back(r);
+    m_roles.push_back(role);
 }
 
 } // namespace bonefish
