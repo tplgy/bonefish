@@ -47,7 +47,7 @@ void wamp_router::process_hello_message(const session_id& id, const hello_messag
         throw(std::logic_error("session does not exist"));
     }
 
-    // TODO: Have the session process the message
+    session_itr->second->process_hello_message(message);
 }
 
 } // namespace bonefish

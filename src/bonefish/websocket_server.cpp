@@ -26,6 +26,7 @@ websocket_server::websocket_server(
     : m_io_service(io_service)
     , m_server(new websocketpp::server<websocket_config>())
     , m_routers(routers)
+    , m_serializers(serializers)
     , m_session_id_generator()
 {
 }
@@ -175,7 +176,8 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                             std::shared_ptr<wamp_router> router =
                                     m_routers->get_router(hello->get_realm());
                             if (!router) {
-                                std::cerr << "error: ignoring hello, no router found in realm " << hello->get_realm() << std::endl;
+                                std::cerr << "error: ignoring hello, no router found in realm "
+                                        << hello->get_realm() << std::endl;
                                 break;
                             }
 

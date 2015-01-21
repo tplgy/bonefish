@@ -43,7 +43,7 @@ inline welcome_message::~welcome_message()
 
 inline message_type welcome_message::get_type() const
 {
-    return message_type::Hello;
+    return message_type::Welcome;
 }
 
 inline const session_id& welcome_message::get_session_id() const

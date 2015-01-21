@@ -41,7 +41,7 @@ size_t msgpack_welcome_message_serializer::serialize(const welcome_message* mess
     packer.pack_map(roles.size());
     for (const auto& r : roles) {
         packer.pack(role_type_to_string(r.get_type()));
-        packer.pack(0);
+        packer.pack(r.get_features().get_features());
     }
 
     if (sbuffer.size() > length) {

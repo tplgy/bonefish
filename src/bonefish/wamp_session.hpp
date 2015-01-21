@@ -2,14 +2,17 @@
 #define BONEFISH_WAMP_SESSION_HPP
 
 #include <bonefish/identifier/session_id.hpp>
+#include <bonefish/roles/role.hpp>
 #include <bonefish/websocket_config.hpp>
 #include <memory>
 #include <string>
+#include <vector>
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/server.hpp>
 
 namespace bonefish {
 
+class hello_message;
 class wamp_message;
 class wamp_transport;
 
@@ -25,8 +28,11 @@ public:
     const session_id& get_session_id() const;
     bool send_message(const wamp_message* message);
 
+    void process_hello_message(const hello_message* message);
+
 private:
     session_id m_session_id;
+    std::vector<role> m_roles;
     std::unique_ptr<wamp_transport> m_transport;
 };
 

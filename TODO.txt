@@ -1,7 +1,8 @@
+- handle multiple hellp messages gracefully with an error response
 - create a proper bonefish daemon process
 - manage proper startup and shutdown of daemon process
 - add approriate system/debug logging facilities
 - add appropriate json based daemon configuration
 - add proper uri validation according to the spec
-- add core message definitions for connecting
-- add core serialization abstractions
+- add support for the broker role to the router
+- add support for the dealer role to the router
