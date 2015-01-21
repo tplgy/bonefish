@@ -1,5 +1,5 @@
-#ifndef BONEFISH_SESSION_TRANSPORT_HPP
-#define BONEFISH_SESSION_TRANSPORT_HPP
+#ifndef BONEFISH_WEBSOCKET_TRANSPORT_HPP
+#define BONEFISH_WEBSOCKET_TRANSPORT_HPP
 
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>
@@ -9,14 +9,14 @@
 
 namespace bonefish {
 
-class session_transport
+class websocket_transport : public wamp_transport
 {
 public:
-    session_transport(const std::shared_ptr<wamp_serializer>& serializer,
+    websocket_transport(const std::shared_ptr<wamp_serializer>& serializer,
             const websocketpp::connection_hdl& handle,
             const std::shared_ptr<websocketpp::server<websocket_config>>& server);
-    ~session_transport();
-    bool send_message(const wamp_message* message);
+    virtual ~websocket_transport() override;
+    virtual bool send_message(const wamp_message* message) override;
 
 private:
     std::shared_ptr<wamp_serializer> m_serializer;
@@ -24,7 +24,7 @@ private:
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
 };
 
-inline session_transport::session_transport(const std::shared_ptr<wamp_serializer>& serializer,
+inline websocket_transport::websocket_transport(const std::shared_ptr<wamp_serializer>& serializer,
         const websocketpp::connection_hdl& handle,
         const std::shared_ptr<websocketpp::server<websocket_config>>& server)
     : m_serializer(serializer)
@@ -33,11 +33,11 @@ inline session_transport::session_transport(const std::shared_ptr<wamp_serialize
 {
 }
 
-inline session_transport::~session_transport()
+inline websocket_transport::~websocket_transport()
 {
 }
 
-inline bool session_transport::send_message(const wamp_message* message)
+inline bool websocket_transport::send_message(const wamp_message* message)
 {
     // TODO: Fix me to use a proper expandable buffer;
     char buffer[10*1024];
@@ -52,4 +52,4 @@ inline bool session_transport::send_message(const wamp_message* message)
 
 } // namespace bonefish
 
-#endif // BONEFISH_SESSION_TRANSPORT_HPP
+#endif // BONEFISH_WEBSOCKET_TRANSPORT_HPP

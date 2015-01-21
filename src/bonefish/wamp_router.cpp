@@ -1,5 +1,6 @@
 #include <bonefish/wamp_router.hpp>
 #include <bonefish/messages/hello_message.hpp>
+#include <bonefish/wamp_session.hpp>
 #include <iostream>
 #include <stdexcept>
 
@@ -25,11 +26,11 @@ bool wamp_router::has_session(const session_id& id)
     return m_sessions.find(id) != m_sessions.end();
 }
 
-bool wamp_router::attach_session(std::shared_ptr<session>&& s)
+bool wamp_router::attach_session(std::shared_ptr<wamp_session>&& session)
 {
-    std::cout << "attach session: " << s->get_session_id() << std::endl;
+    std::cout << "attach session: " << session->get_session_id() << std::endl;
     auto result = m_sessions.insert(
-            std::make_pair(s->get_session_id(), std::move(s)));
+            std::make_pair(session->get_session_id(), std::move(session)));
     return result.second;
 }
 

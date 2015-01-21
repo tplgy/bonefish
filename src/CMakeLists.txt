@@ -9,12 +9,12 @@ include_directories(
 set(SOURCES
     bonefish/messages/message_type.cpp
     bonefish/roles/role_type.cpp
-    bonefish/wamp_router.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
     bonefish/serialization/msgpack_welcome_message_serializer.cpp
-    bonefish/session.cpp
     bonefish/uri.cpp
+    bonefish/wamp_router.cpp
+    bonefish/wamp_session.cpp
     bonefish/websocket_protocol.cpp
     bonefish/websocket_server.cpp)
 
@@ -39,20 +39,21 @@ set(PUBLIC_HEADERS
     bonefish/roles/role.hpp
     bonefish/roles/role_features.hpp
     bonefish/roles/role_type.hpp
-    bonefish/wamp_router.hpp
     bonefish/serialization/msgpack_serializer.hpp
     bonefish/serialization/msgpack_hello_message_serializer.hpp
     bonefish/serialization/msgpack_welcome_message_serializer.hpp
     bonefish/serialization/serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
-    bonefish/session.hpp
-    bonefish/session_transport.hpp
     bonefish/uri.hpp
+    bonefish/wamp_router.hpp
     bonefish/wamp_routers.hpp
+    bonefish/wamp_session.hpp
+    bonefish/wamp_transport.hpp
     bonefish/websocket_config.hpp
     bonefish/websocket_data.hpp
     bonefish/websocket_protocol.hpp
-    bonefish/websocket_server.hpp)
+    bonefish/websocket_server.hpp
+    bonefish/websocket_transport.hpp)
 
 add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS})
 install(FILES ${PUBLIC_HEADERS} DESTINATION include/bonefish)

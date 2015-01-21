@@ -11,7 +11,7 @@ public:
     wamp_routers();
     ~wamp_routers();
 
-    void add_router(const std::shared_ptr<wamp_router>& router);
+    bool add_router(const std::shared_ptr<wamp_router>& router);
     std::shared_ptr<wamp_router> get_router(const std::string& realm);
     void remove_router(const std::string& realm);
 
@@ -28,10 +28,10 @@ inline wamp_routers::~wamp_routers()
 {
 }
 
-inline void wamp_routers::add_router(const std::shared_ptr<wamp_router>& router)
+inline bool wamp_routers::add_router(const std::shared_ptr<wamp_router>& router)
 {
     auto result = m_routers.insert(std::make_pair(router->get_realm(), router));
-    assert(result.second);
+    return result.second;
 }
 
 inline std::shared_ptr<wamp_router> wamp_routers::get_router(const std::string& realm)

@@ -8,8 +8,9 @@
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
-#include <bonefish/session.hpp>
-#include <bonefish/session_transport.hpp>
+#include <bonefish/wamp_session.hpp>
+#include <bonefish/wamp_transport.hpp>
+#include <bonefish/websocket_transport.hpp>
 #include <bonefish/websocket_protocol.hpp>
 #include <boost/asio/io_service.hpp>
 #include <msgpack.hpp>
@@ -186,9 +187,9 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                             connection->set_session_id(id);
                             connection->set_realm(hello->get_realm());
 
-                            std::unique_ptr<session_transport> transport(
-                                    new session_transport(serializer, handle, m_server));
-                            router->attach_session(std::make_shared<session>(id, std::move(transport)));
+                            std::unique_ptr<wamp_transport> transport(
+                                    new websocket_transport(serializer, handle, m_server));
+                            router->attach_session(std::make_shared<wamp_session>(id, std::move(transport)));
                             router->process_hello_message(id, hello);
                         }
                         break;
