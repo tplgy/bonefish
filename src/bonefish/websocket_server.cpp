@@ -139,7 +139,7 @@ bool websocket_server::on_validate(websocketpp::connection_hdl handle)
     const auto& subprotocols = connection->get_requested_subprotocols();
     for (const auto& subprotocol : subprotocols) {
         if (subprotocol == WAMPV2_MSGPACK_SUBPROTOCOL) {
-            if (m_serializers->has_serializer(serializer_type::MSGPACK)) {
+            if (m_serializers->has_serializer(wamp_serializer_type::MSGPACK)) {
                 std::cerr << "negotiated subprotocol " << subprotocol << std::endl;
                 connection->select_subprotocol(subprotocol);
                 return true;
@@ -162,7 +162,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
     if (connection->get_subprotocol() == WAMPV2_MSGPACK_SUBPROTOCOL) {
         try {
             std::shared_ptr<wamp_serializer> serializer =
-                    m_serializers->get_serializer(serializer_type::MSGPACK);
+                    m_serializers->get_serializer(wamp_serializer_type::MSGPACK);
             std::unique_ptr<wamp_message> message(
                     serializer->deserialize(buffer->get_payload().c_str(), buffer->get_payload().size()));
 

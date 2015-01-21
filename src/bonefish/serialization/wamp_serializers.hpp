@@ -1,8 +1,8 @@
 #ifndef BONEFISH_SERIALIZATION_WAMP_SERIALIZERS_HPP
 #define BONEFISH_SERIALIZATION_WAMP_SERIALIZERS_HPP
 
-#include <bonefish/serialization/serializer_type.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>
+#include <bonefish/serialization/wamp_serializer_type.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -15,12 +15,12 @@ public:
     ~wamp_serializers();
 
     bool add_serializer(const std::shared_ptr<wamp_serializer>& serializer);
-    std::shared_ptr<wamp_serializer> get_serializer(const serializer_type& type);
-    bool has_serializer(const serializer_type& type) const;
-    void remove_serializer(const serializer_type& type);
+    std::shared_ptr<wamp_serializer> get_serializer(const wamp_serializer_type& type);
+    bool has_serializer(const wamp_serializer_type& type) const;
+    void remove_serializer(const wamp_serializer_type& type);
 
 private:
-    std::unordered_map<serializer_type, std::shared_ptr<wamp_serializer>> m_serializers;
+    std::unordered_map<wamp_serializer_type, std::shared_ptr<wamp_serializer>> m_serializers;
 };
 
 inline wamp_serializers::wamp_serializers()
@@ -39,18 +39,18 @@ inline bool wamp_serializers::add_serializer(const std::shared_ptr<wamp_serializ
     return result.second;
 }
 
-inline std::shared_ptr<wamp_serializer> wamp_serializers::get_serializer(const serializer_type& type)
+inline std::shared_ptr<wamp_serializer> wamp_serializers::get_serializer(const wamp_serializer_type& type)
 {
     auto itr = m_serializers.find(type);
     return itr != m_serializers.end() ? itr->second : nullptr;
 }
 
-inline bool wamp_serializers::has_serializer(const serializer_type& type) const
+inline bool wamp_serializers::has_serializer(const wamp_serializer_type& type) const
 {
     return m_serializers.find(type) != m_serializers.end();
 }
 
-inline void wamp_serializers::remove_serializer(const serializer_type& type)
+inline void wamp_serializers::remove_serializer(const wamp_serializer_type& type)
 {
     m_serializers.erase(type);
 }
