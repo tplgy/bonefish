@@ -1,7 +1,7 @@
 #ifndef BONEFISH_ROLES_ROLE_TYPE_HPP
 #define BONEFISH_ROLES_ROLE_TYPE_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <string>
 #include <type_traits>
 

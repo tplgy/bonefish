@@ -2,24 +2,17 @@
 #include <bonefish/serialization/msgpack_hello_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_welcome_message_serializer.hpp>
 #include <bonefish/messages/message_type.hpp>
+#include <bonefish/messages/hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
+#include <bonefish/messages/welcome_message.hpp>
 #include <iostream>
-#include <memory>
 #include <msgpack.hpp>
 #include <sstream>
 #include <stdexcept>
 
 namespace bonefish {
 
-msgpack_serializer::msgpack_serializer()
-{
-}
-
-msgpack_serializer::~msgpack_serializer()
-{
-}
-
-std::unique_ptr<wamp_message> msgpack_serializer::deserialize(const char* buffer, size_t length)
+wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length) const
 {
     try {
         // TODO: The extra copy here is lame. Find a more efficient way to
@@ -40,13 +33,14 @@ std::unique_ptr<wamp_message> msgpack_serializer::deserialize(const char* buffer
             case message_type::Hello:
                 {
                     msgpack_hello_message_serializer message_serializer;
-                    return std::move(message_serializer.deserialize(fields));
+                    wamp_message* message = message_serializer.deserialize(fields);
+                    return message;
                 }
                 break;
             case message_type::Welcome:
                 {
                     msgpack_welcome_message_serializer message_serializer;
-                    return std::move(message_serializer.deserialize(fields));
+                    return message_serializer.deserialize(fields);
                 }
                 break;
             default:
@@ -67,20 +61,22 @@ std::unique_ptr<wamp_message> msgpack_serializer::deserialize(const char* buffer
     return nullptr;
 }
 
-size_t msgpack_serializer::serialize(const std::unique_ptr<wamp_message>& message, char* buffer, size_t length)
+size_t msgpack_serializer::serialize(const wamp_message* message, char* buffer, size_t length) const
 {
     switch (message->get_type())
     {
         case message_type::Hello:
             {
                 msgpack_hello_message_serializer message_serializer;
-                return message_serializer.serialize(message, buffer, length);
+                const hello_message* hello = static_cast<const hello_message*>(message);
+                return message_serializer.serialize(hello, buffer, length);
             }
             break;
         case message_type::Welcome:
             {
                 msgpack_welcome_message_serializer message_serializer;
-                return message_serializer.serialize(message, buffer, length);
+                const welcome_message* welcome = static_cast<const welcome_message*>(message);
+                return message_serializer.serialize(welcome, buffer, length);
             }
             break;
         default:

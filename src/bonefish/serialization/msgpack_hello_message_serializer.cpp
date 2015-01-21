@@ -1,16 +1,16 @@
 #include <bonefish/serialization/msgpack_hello_message_serializer.hpp>
 #include <bonefish/messages/message_type.hpp>
 #include <bonefish/messages/hello_message.hpp>
-#include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/roles/role.hpp>
 #include <bonefish/roles/role_type.hpp>
 #include <bonefish/uri.hpp>
+#include <memory>
 #include <stdexcept>
 #include <string>
 
 namespace bonefish {
 
-std::unique_ptr<wamp_message> msgpack_hello_message_serializer::deserialize(const std::vector<msgpack::object>& fields)
+hello_message* msgpack_hello_message_serializer::deserialize(const std::vector<msgpack::object>& fields)
 {
     if (fields.size() != 3) {
         throw(std::invalid_argument("hello message serializer - invalid number of fields"));
@@ -51,10 +51,10 @@ std::unique_ptr<wamp_message> msgpack_hello_message_serializer::deserialize(cons
         hello->add_role(role(role_type_from_string(role_itr.first)));
     }
 
-    return std::unique_ptr<wamp_message>(hello.release());
+    return hello.release();
 }
 
-size_t msgpack_hello_message_serializer::serialize(const std::unique_ptr<wamp_message>& message,
+size_t msgpack_hello_message_serializer::serialize(const hello_message* message,
         char* buffer, size_t length)
 {
     throw(std::logic_error("hello message serializer - serialize is not implemented"));

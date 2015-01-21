@@ -25,7 +25,6 @@ public:
 private:
     std::string m_realm;
     session_id m_session_id;
-
 };
 
 inline websocket_data::websocket_data()

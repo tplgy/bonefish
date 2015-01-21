@@ -15,13 +15,15 @@ class io_service;
 
 namespace bonefish {
 
-class realm_routers;
+class wamp_routers;
+class wamp_serializers;
 
 class websocket_server
 {
 public:
     websocket_server(boost::asio::io_service& io_service,
-            const std::shared_ptr<realm_routers>& routers);
+            const std::shared_ptr<wamp_routers>& routers,
+            const std::shared_ptr<wamp_serializers>& serializers);
     ~websocket_server();
 
     void start();
@@ -41,7 +43,8 @@ private:
 private:
     boost::asio::io_service& m_io_service;
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
-    std::shared_ptr<realm_routers> m_realm_routers;
+    std::shared_ptr<wamp_routers> m_routers;
+    std::shared_ptr<wamp_serializers> m_serializers;
     session_id_generator m_session_id_generator;
 };
 

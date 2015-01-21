@@ -1,21 +1,38 @@
 #ifndef BONEFISH_SERIALIZATION_MSGPACK_SERIALIZER_HPP
 #define BONEFISH_SERIALIZATION_MSGPACK_SERIALIZER_HPP
 
-#include <bonefish/serialization/serializer.hpp>
-#include <cstdint>
-#include <memory>
+#include <bonefish/serialization/serializer_type.hpp>
+#include <bonefish/serialization/wamp_serializer.hpp>
+#include <cstddef>
 
 namespace bonefish {
 
-class msgpack_serializer : public serializer
+class wamp_message;
+
+class msgpack_serializer : public wamp_serializer
 {
 public:
     msgpack_serializer();
-    virtual ~msgpack_serializer();
+    virtual ~msgpack_serializer() override;
 
-    virtual std::unique_ptr<wamp_message> deserialize(const char* buffer, size_t length);
-    virtual size_t serialize(const std::unique_ptr<wamp_message>& message, char* buffer, size_t length);
+    virtual serializer_type get_type() const override;
+    virtual wamp_message* deserialize(const char* buffer, size_t length) const override;
+    virtual size_t serialize(const wamp_message* message, char* buffer, size_t length) const override;
 };
+
+inline msgpack_serializer::msgpack_serializer()
+{
+}
+
+
+inline msgpack_serializer::~msgpack_serializer()
+{
+}
+
+inline serializer_type msgpack_serializer::get_type() const
+{
+    return serializer_type::MSGPACK;
+}
 
 } // namespace bonefish
 

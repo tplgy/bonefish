@@ -11,6 +11,7 @@
 namespace bonefish {
 
 class session_transport;
+class wamp_message;
 
 class session
 {
@@ -22,6 +23,7 @@ public:
     session(session const&) = delete;
     session& operator=(session const&) = delete;
     const session_id& get_session_id() const;
+    bool send_message(const wamp_message* message);
 
 private:
     session_id m_session_id;

@@ -2,7 +2,7 @@
 #define BONEFISH_SESSION_TRANSPORT_HPP
 
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/serialization/serializer.hpp>
+#include <bonefish/serialization/wamp_serializer.hpp>
 #include <memory>
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/server.hpp>
@@ -12,22 +12,22 @@ namespace bonefish {
 class session_transport
 {
 public:
-    session_transport(std::unique_ptr<serializer> s,
+    session_transport(const std::shared_ptr<wamp_serializer>& serializer,
             const websocketpp::connection_hdl& handle,
             const std::shared_ptr<websocketpp::server<websocket_config>>& server);
     ~session_transport();
-    bool send_message(const std::unique_ptr<wamp_message>& message);
+    bool send_message(const wamp_message* message);
 
 private:
-    std::unique_ptr<serializer> m_serializer;
+    std::shared_ptr<wamp_serializer> m_serializer;
     websocketpp::connection_hdl m_handle;
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
 };
 
-inline session_transport::session_transport(std::unique_ptr<serializer> s,
+inline session_transport::session_transport(const std::shared_ptr<wamp_serializer>& serializer,
         const websocketpp::connection_hdl& handle,
         const std::shared_ptr<websocketpp::server<websocket_config>>& server)
-    : m_serializer(std::move(s))
+    : m_serializer(serializer)
     , m_handle(handle)
     , m_server(server)
 {
@@ -37,7 +37,7 @@ inline session_transport::~session_transport()
 {
 }
 
-inline bool session_transport::send_message(const std::unique_ptr<wamp_message>& message)
+inline bool session_transport::send_message(const wamp_message* message)
 {
     // TODO: Fix me to use a proper expandable buffer;
     char buffer[10*1024];
