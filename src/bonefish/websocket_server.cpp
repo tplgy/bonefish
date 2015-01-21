@@ -1,8 +1,8 @@
 #include <bonefish/websocket_server.hpp>
 #include <bonefish/identifier/session_id.hpp>
-#include <bonefish/messages/hello_message.hpp>
+#include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/welcome_message.hpp>
+#include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/wamp_router.hpp>
 #include <bonefish/wamp_routers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
@@ -167,17 +167,17 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     serializer->deserialize(buffer->get_payload().c_str(), buffer->get_payload().size()));
 
             if (message) {
-                std::cerr << "received message: " << to_string(message->get_type()) << std::endl;
+                std::cerr << "received message: " << message_type_to_string(message->get_type()) << std::endl;
                 switch (message->get_type())
                 {
-                    case message_type::Hello:
+                    case wamp_message_type::HELLO:
                         {
-                            hello_message* hello = static_cast<hello_message*>(message.get());
+                            wamp_hello_message* hello_message = static_cast<wamp_hello_message*>(message.get());
                             std::shared_ptr<wamp_router> router =
-                                    m_routers->get_router(hello->get_realm());
+                                    m_routers->get_router(hello_message->get_realm());
                             if (!router) {
                                 std::cerr << "error: ignoring hello, no router found in realm "
-                                        << hello->get_realm() << std::endl;
+                                        << hello_message->get_realm() << std::endl;
                                 break;
                             }
 
@@ -187,35 +187,35 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                             } while(router->has_session(id));
 
                             connection->set_session_id(id);
-                            connection->set_realm(hello->get_realm());
+                            connection->set_realm(hello_message->get_realm());
 
                             std::unique_ptr<wamp_transport> transport(
                                     new websocket_transport(serializer, handle, m_server));
                             router->attach_session(std::make_shared<wamp_session>(id, std::move(transport)));
-                            router->process_hello_message(id, hello);
+                            router->process_hello_message(id, hello_message);
                         }
                         break;
-                    case message_type::Authenticate:
+                    case wamp_message_type::AUTHENTICATE:
                         break;
-                    case message_type::Goodbye:
+                    case wamp_message_type::GOODBYE:
                         break;
-                    case message_type::Error:
+                    case wamp_message_type::ERROR:
                         break;
-                    case message_type::Publish:
+                    case wamp_message_type::PUBLISH:
                         break;
-                    case message_type::Subscribe:
+                    case wamp_message_type::SUBSCRIBE:
                         break;
-                    case message_type::Unsubscribe:
+                    case wamp_message_type::UNSUBSCRIBE:
                         break;
-                    case message_type::Call:
+                    case wamp_message_type::CALL:
                         break;
-                    case message_type::Cancel:
+                    case wamp_message_type::CANCEL:
                         break;
-                    case message_type::Register:
+                    case wamp_message_type::REGISTER:
                         break;
-                    case message_type::Unregister:
+                    case wamp_message_type::UNREGISTER:
                         break;
-                    case message_type::Yield:
+                    case wamp_message_type::YIELD:
                         break;
                     default:
                         break;

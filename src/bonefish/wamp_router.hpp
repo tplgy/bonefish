@@ -7,7 +7,7 @@
 
 namespace bonefish {
 
-class hello_message;
+class wamp_hello_message;
 class wamp_session;
 
 class wamp_router
@@ -21,7 +21,8 @@ public:
     bool attach_session(std::shared_ptr<wamp_session>&& session);
     bool detach_session(const session_id& id);
 
-    void process_hello_message(const session_id& id, const hello_message* message);
+    void process_hello_message(const session_id& id,
+            const wamp_hello_message* hello_message);
 
 private:
     const std::string m_realm;

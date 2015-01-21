@@ -7,7 +7,7 @@ include_directories(
     ${Boost_INCLUDE_DIRS})
 
 set(SOURCES
-    bonefish/messages/message_type.cpp
+    bonefish/messages/wamp_message_type.cpp
     bonefish/roles/wamp_role_type.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
@@ -33,16 +33,16 @@ set(PUBLIC_HEADERS
     bonefish/identifier/session_id_generator.hpp
     bonefish/identifier/subscription_id.hpp
     bonefish/identifier/subscription_id_generator.hpp
-    bonefish/messages/hello_message.hpp
-    bonefish/messages/message_type.hpp
-    bonefish/messages/welcome_message.hpp
+    bonefish/messages/wamp_hello_message.hpp
+    bonefish/messages/wamp_message_type.hpp
+    bonefish/messages/wamp_welcome_message.hpp
     bonefish/roles/wamp_role.hpp
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
     bonefish/serialization/msgpack_serializer.hpp
     bonefish/serialization/msgpack_hello_message_serializer.hpp
     bonefish/serialization/msgpack_welcome_message_serializer.hpp
-    bonefish/serialization/serializer_type.hpp
+    bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
     bonefish/uri.hpp
     bonefish/wamp_router.hpp

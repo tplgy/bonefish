@@ -1,87 +1,87 @@
-#include <bonefish/messages/message_type.hpp>
+#include <bonefish/messages/wamp_message_type.hpp>
 #include <cassert>
 
 namespace bonefish {
 
-const char* to_string(const message_type& type)
+const char* message_type_to_string(const wamp_message_type& type)
 {
     const char* str = nullptr;
 
     switch(type)
     {
-        case message_type::Hello:
+        case wamp_message_type::HELLO:
             str = "hello";
             break;
-        case message_type::Welcome:
+        case wamp_message_type::WELCOME:
             str = "welcome";
             break;
-        case message_type::Abort:
+        case wamp_message_type::ABORT:
             str = "abort";
             break;
-        case message_type::Challenge:
+        case wamp_message_type::CHALLENGE:
             str = "challenge";
             break;
-        case message_type::Authenticate:
+        case wamp_message_type::AUTHENTICATE:
             str = "authenticate";
             break;
-        case message_type::Goodbye:
+        case wamp_message_type::GOODBYE:
             str = "goodbye";
             break;
-        case message_type::Heartbeat:
+        case wamp_message_type::HEARTBEAT:
             str = "heartbeat";
             break;
-        case message_type::Error:
+        case wamp_message_type::ERROR:
             str = "error";
             break;
-        case message_type::Publish:
+        case wamp_message_type::PUBLISH:
             str = "publish";
             break;
-        case message_type::Published:
+        case wamp_message_type::PUBLISHED:
             str = "published";
             break;
-        case message_type::Subscribe:
+        case wamp_message_type::SUBSCRIBE:
             str = "subscribe";
             break;
-        case message_type::Subscribed:
+        case wamp_message_type::SUBSCRIBED:
             str = "subscribed";
             break;
-        case message_type::Unsubscribe:
+        case wamp_message_type::UNSUBSCRIBE:
             str = "unsubscribe";
             break;
-        case message_type::Unsubscribed:
+        case wamp_message_type::UNSUBSCRIBED:
             str = "unsubscribed";
             break;
-        case message_type::Event:
+        case wamp_message_type::EVENT:
             str = "event";
             break;
-        case message_type::Call:
+        case wamp_message_type::CALL:
             str = "call";
             break;
-        case message_type::Cancel:
+        case wamp_message_type::CANCEL:
             str = "cancel";
             break;
-        case message_type::Result:
+        case wamp_message_type::RESULT:
             str = "result";
             break;
-        case message_type::Register:
+        case wamp_message_type::REGISTER:
             str = "register";
             break;
-        case message_type::Registered:
+        case wamp_message_type::REGISTERED:
             str = "registered";
             break;
-        case message_type::Unregister:
+        case wamp_message_type::UNREGISTER:
             str = "unregister";
             break;
-        case message_type::Unregistered:
+        case wamp_message_type::UNREGISTERED:
             str = "unregistered";
             break;
-        case message_type::Invocation:
+        case wamp_message_type::INVOCATION:
             str = "invocation";
             break;
-        case message_type::Interrupt:
+        case wamp_message_type::INTERRUPT:
             str = "interrupt";
             break;
-        case message_type::Yield:
+        case wamp_message_type::YIELD:
             str = "yield";
             break;
         default:

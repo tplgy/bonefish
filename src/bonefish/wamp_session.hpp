@@ -12,7 +12,7 @@
 
 namespace bonefish {
 
-class hello_message;
+class wamp_hello_message;
 class wamp_message;
 class wamp_transport;
 
@@ -28,7 +28,7 @@ public:
     const session_id& get_session_id() const;
     bool send_message(const wamp_message* message);
 
-    void process_hello_message(const hello_message* message);
+    void process_hello_message(const wamp_hello_message* hello_message);
 
 private:
     session_id m_session_id;

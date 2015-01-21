@@ -1,7 +1,7 @@
 #include <bonefish/wamp_session.hpp>
-#include <bonefish/messages/hello_message.hpp>
+#include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/welcome_message.hpp>
+#include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/wamp_transport.hpp>
 
 namespace bonefish {
@@ -34,15 +34,15 @@ bool wamp_session::send_message(const wamp_message* message)
     return m_transport->send_message(message);
 }
 
-void wamp_session::process_hello_message(const hello_message* message)
+void wamp_session::process_hello_message(const wamp_hello_message* hello_message)
 {
-    m_roles = message->get_roles();
+    m_roles = hello_message->get_roles();
 
-    std::unique_ptr<welcome_message> response(new welcome_message);
-    response->set_session_id(get_session_id());
-    response->add_role(wamp_role(wamp_role_type::BROKER));
-    response->add_role(wamp_role(wamp_role_type::DEALER));
-    send_message(response.get());
+    std::unique_ptr<wamp_welcome_message> welcome_message(new wamp_welcome_message);
+    welcome_message->set_session_id(get_session_id());
+    welcome_message->add_role(wamp_role(wamp_role_type::BROKER));
+    welcome_message->add_role(wamp_role(wamp_role_type::DEALER));
+    send_message(welcome_message.get());
 }
 
 } // namespace bonefish

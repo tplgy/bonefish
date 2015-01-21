@@ -1,5 +1,5 @@
 #include <bonefish/wamp_router.hpp>
-#include <bonefish/messages/hello_message.hpp>
+#include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/wamp_session.hpp>
 #include <iostream>
 #include <stdexcept>
@@ -40,14 +40,15 @@ bool wamp_router::detach_session(const session_id& id)
     return m_sessions.erase(id) == 1;
 }
 
-void wamp_router::process_hello_message(const session_id& id, const hello_message* message)
+void wamp_router::process_hello_message(const session_id& id,
+        const wamp_hello_message* hello_message)
 {
     auto session_itr = m_sessions.find(id);
     if (session_itr == m_sessions.end()) {
         throw(std::logic_error("session does not exist"));
     }
 
-    session_itr->second->process_hello_message(message);
+    session_itr->second->process_hello_message(hello_message);
 }
 
 } // namespace bonefish

@@ -1,10 +1,10 @@
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/serialization/msgpack_hello_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_welcome_message_serializer.hpp>
-#include <bonefish/messages/message_type.hpp>
-#include <bonefish/messages/hello_message.hpp>
+#include <bonefish/messages/wamp_message_type.hpp>
+#include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/welcome_message.hpp>
+#include <bonefish/messages/wamp_welcome_message.hpp>
 #include <iostream>
 #include <msgpack.hpp>
 #include <sstream>
@@ -27,17 +27,17 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
         unpacker.next(&item);
         item.get().convert(&fields);
 
-        message_type type = static_cast<message_type>(fields[0].as<unsigned>());
+        wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
         switch (type)
         {
-            case message_type::Hello:
+            case wamp_message_type::HELLO:
                 {
                     msgpack_hello_message_serializer message_serializer;
                     wamp_message* message = message_serializer.deserialize(fields);
                     return message;
                 }
                 break;
-            case message_type::Welcome:
+            case wamp_message_type::WELCOME:
                 {
                     msgpack_welcome_message_serializer message_serializer;
                     return message_serializer.deserialize(fields);
@@ -48,7 +48,7 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
         }
 
         std::stringstream sstr;
-        sstr << "no serializer defined for message " << to_string(type);
+        sstr << "no serializer defined for message " << message_type_to_string(type);
         throw(std::logic_error(sstr.str()));
     } catch (const msgpack::unpack_error& e) {
         std::cerr << "failed to unpack message: " << e.what();
@@ -65,17 +65,17 @@ size_t msgpack_serializer::serialize(const wamp_message* message, char* buffer, 
 {
     switch (message->get_type())
     {
-        case message_type::Hello:
+        case wamp_message_type::HELLO:
             {
                 msgpack_hello_message_serializer message_serializer;
-                const hello_message* hello = static_cast<const hello_message*>(message);
+                const wamp_hello_message* hello = static_cast<const wamp_hello_message*>(message);
                 return message_serializer.serialize(hello, buffer, length);
             }
             break;
-        case message_type::Welcome:
+        case wamp_message_type::WELCOME:
             {
                 msgpack_welcome_message_serializer message_serializer;
-                const welcome_message* welcome = static_cast<const welcome_message*>(message);
+                const wamp_welcome_message* welcome = static_cast<const wamp_welcome_message*>(message);
                 return message_serializer.serialize(welcome, buffer, length);
             }
             break;
@@ -84,7 +84,7 @@ size_t msgpack_serializer::serialize(const wamp_message* message, char* buffer, 
     }
 
     std::stringstream sstr;
-    sstr << "no serializer defined for message " << to_string(message->get_type());
+    sstr << "no serializer defined for message " << message_type_to_string(message->get_type());
     throw(std::logic_error(sstr.str()));
 }
 

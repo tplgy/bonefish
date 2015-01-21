@@ -1,6 +1,6 @@
 #include <bonefish/serialization/msgpack_welcome_message_serializer.hpp>
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/welcome_message.hpp>
+#include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/roles/wamp_role_features.hpp>
 #include <bonefish/roles/wamp_role_type.hpp>
@@ -10,15 +10,16 @@
 
 namespace bonefish {
 
-welcome_message* msgpack_welcome_message_serializer::deserialize(const std::vector<msgpack::object>&)
+wamp_welcome_message* msgpack_welcome_message_serializer::deserialize(
+        const std::vector<msgpack::object>&)
 {
     throw(std::logic_error("welcome message serializer - deserialize is not implemented"));
 }
 
-size_t msgpack_welcome_message_serializer::serialize(const welcome_message* message,
+size_t msgpack_welcome_message_serializer::serialize(const wamp_welcome_message* welcome_message,
         char* buffer, size_t length)
 {
-    if (message == nullptr) {
+    if (welcome_message == nullptr) {
         throw(std::invalid_argument("welcome message serializer - null welcome message"));
     }
 
@@ -27,8 +28,8 @@ size_t msgpack_welcome_message_serializer::serialize(const welcome_message* mess
 
     packer.pack_array(3);
 
-    packer.pack(static_cast<unsigned>(message->get_type()));
-    packer.pack(message->get_session_id().id());
+    packer.pack(static_cast<unsigned>(welcome_message->get_type()));
+    packer.pack(welcome_message->get_session_id().id());
 
     //
     // Roles
@@ -38,7 +39,7 @@ size_t msgpack_welcome_message_serializer::serialize(const welcome_message* mess
     packer.pack_map(1);
     packer.pack(std::string("roles"));
 
-    const std::vector<wamp_role>& roles = message->get_roles();
+    const std::vector<wamp_role>& roles = welcome_message->get_roles();
     packer.pack_map(roles.size());
     for (const auto& role : roles) {
         packer.pack(role_type_to_string(role.get_type()));
