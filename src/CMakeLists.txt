@@ -12,9 +12,10 @@ set(SOURCES
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
     bonefish/serialization/msgpack_welcome_message_serializer.cpp
-    bonefish/wamp_uri.cpp
+    bonefish/wamp_broker.cpp
+    bonefish/wamp_dealer.cpp
     bonefish/wamp_router.cpp
-    bonefish/wamp_session.cpp
+    bonefish/wamp_uri.cpp
     bonefish/websocket_protocol.cpp
     bonefish/websocket_server.cpp)
 
@@ -58,11 +59,13 @@ set(PUBLIC_HEADERS
     bonefish/serialization/msgpack_welcome_message_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
-    bonefish/wamp_uri.hpp
+    bonefish/wamp_broker.hpp
+    bonefish/wamp_dealer.hpp
     bonefish/wamp_router.hpp
     bonefish/wamp_routers.hpp
     bonefish/wamp_session.hpp
     bonefish/wamp_transport.hpp
+    bonefish/wamp_uri.hpp
     bonefish/websocket_config.hpp
     bonefish/websocket_data.hpp
     bonefish/websocket_protocol.hpp

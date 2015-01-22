@@ -5,7 +5,7 @@
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
-#include <vector>
+#include <unordered_set>
 
 namespace bonefish {
 
@@ -21,14 +21,15 @@ public:
     virtual wamp_message_type get_type() const override;
 
     const wamp_session_id& get_session_id() const;
-    const std::vector<wamp_role>& get_roles() const;
+    const std::unordered_set<wamp_role>& get_roles() const;
 
-    void set_session_id(const wamp_session_id& id);
-    void add_role(const wamp_role& r);
+    void set_session_id(const wamp_session_id& session_id);
+    void set_roles(const std::unordered_set<wamp_role>& roles);
+    bool add_role(const wamp_role& role);
 
 private:
     wamp_session_id m_session_id;
-    std::vector<wamp_role> m_roles;
+    std::unordered_set<wamp_role> m_roles;
 };
 
 inline wamp_welcome_message::wamp_welcome_message()
@@ -51,7 +52,7 @@ inline const wamp_session_id& wamp_welcome_message::get_session_id() const
     return m_session_id;
 }
 
-inline const std::vector<wamp_role>& wamp_welcome_message::get_roles() const
+inline const std::unordered_set<wamp_role>& wamp_welcome_message::get_roles() const
 {
     return m_roles;
 }
@@ -61,9 +62,15 @@ inline void wamp_welcome_message::set_session_id(const wamp_session_id& id)
     m_session_id = id;
 }
 
-inline void wamp_welcome_message::add_role(const wamp_role& role)
+inline void wamp_welcome_message::set_roles(const std::unordered_set<wamp_role>& roles)
 {
-    m_roles.push_back(role);
+    m_roles = roles;
+}
+
+inline bool wamp_welcome_message::add_role(const wamp_role& role)
+{
+    auto result = m_roles.insert(role);
+    return result.second;
 }
 
 } // namespace bonefish

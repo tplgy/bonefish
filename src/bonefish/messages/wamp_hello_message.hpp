@@ -5,7 +5,7 @@
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/wamp_uri.hpp>
-#include <vector>
+#include <unordered_set>
 
 namespace bonefish {
 
@@ -21,14 +21,14 @@ public:
     virtual wamp_message_type get_type() const override;
 
     const wamp_uri& get_realm() const;
-    const std::vector<wamp_role>& get_roles() const;
+    const std::unordered_set<wamp_role>& get_roles() const;
 
     void set_realm(const wamp_uri& realm);
-    void add_role(const wamp_role& role);
+    bool add_role(const wamp_role& role);
 
 private:
     wamp_uri m_realm;
-    std::vector<wamp_role> m_roles;
+    std::unordered_set<wamp_role> m_roles;
 };
 
 inline wamp_hello_message::wamp_hello_message()
@@ -51,7 +51,7 @@ inline const wamp_uri& wamp_hello_message::get_realm() const
     return m_realm;
 }
 
-inline const std::vector<wamp_role>& wamp_hello_message::get_roles() const
+inline const std::unordered_set<wamp_role>& wamp_hello_message::get_roles() const
 {
     return m_roles;
 }
@@ -61,9 +61,10 @@ inline void wamp_hello_message::set_realm(const wamp_uri& realm)
     m_realm = realm;
 }
 
-inline void wamp_hello_message::add_role(const wamp_role& role)
+inline bool wamp_hello_message::add_role(const wamp_role& role)
 {
-    m_roles.push_back(role);
+    auto result = m_roles.insert(role);
+    return result.second;
 }
 
 } // namespace bonefish

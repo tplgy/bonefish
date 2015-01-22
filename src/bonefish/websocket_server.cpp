@@ -1,8 +1,8 @@
 #include <bonefish/websocket_server.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
+#include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/wamp_router.hpp>
 #include <bonefish/wamp_routers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
@@ -172,12 +172,14 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                 {
                     case wamp_message_type::HELLO:
                         {
+                            std::unique_ptr<wamp_transport> transport(
+                                    new websocket_transport(serializer, handle, m_server));
                             wamp_hello_message* hello_message = static_cast<wamp_hello_message*>(message.get());
-                            std::shared_ptr<wamp_router> router =
-                                    m_routers->get_router(hello_message->get_realm());
+                            std::shared_ptr<wamp_router> router = m_routers->get_router(hello_message->get_realm());
                             if (!router) {
-                                std::cerr << "error: ignoring hello, no router found in realm "
-                                        << hello_message->get_realm() << std::endl;
+                                std::unique_ptr<wamp_abort_message> abort_message(new wamp_abort_message);
+                                abort_message->set_reason("wamp.error.no_such_realm");
+                                transport->send_message(abort_message.get());
                                 break;
                             }
 
@@ -189,8 +191,6 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                             connection->set_session_id(id);
                             connection->set_realm(hello_message->get_realm());
 
-                            std::unique_ptr<wamp_transport> transport(
-                                    new websocket_transport(serializer, handle, m_server));
                             router->attach_session(std::make_shared<wamp_session>(id, std::move(transport)));
                             router->process_hello_message(id, hello_message);
                         }

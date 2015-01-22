@@ -7,6 +7,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 
 namespace bonefish {
 
@@ -39,7 +40,7 @@ size_t msgpack_welcome_message_serializer::serialize(const wamp_welcome_message*
     packer.pack_map(1);
     packer.pack(std::string("roles"));
 
-    const std::vector<wamp_role>& roles = welcome_message->get_roles();
+    const std::unordered_set<wamp_role>& roles = welcome_message->get_roles();
     packer.pack_map(roles.size());
     for (const auto& role : roles) {
         packer.pack(role_type_to_string(role.get_type()));
