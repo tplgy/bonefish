@@ -1,5 +1,5 @@
-#ifndef BONEFISH_WAMP_HELLO_MESSAGE_HPP
-#define BONEFISH_WAMP_HELLO_MESSAGE_HPP
+#ifndef BONEFISH_MESSAGES_WAMP_HELLO_MESSAGE_HPP
+#define BONEFISH_MESSAGES_WAMP_HELLO_MESSAGE_HPP
 
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
@@ -69,4 +69,4 @@ inline void wamp_hello_message::add_role(const wamp_role& role)
 
 } // namespace bonefish
 
-#endif // BONEFISH_WAMP_HELLO_MESSAGE_HPP
+#endif // BONEFISH_MESSAGES_WAMP_HELLO_MESSAGE_HPP

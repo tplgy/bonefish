@@ -1,5 +1,5 @@
-#ifndef BONEFISH_WAMP_MESSAGE_TYPE_HPP
-#define BONEFISH_WAMP_MESSAGE_TYPE_HPP
+#ifndef BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP
+#define BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP
 
 #include <cstdint>
 
@@ -38,4 +38,4 @@ const char* message_type_to_string(const wamp_message_type& type);
 
 } // namespace bonefish
 
-#endif // BONEFISH_WAMP_MESSAGE_TYPE_HPP
+#endif // BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP
