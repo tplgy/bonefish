@@ -12,27 +12,27 @@ set(SOURCES
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
     bonefish/serialization/msgpack_welcome_message_serializer.cpp
-    bonefish/uri.cpp
+    bonefish/wamp_uri.cpp
     bonefish/wamp_router.cpp
     bonefish/wamp_session.cpp
     bonefish/websocket_protocol.cpp
     bonefish/websocket_server.cpp)
 
 set(PUBLIC_HEADERS
-    bonefish/identifier/publication_id.hpp
-    bonefish/identifier/publication_id_generator.hpp
-    bonefish/identifier/random_id.hpp
-    bonefish/identifier/random_id_generator.hpp
-    bonefish/identifier/registration_id.hpp
-    bonefish/identifier/registration_id_generator.hpp
-    bonefish/identifier/request_id.hpp
-    bonefish/identifier/request_id_generator.hpp
-    bonefish/identifier/sequential_id.hpp
-    bonefish/identifier/sequential_id_generator.hpp
-    bonefish/identifier/session_id.hpp
-    bonefish/identifier/session_id_generator.hpp
-    bonefish/identifier/subscription_id.hpp
-    bonefish/identifier/subscription_id_generator.hpp
+    bonefish/identifiers/wamp_publication_id.hpp
+    bonefish/identifiers/wamp_publication_id_generator.hpp
+    bonefish/identifiers/wamp_random_id.hpp
+    bonefish/identifiers/wamp_random_id_generator.hpp
+    bonefish/identifiers/wamp_registration_id.hpp
+    bonefish/identifiers/wamp_registration_id_generator.hpp
+    bonefish/identifiers/wamp_request_id.hpp
+    bonefish/identifiers/wamp_request_id_generator.hpp
+    bonefish/identifiers/wamp_sequential_id.hpp
+    bonefish/identifiers/wamp_sequential_id_generator.hpp
+    bonefish/identifiers/wamp_session_id.hpp
+    bonefish/identifiers/wamp_session_id_generator.hpp
+    bonefish/identifiers/wamp_subscription_id.hpp
+    bonefish/identifiers/wamp_subscription_id_generator.hpp
     bonefish/messages/wamp_hello_message.hpp
     bonefish/messages/wamp_message_type.hpp
     bonefish/messages/wamp_welcome_message.hpp
@@ -44,7 +44,7 @@ set(PUBLIC_HEADERS
     bonefish/serialization/msgpack_welcome_message_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
-    bonefish/uri.hpp
+    bonefish/wamp_uri.hpp
     bonefish/wamp_router.hpp
     bonefish/wamp_routers.hpp
     bonefish/wamp_session.hpp

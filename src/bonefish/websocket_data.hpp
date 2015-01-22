@@ -1,7 +1,7 @@
 #ifndef BONEFISH_WEBSOCKET_DATA_HPP
 #define BONEFISH_WEBSOCKET_DATA_HPP
 
-#include <bonefish/identifier/session_id.hpp>
+#include <bonefish/identifiers/wamp_session_id.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
 
 namespace bonefish {
@@ -17,14 +17,14 @@ public:
     const std::string& get_realm() const;
 
     bool has_session_id() const;
-    void set_session_id(const session_id& id);
-    const session_id& get_session_id() const;
+    void set_session_id(const wamp_session_id& id);
+    const wamp_session_id& get_session_id() const;
 
     void clear_data();
 
 private:
     std::string m_realm;
-    session_id m_session_id;
+    wamp_session_id m_session_id;
 };
 
 inline websocket_data::websocket_data()
@@ -57,19 +57,19 @@ inline bool websocket_data::has_session_id() const
     return m_session_id.is_valid();
 }
 
-inline void websocket_data::set_session_id(const session_id& id)
+inline void websocket_data::set_session_id(const wamp_session_id& id)
 {
     m_session_id = id;
 }
 
-inline const session_id& websocket_data::get_session_id() const
+inline const wamp_session_id& websocket_data::get_session_id() const
 {
     return m_session_id;
 }
 
 inline void websocket_data::clear_data()
 {
-    m_session_id = session_id();
+    m_session_id = wamp_session_id();
     m_realm = std::string();
 }
 

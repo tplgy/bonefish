@@ -3,7 +3,7 @@
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/roles/wamp_role_type.hpp>
-#include <bonefish/uri.hpp>
+#include <bonefish/wamp_uri.hpp>
 #include <memory>
 #include <stdexcept>
 #include <string>

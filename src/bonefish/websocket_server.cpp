@@ -1,5 +1,5 @@
 #include <bonefish/websocket_server.hpp>
-#include <bonefish/identifier/session_id.hpp>
+#include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
@@ -181,7 +181,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                                 break;
                             }
 
-                            session_id id;
+                            wamp_session_id id;
                             do {
                                 id = m_session_id_generator.generate();
                             } while(router->has_session(id));

@@ -1,7 +1,7 @@
 #ifndef BONEFISH_WEBSOCKET_SERVER_HPP
 #define BONEFISH_WEBSOCKET_SERVER_HPP
 
-#include <bonefish/identifier/session_id_generator.hpp>
+#include <bonefish/identifiers/wamp_session_id_generator.hpp>
 #include <bonefish/websocket_config.hpp>
 #include <memory>
 #include <unordered_map>
@@ -45,7 +45,7 @@ private:
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
     std::shared_ptr<wamp_routers> m_routers;
     std::shared_ptr<wamp_serializers> m_serializers;
-    session_id_generator m_session_id_generator;
+    wamp_session_id_generator m_session_id_generator;
 };
 
 } // namespace bonefish

@@ -1,5 +1,5 @@
-#ifndef BONEFISH_IDENTIFIER_SEQUENTIAL_ID_HPP
-#define BONEFISH_IDENTIFIER_SEQUENTIAL_ID_HPP
+#ifndef BONEFISH_IDENTIFIERS_WAMP_SEQUENTIAL_ID_HPP
+#define BONEFISH_IDENTIFIERS_WAMP_SEQUENTIAL_ID_HPP
 
 #include <cstdint>
 #include <limits>
@@ -8,7 +8,7 @@
 
 namespace bonefish {
 
-class sequential_id
+class wamp_sequential_id
 {
 public:
     static const uint64_t MIN = 1;
@@ -16,8 +16,8 @@ public:
     static const uint64_t INVALID = std::numeric_limits<uint64_t>::max();
 
 public:
-    sequential_id();
-    explicit sequential_id(uint64_t id) throw(std::invalid_argument);
+    wamp_sequential_id();
+    explicit wamp_sequential_id(uint64_t id);
     bool is_valid() const;
     uint64_t id() const;
 
@@ -25,12 +25,12 @@ private:
     uint64_t m_id;
 };
 
-inline sequential_id::sequential_id()
+inline wamp_sequential_id::wamp_sequential_id()
     : m_id(INVALID)
 {
 }
 
-inline sequential_id::sequential_id(uint64_t id) throw(std::invalid_argument)
+inline wamp_sequential_id::wamp_sequential_id(uint64_t id)
     : m_id(id)
 {
     if (m_id < MIN || m_id > MAX) {
@@ -40,16 +40,16 @@ inline sequential_id::sequential_id(uint64_t id) throw(std::invalid_argument)
     }
 }
 
-inline bool sequential_id::is_valid() const
+inline bool wamp_sequential_id::is_valid() const
 {
     return m_id != INVALID;
 }
 
-inline uint64_t sequential_id::id() const
+inline uint64_t wamp_sequential_id::id() const
 {
     return m_id;
 }
 
 } // namespace bonefish
 
-#endif // BONEFISH_IDENTIFIER_SEQUENTIAL_ID_HPP
+#endif // BONEFISH_IDENTIFIERS_WAMP_SEQUENTIAL_ID_HPP

@@ -21,7 +21,7 @@ const std::string& wamp_router::get_realm() const
     return m_realm;
 }
 
-bool wamp_router::has_session(const session_id& id)
+bool wamp_router::has_session(const wamp_session_id& id)
 {
     return m_sessions.find(id) != m_sessions.end();
 }
@@ -34,13 +34,13 @@ bool wamp_router::attach_session(std::shared_ptr<wamp_session>&& session)
     return result.second;
 }
 
-bool wamp_router::detach_session(const session_id& id)
+bool wamp_router::detach_session(const wamp_session_id& id)
 {
     std::cout << "detach session:" << id << std::endl;
     return m_sessions.erase(id) == 1;
 }
 
-void wamp_router::process_hello_message(const session_id& id,
+void wamp_router::process_hello_message(const wamp_session_id& id,
         const wamp_hello_message* hello_message)
 {
     auto session_itr = m_sessions.find(id);

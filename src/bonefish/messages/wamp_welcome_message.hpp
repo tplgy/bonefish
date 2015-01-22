@@ -1,7 +1,7 @@
 #ifndef BONEFISH_WAMP_WELCOME_MESSAGE_HPP
 #define BONEFISH_WAMP_WELCOME_MESSAGE_HPP
 
-#include <bonefish/identifier/session_id.hpp>
+#include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
@@ -21,14 +21,14 @@ public:
 
     virtual wamp_message_type get_type() const override;
 
-    const session_id& get_session_id() const;
+    const wamp_session_id& get_session_id() const;
     const std::vector<wamp_role>& get_roles() const;
 
-    void set_session_id(const session_id& id);
+    void set_session_id(const wamp_session_id& id);
     void add_role(const wamp_role& r);
 
 private:
-    session_id m_session_id;
+    wamp_session_id m_session_id;
     std::vector<wamp_role> m_roles;
 };
 
@@ -47,7 +47,7 @@ inline wamp_message_type wamp_welcome_message::get_type() const
     return wamp_message_type::WELCOME;
 }
 
-inline const session_id& wamp_welcome_message::get_session_id() const
+inline const wamp_session_id& wamp_welcome_message::get_session_id() const
 {
     return m_session_id;
 }
@@ -57,7 +57,7 @@ inline const std::vector<wamp_role>& wamp_welcome_message::get_roles() const
     return m_roles;
 }
 
-inline void wamp_welcome_message::set_session_id(const session_id& id)
+inline void wamp_welcome_message::set_session_id(const wamp_session_id& id)
 {
     m_session_id = id;
 }

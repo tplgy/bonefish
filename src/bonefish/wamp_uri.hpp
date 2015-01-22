@@ -1,5 +1,5 @@
-#ifndef BONEFISH_URI_HPP
-#define BONEFISH_URI_HPP
+#ifndef BONEFISH_WAMP_URI_HPP
+#define BONEFISH_WAMP_URI_HPP
 
 #include <string>
 
@@ -37,4 +37,4 @@ bool is_valid_uri(const std::string& uri);
 
 } // namespace bonefish
 
-#endif // BONEFISH_URI_HPP
+#endif // BONEFISH_WAMP_URI_HPP
