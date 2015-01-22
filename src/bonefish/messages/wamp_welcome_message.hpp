@@ -5,7 +5,6 @@
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
-#include <string>
 #include <vector>
 
 namespace bonefish {

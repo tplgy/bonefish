@@ -33,9 +33,23 @@ set(PUBLIC_HEADERS
     bonefish/identifiers/wamp_session_id_generator.hpp
     bonefish/identifiers/wamp_subscription_id.hpp
     bonefish/identifiers/wamp_subscription_id_generator.hpp
+    bonefish/messages/wamp_abort_message.hpp
+    bonefish/messages/wamp_error_message.hpp
+    bonefish/messages/wamp_goodbye_message.hpp
     bonefish/messages/wamp_hello_message.hpp
+    bonefish/messages/wamp_invocation_message.hpp
+    bonefish/messages/wamp_message.hpp
     bonefish/messages/wamp_message_type.hpp
+    bonefish/messages/wamp_registered_message.hpp
+    bonefish/messages/wamp_register_message.hpp
+    bonefish/messages/wamp_subscribed_message.hpp
+    bonefish/messages/wamp_subscribe_message.hpp
+    bonefish/messages/wamp_unregistered_message.hpp
+    bonefish/messages/wamp_unregister_message.hpp
+    bonefish/messages/wamp_unsubscribed_message.hpp
+    bonefish/messages/wamp_unsubscribe_message.hpp
     bonefish/messages/wamp_welcome_message.hpp
+    bonefish/messages/wamp_yield_message.hpp
     bonefish/roles/wamp_role.hpp
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp

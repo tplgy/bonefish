@@ -4,8 +4,7 @@
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
-#include <cstdint>
-#include <string>
+#include <bonefish/wamp_uri.hpp>
 #include <vector>
 
 namespace bonefish {
@@ -21,14 +20,14 @@ public:
 
     virtual wamp_message_type get_type() const override;
 
-    const std::string& get_realm() const;
+    const wamp_uri& get_realm() const;
     const std::vector<wamp_role>& get_roles() const;
 
-    void set_realm(const std::string& realm);
+    void set_realm(const wamp_uri& realm);
     void add_role(const wamp_role& role);
 
 private:
-    std::string m_realm;
+    wamp_uri m_realm;
     std::vector<wamp_role> m_roles;
 };
 
@@ -47,7 +46,7 @@ inline wamp_message_type wamp_hello_message::get_type() const
     return wamp_message_type::HELLO;
 }
 
-inline const std::string& wamp_hello_message::get_realm() const
+inline const wamp_uri& wamp_hello_message::get_realm() const
 {
     return m_realm;
 }
@@ -57,7 +56,7 @@ inline const std::vector<wamp_role>& wamp_hello_message::get_roles() const
     return m_roles;
 }
 
-inline void wamp_hello_message::set_realm(const std::string& realm)
+inline void wamp_hello_message::set_realm(const wamp_uri& realm)
 {
     m_realm = realm;
 }

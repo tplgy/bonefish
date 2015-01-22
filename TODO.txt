@@ -1,4 +1,6 @@
-- handle multiple hellp messages gracefully with an error response
+- handle multiple hello messages gracefully with an abort response
+- handle session termination gracefully with a goodbye exchange
+- handle component procedure registration
 - create a proper bonefish daemon process
 - manage proper startup and shutdown of daemon process
 - add approriate system/debug logging facilities

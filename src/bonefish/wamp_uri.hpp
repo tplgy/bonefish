@@ -33,7 +33,9 @@
 
 namespace bonefish {
 
-bool is_valid_uri(const std::string& uri);
+using wamp_uri = std::string;
+
+bool is_valid_uri(const wamp_uri& uri);
 
 } // namespace bonefish
 
