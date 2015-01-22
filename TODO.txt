@@ -1,4 +1,4 @@
-- handle multiple hello messages gracefully with an abort response
+- split component and router roles into two different types
 - handle session termination gracefully with a goodbye exchange
 - handle component procedure registration
 - create a proper bonefish daemon process

@@ -25,7 +25,7 @@ public:
     const std::unordered_set<wamp_role>& get_roles() const;
     bool add_role(const wamp_role& role);
     bool has_session(const wamp_session_id& id);
-    bool attach_session(std::shared_ptr<wamp_session>&& session);
+    bool attach_session(const std::shared_ptr<wamp_session>& session);
     bool detach_session(const wamp_session_id& id);
 
     void process_hello_message(const wamp_session_id& id,

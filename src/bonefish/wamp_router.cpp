@@ -58,17 +58,34 @@ bool wamp_router::has_session(const wamp_session_id& session_id)
     return m_sessions.find(session_id) != m_sessions.end();
 }
 
-bool wamp_router::attach_session(std::shared_ptr<wamp_session>&& session)
+bool wamp_router::attach_session(const std::shared_ptr<wamp_session>& session)
 {
-    std::cout << "attach session: " << session->get_session_id() << std::endl;
+    std::cerr << "attach session: " << session->get_session_id() << std::endl;
     auto result = m_sessions.insert(
-            std::make_pair(session->get_session_id(), std::move(session)));
+            std::make_pair(session->get_session_id(), session));
+
+    if (m_dealer) {
+        m_dealer->attach_session(session);
+    }
+
+    if (m_broker) {
+        m_broker->attach_session(session);
+    }
+
     return result.second;
 }
 
 bool wamp_router::detach_session(const wamp_session_id& session_id)
 {
-    std::cout << "detach session:" << session_id << std::endl;
+    std::cerr << "detach session:" << session_id << std::endl;
+    if (m_dealer) {
+        m_dealer->detach_session(session_id);
+    }
+
+    if (m_broker) {
+        m_broker->detach_session(session_id);
+    }
+
     return m_sessions.erase(session_id) == 1;
 }
 
