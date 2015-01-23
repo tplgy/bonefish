@@ -1,6 +1,7 @@
 #include <bonefish/websocket_server.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
+#include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/wamp_router.hpp>
@@ -111,6 +112,16 @@ void websocket_server::on_close(websocketpp::connection_hdl handle)
 void websocket_server::on_fail(websocketpp::connection_hdl handle)
 {
     std::cerr << "fail handler called: " << handle.lock().get() << std::endl;
+    websocketpp::server<websocket_config>::connection_ptr connection =
+            m_server->get_con_from_hdl(handle);
+
+    if (connection->has_session_id()) {
+        std::shared_ptr<wamp_router> router =
+                m_routers->get_router(connection->get_realm());
+        if (router) {
+            router->detach_session(connection->get_session_id());
+        }
+    }
 }
 
 bool websocket_server::on_ping(websocketpp::connection_hdl handle, std::string message)
@@ -165,6 +176,8 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     m_serializers->get_serializer(wamp_serializer_type::MSGPACK);
             std::unique_ptr<wamp_message> message(
                     serializer->deserialize(buffer->get_payload().c_str(), buffer->get_payload().size()));
+            std::unique_ptr<wamp_transport> transport(
+                    new websocket_transport(serializer, handle, m_server));
 
             if (message) {
                 std::cerr << "received message: " << message_type_to_string(message->get_type()) << std::endl;
@@ -172,8 +185,6 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                 {
                     case wamp_message_type::HELLO:
                         {
-                            std::unique_ptr<wamp_transport> transport(
-                                    new websocket_transport(serializer, handle, m_server));
                             wamp_hello_message* hello_message = static_cast<wamp_hello_message*>(message.get());
                             std::shared_ptr<wamp_router> router = m_routers->get_router(hello_message->get_realm());
                             if (!router) {
@@ -198,6 +209,15 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case wamp_message_type::AUTHENTICATE:
                         break;
                     case wamp_message_type::GOODBYE:
+                        {
+                            std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
+                            if (!router) {
+                                wamp_goodbye_message* goodbye_message = static_cast<wamp_goodbye_message*>(message.get());
+                                router->process_goodbye_message(connection->get_session_id(), goodbye_message);
+                                router->detach_session(connection->get_session_id());
+                            }
+                            connection->clear_data();
+                        }
                         break;
                     case wamp_message_type::ERROR:
                         break;

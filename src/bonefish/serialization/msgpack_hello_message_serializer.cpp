@@ -22,7 +22,7 @@ wamp_hello_message* msgpack_hello_message_serializer::deserialize(
         throw(std::invalid_argument("hello message serializer - invalid message type"));
     }
 
-    std::string realm = fields[1].as<std::string>();
+    wamp_uri realm = fields[1].as<std::string>();
     if (!is_valid_uri(realm)) {
         throw(std::invalid_argument("hello message serializer - invalid realm uri"));
     }

@@ -10,11 +10,13 @@ set(SOURCES
     bonefish/messages/wamp_message_type.cpp
     bonefish/roles/wamp_role_type.cpp
     bonefish/serialization/msgpack_serializer.cpp
+    bonefish/serialization/msgpack_goodbye_message_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
     bonefish/serialization/msgpack_welcome_message_serializer.cpp
     bonefish/wamp_broker.cpp
     bonefish/wamp_dealer.cpp
     bonefish/wamp_router.cpp
+    bonefish/wamp_session_state.cpp
     bonefish/wamp_uri.cpp
     bonefish/websocket_protocol.cpp
     bonefish/websocket_server.cpp)
@@ -55,6 +57,7 @@ set(PUBLIC_HEADERS
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
     bonefish/serialization/msgpack_serializer.hpp
+    bonefish/serialization/msgpack_goodbye_message_serializer.hpp
     bonefish/serialization/msgpack_hello_message_serializer.hpp
     bonefish/serialization/msgpack_welcome_message_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
@@ -64,6 +67,7 @@ set(PUBLIC_HEADERS
     bonefish/wamp_router.hpp
     bonefish/wamp_routers.hpp
     bonefish/wamp_session.hpp
+    bonefish/wamp_session_state.hpp
     bonefish/wamp_transport.hpp
     bonefish/wamp_uri.hpp
     bonefish/websocket_config.hpp

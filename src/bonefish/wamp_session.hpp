@@ -3,6 +3,7 @@
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/roles/wamp_role.hpp>
+#include <bonefish/wamp_session_state.hpp>
 #include <bonefish/wamp_transport.hpp>
 #include <bonefish/websocket_config.hpp>
 #include <memory>
@@ -26,22 +27,24 @@ public:
     ~wamp_session();
     wamp_session(wamp_session const&) = delete;
     wamp_session& operator=(wamp_session const&) = delete;
+
+    wamp_session_state get_state() const;
     const wamp_session_id& get_session_id() const;
     const std::unique_ptr<wamp_transport>& get_transport() const;
+
+    void set_state(wamp_session_state session_state);
     void set_roles(const std::unordered_set<wamp_role>& roles);
-    void set_open(bool opened);
-    bool is_open() const;
 
 private:
-    bool m_is_open;
     wamp_session_id m_session_id;
+    wamp_session_state m_session_state;
     std::unordered_set<wamp_role> m_roles;
     std::unique_ptr<wamp_transport> m_transport;
 };
 
 inline wamp_session::wamp_session()
-    : m_is_open(false)
-    , m_session_id()
+    : m_session_id()
+    , m_session_state(wamp_session_state::NONE)
     , m_roles()
     , m_transport()
 {
@@ -49,8 +52,8 @@ inline wamp_session::wamp_session()
 
 inline wamp_session::wamp_session(const wamp_session_id& id,
         std::unique_ptr<wamp_transport> transport)
-    : m_is_open(false)
-    , m_session_id(id)
+    : m_session_id(id)
+    , m_session_state(wamp_session_state::NONE)
     , m_roles()
     , m_transport(std::move(transport))
 {
@@ -76,14 +79,14 @@ inline void wamp_session::set_roles(const std::unordered_set<wamp_role>& roles)
     m_roles.insert(roles.begin(), roles.end());
 }
 
-inline void wamp_session::set_open(bool opened)
+inline void wamp_session::set_state(wamp_session_state state)
 {
-    m_is_open = true;
+    m_session_state = state;
 }
 
-inline bool wamp_session::is_open() const
+inline wamp_session_state wamp_session::get_state() const
 {
-    return m_is_open;
+    return m_session_state;
 }
 
 } // namespace bonefish
