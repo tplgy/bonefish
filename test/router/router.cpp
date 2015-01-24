@@ -1,4 +1,3 @@
-#include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/wamp_routers.hpp>
@@ -15,13 +14,8 @@ int main(int argc, char** argv)
 
     std::shared_ptr<bonefish::wamp_router> realm1_router =
             std::make_shared<bonefish::wamp_router>("realm1");
-    realm1_router->add_role(bonefish::wamp_role(bonefish::wamp_role_type::BROKER));
-    realm1_router->add_role(bonefish::wamp_role(bonefish::wamp_role_type::DEALER));
-
     std::shared_ptr<bonefish::wamp_router> realm2_router =
             std::make_shared<bonefish::wamp_router>("realm2");
-    realm1_router->add_role(bonefish::wamp_role(bonefish::wamp_role_type::BROKER));
-    realm1_router->add_role(bonefish::wamp_role(bonefish::wamp_role_type::DEALER));
 
     routers->add_router(realm1_router);
     routers->add_router(realm2_router);

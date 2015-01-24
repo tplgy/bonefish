@@ -3,6 +3,7 @@
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
+#include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/wamp_broker.hpp>
 #include <bonefish/wamp_dealer.hpp>
 #include <bonefish/wamp_session.hpp>
@@ -13,7 +14,6 @@ namespace bonefish {
 
 wamp_router::wamp_router(const wamp_uri& realm)
     : m_realm(realm)
-    , m_roles()
     , m_broker()
     , m_dealer()
     , m_sessions()
@@ -29,31 +29,6 @@ const wamp_uri& wamp_router::get_realm() const
     return m_realm;
 }
 
-const std::unordered_set<wamp_role>& wamp_router::get_roles() const
-{
-    return m_roles;
-}
-
-bool wamp_router::add_role(const wamp_role& role)
-{
-    if (role.get_type() != wamp_role_type::DEALER &&
-        role.get_type() != wamp_role_type::BROKER)
-    {
-        throw(std::invalid_argument("invalid role type for a router"));
-    }
-
-    auto result = m_roles.insert(role);
-    if (result.second) {
-        if (role.get_type() == wamp_role_type::DEALER) {
-            m_dealer.reset(new wamp_dealer);
-        } else if (role.get_type() == wamp_role_type::BROKER) {
-            m_broker.reset(new wamp_broker);
-        }
-    }
-
-    return result.second;
-}
-
 bool wamp_router::has_session(const wamp_session_id& session_id)
 {
     return m_sessions.find(session_id) != m_sessions.end();
@@ -65,13 +40,8 @@ bool wamp_router::attach_session(const std::shared_ptr<wamp_session>& session)
     auto result = m_sessions.insert(
             std::make_pair(session->get_session_id(), session));
 
-    if (m_dealer) {
-        m_dealer->attach_session(session);
-    }
-
-    if (m_broker) {
-        m_broker->attach_session(session);
-    }
+    m_dealer->attach_session(session);
+    m_broker->attach_session(session);
 
     return result.second;
 }
@@ -96,13 +66,8 @@ void wamp_router::close_session(const wamp_session_id& session_id, const wamp_ur
 bool wamp_router::detach_session(const wamp_session_id& session_id)
 {
     std::cerr << "detach session: " << session_id << std::endl;
-    if (m_dealer) {
-        m_dealer->detach_session(session_id);
-    }
-
-    if (m_broker) {
-        m_broker->detach_session(session_id);
-    }
+    m_dealer->detach_session(session_id);
+    m_broker->detach_session(session_id);
 
     return m_sessions.erase(session_id) == 1;
 }
@@ -128,7 +93,8 @@ void wamp_router::process_hello_message(const wamp_session_id& session_id,
 
     std::unique_ptr<wamp_welcome_message> welcome_message(new wamp_welcome_message);
     welcome_message->set_session_id(session_id);
-    welcome_message->set_roles(m_roles);
+    welcome_message->add_role(wamp_role(wamp_role_type::BROKER));
+    welcome_message->add_role(wamp_role(wamp_role_type::DEALER));
     session->get_transport()->send_message(welcome_message.get());
 }
 

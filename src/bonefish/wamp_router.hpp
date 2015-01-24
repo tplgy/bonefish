@@ -2,7 +2,6 @@
 #define BONEFISH_WAMP_ROUTER_HPP
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
-#include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/wamp_uri.hpp>
 #include <memory>
 #include <unordered_set>
@@ -23,8 +22,6 @@ public:
     ~wamp_router();
 
     const wamp_uri& get_realm() const;
-    const std::unordered_set<wamp_role>& get_roles() const;
-    bool add_role(const wamp_role& role);
     bool has_session(const wamp_session_id& session_id);
     bool attach_session(const std::shared_ptr<wamp_session>& session);
     void close_session(const wamp_session_id& session_id, const wamp_uri& reason);
@@ -37,7 +34,6 @@ public:
 
 private:
     const std::string m_realm;
-    std::unordered_set<wamp_role> m_roles;
     std::unique_ptr<wamp_broker> m_broker;
     std::unique_ptr<wamp_dealer> m_dealer;
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
