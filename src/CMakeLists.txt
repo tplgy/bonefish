@@ -7,13 +7,13 @@ include_directories(
     ${Boost_INCLUDE_DIRS})
 
 set(SOURCES
+    bonefish/broker/wamp_broker.cpp
     bonefish/messages/wamp_message_type.cpp
     bonefish/roles/wamp_role_type.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/serialization/msgpack_goodbye_message_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
     bonefish/serialization/msgpack_welcome_message_serializer.cpp
-    bonefish/wamp_broker.cpp
     bonefish/wamp_dealer.cpp
     bonefish/wamp_router.cpp
     bonefish/wamp_session_state.cpp
@@ -22,6 +22,9 @@ set(SOURCES
     bonefish/websocket_server.cpp)
 
 set(PUBLIC_HEADERS
+    bonefish/broker/wamp_broker.hpp
+    bonefish/broker/wamp_broker_subscription.hpp
+    bonefish/broker/wamp_broker_topic.hpp
     bonefish/identifiers/wamp_publication_id.hpp
     bonefish/identifiers/wamp_publication_id_generator.hpp
     bonefish/identifiers/wamp_random_id.hpp
@@ -62,7 +65,6 @@ set(PUBLIC_HEADERS
     bonefish/serialization/msgpack_welcome_message_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
-    bonefish/wamp_broker.hpp
     bonefish/wamp_dealer.hpp
     bonefish/wamp_router.hpp
     bonefish/wamp_routers.hpp

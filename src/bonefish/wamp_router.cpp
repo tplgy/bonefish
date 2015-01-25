@@ -1,10 +1,10 @@
 #include <bonefish/wamp_router.hpp>
+#include <bonefish/broker/wamp_broker.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
-#include <bonefish/wamp_broker.hpp>
 #include <bonefish/wamp_dealer.hpp>
 #include <bonefish/wamp_session.hpp>
 #include <iostream>
@@ -111,11 +111,18 @@ void wamp_router::process_goodbye_message(const wamp_session_id& session_id,
         std::unique_ptr<wamp_goodbye_message> message(new wamp_goodbye_message);
         message->set_reason("wamp.error.goodbye_and_out");
         session->set_state(wamp_session_state::CLOSED);
+        session->get_transport()->send_message(message.get());
     } else if (session->get_state() == wamp_session_state::CLOSING) {
         session->set_state(wamp_session_state::CLOSED);
     } else {
         throw(std::logic_error("session already closed"));
     }
+}
+
+void wamp_router::process_subscribe_message(const wamp_session_id& session_id,
+        const wamp_subscribe_message* subscribe_message)
+{
+    m_broker->process_subscribe_message(session_id, subscribe_message);
 }
 
 } // namespace bonefish

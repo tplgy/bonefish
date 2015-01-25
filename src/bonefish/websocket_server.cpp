@@ -4,6 +4,7 @@
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
+#include <bonefish/messages/wamp_subscribe_message.hpp>
 #include <bonefish/wamp_router.hpp>
 #include <bonefish/wamp_routers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
@@ -224,6 +225,15 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case wamp_message_type::PUBLISH:
                         break;
                     case wamp_message_type::SUBSCRIBE:
+                        {
+                            std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
+                            if (!router) {
+                                wamp_subscribe_message* subscribe_message = static_cast<wamp_subscribe_message*>(message.get());
+                                router->process_subscribe_message(connection->get_session_id(), subscribe_message);
+                                router->detach_session(connection->get_session_id());
+                            }
+                            connection->clear_data();
+                        }
                         break;
                     case wamp_message_type::UNSUBSCRIBE:
                         break;

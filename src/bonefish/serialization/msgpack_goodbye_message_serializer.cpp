@@ -1,8 +1,6 @@
 #include <bonefish/serialization/msgpack_goodbye_message_serializer.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
-#include <bonefish/roles/wamp_role.hpp>
-#include <bonefish/roles/wamp_role_type.hpp>
 #include <bonefish/wamp_uri.hpp>
 #include <memory>
 #include <stdexcept>

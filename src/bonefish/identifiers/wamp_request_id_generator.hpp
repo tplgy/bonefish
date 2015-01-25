@@ -1,8 +1,8 @@
 #ifndef BONEFISH_IDENTIFIERS_WAMP_REQUEST_ID_GENERATOR_HPP
 #define BONEFISH_IDENTIFIERS_WAMP_REQUEST_ID_GENERATOR_HPP
 
-#include <bonefish/identifier/wamp_request_id.hpp>
-#include <bonefish/identifier/wamp_sequential_id_generator.hpp>
+#include <bonefish/identifiers/wamp_request_id.hpp>
+#include <bonefish/identifiers/wamp_sequential_id_generator.hpp>
 
 namespace bonefish {
 

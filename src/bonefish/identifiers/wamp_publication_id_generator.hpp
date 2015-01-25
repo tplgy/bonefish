@@ -1,8 +1,8 @@
 #ifndef BONEFISH_IDENTIFIERS_WAMP_PUBLICATION_ID_GENERATOR_HPP
 #define BONEFISH_IDENTIFIERS_WAMP_PUBLICATION_ID_GENERATOR_HPP
 
-#include <bonefish/identifier/wamp_publication_id.hpp>
-#include <bonefish/identifier/wamp_random_id_generator.hpp>
+#include <bonefish/identifiers/wamp_publication_id.hpp>
+#include <bonefish/identifiers/wamp_random_id_generator.hpp>
 #include <cstdint>
 
 namespace bonefish {

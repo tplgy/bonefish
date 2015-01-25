@@ -51,7 +51,7 @@ inline wamp_message_type wamp_error_message::get_type() const
     return wamp_message_type::ERROR;
 }
 
-inline const wamp_message_type& wamp_error_message::get_request_type() const
+inline wamp_message_type wamp_error_message::get_request_type() const
 {
     return m_request_type;
 }

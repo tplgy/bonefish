@@ -5,7 +5,6 @@
 #include <bonefish/identifiers/wamp_subscription_id.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
-#include <bonefish/subscription_id.hpp>
 
 namespace bonefish {
 
@@ -51,7 +50,7 @@ inline const wamp_request_id& wamp_subscribed_message::get_request_id() const
     return m_request_id;
 }
 
-inline const subscription_id& wamp_subscribed_message::get_subscription_id() const
+inline const wamp_subscription_id& wamp_subscribed_message::get_subscription_id() const
 {
     return m_subscription_id;
 }
@@ -61,7 +60,7 @@ inline void wamp_subscribed_message::set_request_id(const wamp_request_id& reque
     m_request_id = request_id;
 }
 
-inline void wamp_subscribed_message::set_subscription_id(const subscription_id& subscription_id)
+inline void wamp_subscribed_message::set_subscription_id(const wamp_subscription_id& subscription_id)
 {
     m_subscription_id = subscription_id;
 }
