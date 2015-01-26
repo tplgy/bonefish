@@ -15,6 +15,7 @@ class wamp_broker_subscription;
 class wamp_broker_topic;
 class wamp_session;
 class wamp_subscribe_message;
+class wamp_unsubscribe_message;
 
 class wamp_broker
 {
@@ -22,11 +23,13 @@ public:
     wamp_broker();
     ~wamp_broker();
 
-    bool attach_session(const std::shared_ptr<wamp_session>& session);
-    bool detach_session(const wamp_session_id& id);
+    void attach_session(const std::shared_ptr<wamp_session>& session);
+    void detach_session(const wamp_session_id& id);
 
     void process_subscribe_message(const wamp_session_id& session_id,
             const wamp_subscribe_message* subscribe_message);
+    void process_unsubscribe_message(const wamp_session_id& session_id,
+            const wamp_unsubscribe_message* unsubscribe_message);
 
 private:
     wamp_subscription_id_generator m_subscription_id_generator;

@@ -14,17 +14,17 @@ wamp_hello_message* msgpack_hello_message_serializer::deserialize(
         const std::vector<msgpack::object>& fields)
 {
     if (fields.size() != 3) {
-        throw(std::invalid_argument("hello message serializer - invalid number of fields"));
+        throw(std::invalid_argument("invalid number of fields"));
     }
 
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
     if (type != wamp_message_type::HELLO) {
-        throw(std::invalid_argument("hello message serializer - invalid message type"));
+        throw(std::invalid_argument("invalid message type"));
     }
 
     wamp_uri realm = fields[1].as<std::string>();
     if (!is_valid_uri(realm)) {
-        throw(std::invalid_argument("hello message serializer - invalid realm uri"));
+        throw(std::invalid_argument("invalid realm uri"));
     }
 
     std::unordered_map<std::string, msgpack::object> details;
@@ -45,7 +45,7 @@ wamp_hello_message* msgpack_hello_message_serializer::deserialize(
     std::unordered_map<std::string, msgpack::object> roles;
     auto details_itr = details.find("roles");
     if (details_itr == details.end()) {
-        throw(std::invalid_argument("hello message serializer - no roles specified"));
+        throw(std::invalid_argument("no roles specified"));
     }
 
     for (const auto& role_itr : roles) {
@@ -57,7 +57,7 @@ wamp_hello_message* msgpack_hello_message_serializer::deserialize(
 
 size_t msgpack_hello_message_serializer::serialize(const wamp_hello_message*, char*, size_t)
 {
-    throw(std::logic_error("hello message serializer - serialize is not implemented"));
+    throw(std::logic_error("serialize is not implemented"));
 }
 
 } // namespace bonefish

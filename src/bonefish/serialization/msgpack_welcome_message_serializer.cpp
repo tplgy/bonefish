@@ -14,14 +14,14 @@ namespace bonefish {
 wamp_welcome_message* msgpack_welcome_message_serializer::deserialize(
         const std::vector<msgpack::object>&)
 {
-    throw(std::logic_error("welcome message serializer - deserialize is not implemented"));
+    throw(std::logic_error("deserialize is not implemented"));
 }
 
 size_t msgpack_welcome_message_serializer::serialize(const wamp_welcome_message* welcome_message,
         char* buffer, size_t length)
 {
     if (welcome_message == nullptr) {
-        throw(std::invalid_argument("welcome message serializer - null welcome message"));
+        throw(std::invalid_argument("null welcome message"));
     }
 
     msgpack::sbuffer sbuffer;
@@ -48,7 +48,7 @@ size_t msgpack_welcome_message_serializer::serialize(const wamp_welcome_message*
     }
 
     if (sbuffer.size() > length) {
-        throw(std::overflow_error("welcome message serializer - serialization buffer too small"));
+        throw(std::overflow_error("serialization buffer too small"));
     }
 
     // TODO: Fix this ugly copy. It would be nice if we could just

@@ -8,3 +8,4 @@
 - add proper uri validation according to the spec
 - add support for the broker role to the router
 - add support for the dealer role to the router
+- move uri checking out of the serialiation and allow each broker/dealer/router to perform uri validation so that the appropriate error messages can be generated where applicable.

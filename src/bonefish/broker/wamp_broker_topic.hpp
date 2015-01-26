@@ -16,7 +16,7 @@ public:
 
     bool add_session(const std::shared_ptr<wamp_session>& session);
     bool remove_session(const std::shared_ptr<wamp_session>& session);
-    const wamp_subscription_id& get_topic() const;
+    const wamp_uri& get_topic() const;
     const std::unordered_set<std::shared_ptr<wamp_session>>& get_sessions();
 
 private:
@@ -49,6 +49,11 @@ inline bool wamp_broker_topic::add_session(const std::shared_ptr<wamp_session>& 
 inline bool wamp_broker_topic::remove_session(const std::shared_ptr<wamp_session>& session)
 {
     return m_sessions.erase(session) != 0;
+}
+
+inline const wamp_uri& wamp_broker_topic::get_topic() const
+{
+    return m_topic;
 }
 
 inline const std::unordered_set<std::shared_ptr<wamp_session>>& wamp_broker_topic::get_sessions()

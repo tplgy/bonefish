@@ -14,6 +14,10 @@ set(SOURCES
     bonefish/serialization/msgpack_goodbye_message_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
     bonefish/serialization/msgpack_welcome_message_serializer.cpp
+    bonefish/serialization/msgpack_subscribe_message_serializer.cpp
+    bonefish/serialization/msgpack_subscribed_message_serializer.cpp
+    bonefish/serialization/msgpack_unsubscribe_message_serializer.cpp
+    bonefish/serialization/msgpack_unsubscribed_message_serializer.cpp
     bonefish/wamp_dealer.cpp
     bonefish/wamp_router.cpp
     bonefish/wamp_session_state.cpp
@@ -63,6 +67,10 @@ set(PUBLIC_HEADERS
     bonefish/serialization/msgpack_goodbye_message_serializer.hpp
     bonefish/serialization/msgpack_hello_message_serializer.hpp
     bonefish/serialization/msgpack_welcome_message_serializer.hpp
+    bonefish/serialization/msgpack_subscribe_message_serializer.hpp
+    bonefish/serialization/msgpack_subscribed_message_serializer.hpp
+    bonefish/serialization/msgpack_unsubscribe_message_serializer.hpp
+    bonefish/serialization/msgpack_unsubscribed_message_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
     bonefish/wamp_dealer.hpp

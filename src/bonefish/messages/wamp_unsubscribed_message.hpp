@@ -5,7 +5,6 @@
 #include <bonefish/identifiers/wamp_subscription_id.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
-#include <bonefish/subscription_id.hpp>
 
 namespace bonefish {
 

@@ -12,12 +12,12 @@ wamp_goodbye_message* msgpack_goodbye_message_serializer::deserialize(
         const std::vector<msgpack::object>& fields)
 {
     if (fields.size() != 3) {
-        throw(std::invalid_argument("goodbye message serializer - invalid number of fields"));
+        throw(std::invalid_argument("invalid number of fields"));
     }
 
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
     if (type != wamp_message_type::GOODBYE) {
-        throw(std::invalid_argument("goodbye message serializer - invalid message type"));
+        throw(std::invalid_argument("invalid message type"));
     }
 
     // NOTE: We currently ignore the details as they don't
@@ -28,7 +28,7 @@ wamp_goodbye_message* msgpack_goodbye_message_serializer::deserialize(
 
     wamp_uri reason = fields[2].as<std::string>();
     if (!is_valid_uri(reason)) {
-        throw(std::invalid_argument("goodbye message serializer - invalid reason uri"));
+        throw(std::invalid_argument("invalid reason uri"));
     }
 
     std::unique_ptr<wamp_goodbye_message> goodbye_message(new wamp_goodbye_message);
@@ -41,7 +41,7 @@ size_t msgpack_goodbye_message_serializer::serialize(const wamp_goodbye_message*
         char* buffer, size_t length)
 {
     if (goodbye_message == nullptr) {
-        throw(std::invalid_argument("goodbye message serializer - null goodbye message"));
+        throw(std::invalid_argument("null goodbye message"));
     }
 
     msgpack::sbuffer sbuffer;
@@ -60,7 +60,7 @@ size_t msgpack_goodbye_message_serializer::serialize(const wamp_goodbye_message*
     packer.pack(goodbye_message->get_reason());
 
     if (sbuffer.size() > length) {
-        throw(std::overflow_error("goodbye message serializer - serialization buffer too small"));
+        throw(std::overflow_error("serialization buffer too small"));
     }
 
     // TODO: Fix this ugly copy. It would be nice if we could just
