@@ -3,9 +3,11 @@
 
 #include <bonefish/identifiers/wamp_publication_id.hpp>
 #include <bonefish/identifiers/wamp_publication_id_generator.hpp>
+#include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/identifiers/wamp_subscription_id.hpp>
 #include <bonefish/identifiers/wamp_subscription_id_generator.hpp>
+#include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/wamp_uri.hpp>
 #include <memory>
 #include <unordered_map>
@@ -18,6 +20,7 @@ class wamp_broker_topic;
 class wamp_publish_message;
 class wamp_session;
 class wamp_subscribe_message;
+class wamp_transport;
 class wamp_unsubscribe_message;
 
 class wamp_broker
@@ -35,6 +38,11 @@ public:
             const wamp_subscribe_message* subscribe_message);
     void process_unsubscribe_message(const wamp_session_id& session_id,
             const wamp_unsubscribe_message* unsubscribe_message);
+
+private:
+    void send_error(const std::unique_ptr<wamp_transport>& transport,
+            const wamp_message_type request_type, const wamp_request_id& request_id,
+            const wamp_uri& error) const;
 
 private:
     wamp_publication_id_generator m_publication_id_generator;

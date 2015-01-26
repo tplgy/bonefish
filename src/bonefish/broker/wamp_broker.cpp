@@ -10,6 +10,7 @@
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
 #include <bonefish/messages/wamp_unsubscribed_message.hpp>
 #include <bonefish/wamp_session.hpp>
+#include <bonefish/wamp_transport.hpp>
 #include <iostream>
 
 namespace bonefish {
@@ -84,12 +85,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
-        error_message->set_request_type(publish_message->get_type());
-        error_message->set_request_id(publish_message->get_request_id());
-        error_message->set_error("wamp.error.no_such_session");
-        session_itr->second->get_transport()->send_message(error_message.get());
-        return;
+        throw(std::logic_error("broker session does not exist"));
     }
 
     const wamp_uri& topic = publish_message->get_topic();
@@ -102,7 +98,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
         event_message->set_publication_id(publication_id);
 
         for (const auto& session : topic_subscriptions_itr->second->get_sessions()) {
-            // TODO: Improve performacne here by offering a transport api that
+            // TODO: Improve performance here by offering a transport api that
             //       takes in a pre-serialized buffer. That way we can serialize
             //       the message once and then send it to all of the subscribers.
             session->get_transport()->send_message(event_message.get());
@@ -120,12 +116,7 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
-        error_message->set_request_type(subscribe_message->get_type());
-        error_message->set_request_id(subscribe_message->get_request_id());
-        error_message->set_error("wamp.error.no_such_session");
-        session_itr->second->get_transport()->send_message(error_message.get());
-        return;
+        throw(std::logic_error("broker session does not exist"));
     }
 
     wamp_subscription_id subscription_id;
@@ -166,32 +157,19 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
-        error_message->set_request_type(unsubscribe_message->get_type());
-        error_message->set_request_id(unsubscribe_message->get_request_id());
-        error_message->set_error("wamp.error.no_such_session");
-        session_itr->second->get_transport()->send_message(error_message.get());
-        return;
+        throw(std::logic_error("broker session does not exist"));
     }
 
     auto session_subscriptions_itr = m_session_subscriptions.find(session_id);
     if (session_subscriptions_itr == m_session_subscriptions.end()) {
-        std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
-        error_message->set_request_type(unsubscribe_message->get_type());
-        error_message->set_request_id(unsubscribe_message->get_request_id());
-        error_message->set_error("wamp.error.no_subscriptions_for_session");
-        session_itr->second->get_transport()->send_message(error_message.get());
-        return;
+        return send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
+                unsubscribe_message->get_request_id(), "wamp.error.no_subscriptions_for_session");
     }
 
     const wamp_subscription_id& subscription_id = unsubscribe_message->get_subscription_id();
     if (session_subscriptions_itr->second.erase(subscription_id)) {
-        std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
-        error_message->set_request_type(unsubscribe_message->get_type());
-        error_message->set_request_id(unsubscribe_message->get_request_id());
-        error_message->set_error("wamp.error.no_such_subscription");
-        session_itr->second->get_transport()->send_message(error_message.get());
-        return;
+        return send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
+                unsubscribe_message->get_request_id(), "wamp.error.no_such_subscription");
     }
 
     auto subscription_topics_itr = m_subscription_topics.find(subscription_id);
@@ -214,6 +192,18 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
     if (topic_subscriptions_itr->second->get_sessions().size() == 0) {
         m_topic_subscriptions.erase(topic);
     }
+}
+
+void wamp_broker::send_error(const std::unique_ptr<wamp_transport>& transport,
+        const wamp_message_type request_type, const wamp_request_id& request_id,
+        const wamp_uri& error) const
+{
+    std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
+    error_message->set_request_type(request_type);
+    error_message->set_request_id(request_id);
+    error_message->set_error(error);
+
+    transport->send_message(error_message.get());
 }
 
 } // namespace bonefish
