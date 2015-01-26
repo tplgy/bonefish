@@ -1,19 +1,24 @@
 #include <bonefish/serialization/msgpack_serializer.hpp>
+#include <bonefish/serialization/msgpack_event_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_goodbye_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_hello_message_serializer.hpp>
+#include <bonefish/serialization/msgpack_publish_message_serializer.hpp>
+#include <bonefish/serialization/msgpack_published_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_subscribe_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_subscribed_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_unsubscribe_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_unsubscribed_message_serializer.hpp>
 #include <bonefish/serialization/msgpack_welcome_message_serializer.hpp>
-#include <bonefish/messages/wamp_message_type.hpp>
+#include <bonefish/messages/wamp_event_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
+#include <bonefish/messages/wamp_message_type.hpp>
+#include <bonefish/messages/wamp_publish_message.hpp>
+#include <bonefish/messages/wamp_published_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
 #include <bonefish/messages/wamp_subscribed_message.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
 #include <bonefish/messages/wamp_unsubscribed_message.hpp>
-#include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <iostream>
 #include <msgpack.hpp>
@@ -54,6 +59,13 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
                     return message;
                 }
                 break;
+            case wamp_message_type::PUBLISH:
+                {
+                    msgpack_publish_message_serializer message_serializer;
+                    wamp_message* message = message_serializer.deserialize(fields);
+                    return message;
+                }
+                break;
             case wamp_message_type::SUBSCRIBE:
                 {
                     msgpack_subscribe_message_serializer message_serializer;
@@ -73,7 +85,7 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
         }
 
         std::stringstream sstr;
-        sstr << "no serializer defined for message " << message_type_to_string(type);
+        sstr << "no deserializer defined for message " << message_type_to_string(type);
         throw(std::logic_error(sstr.str()));
     } catch (const msgpack::unpack_error& e) {
         std::cerr << "failed to unpack message: " << e.what();
@@ -93,29 +105,41 @@ size_t msgpack_serializer::serialize(const wamp_message* message, char* buffer, 
         case wamp_message_type::GOODBYE:
             {
                 msgpack_goodbye_message_serializer message_serializer;
-                const wamp_goodbye_message* welcome = static_cast<const wamp_goodbye_message*>(message);
-                return message_serializer.serialize(welcome, buffer, length);
+                const wamp_goodbye_message* welcome_message =
+                        static_cast<const wamp_goodbye_message*>(message);
+                return message_serializer.serialize(welcome_message, buffer, length);
+            }
+            break;
+        case wamp_message_type::PUBLISHED:
+            {
+                msgpack_published_message_serializer message_serializer;
+                const wamp_published_message* published_message =
+                        static_cast<const wamp_published_message*>(message);
+                return message_serializer.serialize(published_message, buffer, length);
             }
             break;
         case wamp_message_type::SUBSCRIBED:
             {
                 msgpack_subscribed_message_serializer message_serializer;
-                const wamp_subscribed_message* hello = static_cast<const wamp_subscribed_message*>(message);
-                return message_serializer.serialize(hello, buffer, length);
+                const wamp_subscribed_message* subscribed_message =
+                        static_cast<const wamp_subscribed_message*>(message);
+                return message_serializer.serialize(subscribed_message, buffer, length);
             }
             break;
         case wamp_message_type::UNSUBSCRIBED:
             {
                 msgpack_unsubscribed_message_serializer message_serializer;
-                const wamp_unsubscribed_message* hello = static_cast<const wamp_unsubscribed_message*>(message);
-                return message_serializer.serialize(hello, buffer, length);
+                const wamp_unsubscribed_message* unsubscribed_message =
+                        static_cast<const wamp_unsubscribed_message*>(message);
+                return message_serializer.serialize(unsubscribed_message, buffer, length);
             }
             break;
         case wamp_message_type::WELCOME:
             {
                 msgpack_welcome_message_serializer message_serializer;
-                const wamp_welcome_message* welcome = static_cast<const wamp_welcome_message*>(message);
-                return message_serializer.serialize(welcome, buffer, length);
+                const wamp_welcome_message* welcome_message =
+                        static_cast<const wamp_welcome_message*>(message);
+                return message_serializer.serialize(welcome_message, buffer, length);
             }
             break;
         default:

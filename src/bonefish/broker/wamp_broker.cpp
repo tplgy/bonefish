@@ -2,6 +2,9 @@
 #include <bonefish/broker/wamp_broker_subscription.hpp>
 #include <bonefish/broker/wamp_broker_topic.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
+#include <bonefish/messages/wamp_event_message.hpp>
+#include <bonefish/messages/wamp_publish_message.hpp>
+#include <bonefish/messages/wamp_published_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
 #include <bonefish/messages/wamp_subscribed_message.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
@@ -12,7 +15,8 @@
 namespace bonefish {
 
 wamp_broker::wamp_broker()
-    : m_subscription_id_generator()
+    : m_publication_id_generator()
+    , m_subscription_id_generator()
     , m_sessions()
     , m_session_subscriptions()
     , m_topic_subscriptions()
@@ -73,6 +77,42 @@ void wamp_broker::detach_session(const wamp_session_id& session_id)
 
     m_session_subscriptions.erase(session_subscriptions_itr);
     m_sessions.erase(session_id);
+}
+
+void wamp_broker::process_publish_message(const wamp_session_id& session_id,
+        const wamp_publish_message* publish_message)
+{
+    auto session_itr = m_sessions.find(session_id);
+    if (session_itr == m_sessions.end()) {
+        std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
+        error_message->set_request_type(publish_message->get_type());
+        error_message->set_request_id(publish_message->get_request_id());
+        error_message->set_error("wamp.error.no_such_session");
+        session_itr->second->get_transport()->send_message(error_message.get());
+        return;
+    }
+
+    const wamp_uri& topic = publish_message->get_topic();
+    const wamp_publication_id publication_id = m_publication_id_generator.generate();
+
+    auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
+    if (topic_subscriptions_itr != m_topic_subscriptions.end()) {
+        std::unique_ptr<wamp_event_message> event_message(new wamp_event_message);
+        event_message->set_subscription_id(topic_subscriptions_itr->second->get_subscription_id());
+        event_message->set_publication_id(publication_id);
+
+        for (const auto& session : topic_subscriptions_itr->second->get_sessions()) {
+            // TODO: Improve performacne here by offering a transport api that
+            //       takes in a pre-serialized buffer. That way we can serialize
+            //       the message once and then send it to all of the subscribers.
+            session->get_transport()->send_message(event_message.get());
+        }
+    }
+
+    std::unique_ptr<wamp_published_message> published_message(new wamp_published_message);
+    published_message->set_request_id(publish_message->get_request_id());
+    published_message->set_publication_id(publication_id);
+    session_itr->second->get_transport()->send_message(published_message.get());
 }
 
 void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,

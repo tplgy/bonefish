@@ -3,6 +3,9 @@
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
+#include <bonefish/messages/wamp_publish_message.hpp>
+#include <bonefish/messages/wamp_subscribe_message.hpp>
+#include <bonefish/messages/wamp_unsubscribe_message.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/wamp_dealer.hpp>
@@ -119,10 +122,22 @@ void wamp_router::process_goodbye_message(const wamp_session_id& session_id,
     }
 }
 
+void wamp_router::process_publish_message(const wamp_session_id& session_id,
+        const wamp_publish_message* publish_message)
+{
+    m_broker->process_publish_message(session_id, publish_message);
+}
+
 void wamp_router::process_subscribe_message(const wamp_session_id& session_id,
         const wamp_subscribe_message* subscribe_message)
 {
     m_broker->process_subscribe_message(session_id, subscribe_message);
+}
+
+void wamp_router::process_unsubscribe_message(const wamp_session_id& session_id,
+        const wamp_unsubscribe_message* unsubscribe_message)
+{
+    m_broker->process_unsubscribe_message(session_id, unsubscribe_message);
 }
 
 } // namespace bonefish

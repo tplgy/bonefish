@@ -13,8 +13,10 @@ class wamp_broker;
 class wamp_dealer;
 class wamp_goodbye_message;
 class wamp_hello_message;
-class wamp_subscribe_message;
+class wamp_publish_message;
 class wamp_session;
+class wamp_subscribe_message;
+class wamp_unsubscribe_message;
 
 class wamp_router
 {
@@ -32,8 +34,12 @@ public:
             const wamp_hello_message* hello_message);
     void process_goodbye_message(const wamp_session_id& session_id,
             const wamp_goodbye_message* goodbye_message);
+    void process_publish_message(const wamp_session_id& session_id,
+            const wamp_publish_message* publish_message);
     void process_subscribe_message(const wamp_session_id& session_id,
             const wamp_subscribe_message* subscribe_message);
+    void process_unsubscribe_message(const wamp_session_id& session_id,
+            const wamp_unsubscribe_message* unsubscribe_message);
 
 private:
     const std::string m_realm;

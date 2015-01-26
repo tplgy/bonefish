@@ -18,7 +18,7 @@ wamp_unsubscribe_message* msgpack_unsubscribe_message_serializer::deserialize(
     }
 
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
-    if (type != wamp_message_type::GOODBYE) {
+    if (type != wamp_message_type::UNSUBSCRIBE) {
         throw(std::invalid_argument("invalid message type"));
     }
 

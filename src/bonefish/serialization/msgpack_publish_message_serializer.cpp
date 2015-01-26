@@ -1,7 +1,8 @@
-#include <bonefish/serialization/msgpack_subscribe_message_serializer.hpp>
+#include <bonefish/serialization/msgpack_publish_message_serializer.hpp>
 #include <bonefish/identifiers/wamp_request_id.hpp>
+#include <bonefish/identifiers/wamp_subscription_id.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
-#include <bonefish/messages/wamp_subscribe_message.hpp>
+#include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/wamp_uri.hpp>
 #include <memory>
 #include <stdexcept>
@@ -9,7 +10,7 @@
 
 namespace bonefish {
 
-wamp_subscribe_message* msgpack_subscribe_message_serializer::deserialize(
+wamp_publish_message* msgpack_publish_message_serializer::deserialize(
         const std::vector<msgpack::object>& fields)
 {
     if (fields.size() != 4) {
@@ -17,31 +18,31 @@ wamp_subscribe_message* msgpack_subscribe_message_serializer::deserialize(
     }
 
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
-    if (type != wamp_message_type::SUBSCRIBE) {
+    if (type != wamp_message_type::PUBLISH) {
         throw(std::invalid_argument("invalid message type"));
     }
 
     wamp_request_id request_id(fields[1].as<unsigned>());
 
-    // NOTE: We currently ignore the details as they don't
-    // add a whole lot of value at the present time.
-    //
-    //std::unordered_map<std::string, msgpack::object> details;
-    //fields[2].convert(&details);
+    // TODO: process options (fields[2])
 
     wamp_uri topic = fields[3].as<std::string>();
     if (!is_valid_uri(topic)) {
         throw(std::invalid_argument("invalid topic uri"));
     }
 
-    std::unique_ptr<wamp_subscribe_message> subscribe_message(new wamp_subscribe_message);
-    subscribe_message->set_request_id(request_id);
-    subscribe_message->set_topic(topic);
+    // TODO: process optional arguments list (fields(4))
 
-    return subscribe_message.release();
+    // TODO: process optional arguments kw dict (fields(5))
+
+    std::unique_ptr<wamp_publish_message> publish_message(new wamp_publish_message);
+    publish_message->set_request_id(request_id);
+    publish_message->set_topic(topic);
+
+    return publish_message.release();
 }
 
-size_t msgpack_subscribe_message_serializer::serialize(const wamp_subscribe_message* subscribe_message,
+size_t msgpack_publish_message_serializer::serialize(const wamp_publish_message* publish_message,
         char* buffer, size_t length)
 {
     throw(std::logic_error("serialize is not implemented"));

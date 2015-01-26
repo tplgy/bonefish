@@ -4,7 +4,9 @@
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
+#include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
+#include <bonefish/messages/wamp_unsubscribe_message.hpp>
 #include <bonefish/wamp_router.hpp>
 #include <bonefish/wamp_routers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
@@ -184,6 +186,25 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                 std::cerr << "received message: " << message_type_to_string(message->get_type()) << std::endl;
                 switch (message->get_type())
                 {
+                    case wamp_message_type::AUTHENTICATE:
+                        break;
+                    case wamp_message_type::CALL:
+                        break;
+                    case wamp_message_type::CANCEL:
+                        break;
+                    case wamp_message_type::ERROR:
+                        break;
+                    case wamp_message_type::GOODBYE:
+                        {
+                            std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
+                            if (!router) {
+                                wamp_goodbye_message* goodbye_message = static_cast<wamp_goodbye_message*>(message.get());
+                                router->process_goodbye_message(connection->get_session_id(), goodbye_message);
+                                router->detach_session(connection->get_session_id());
+                            }
+                            connection->clear_data();
+                        }
+                        break;
                     case wamp_message_type::HELLO:
                         {
                             wamp_hello_message* hello_message = static_cast<wamp_hello_message*>(message.get());
@@ -207,22 +228,16 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                             router->process_hello_message(id, hello_message);
                         }
                         break;
-                    case wamp_message_type::AUTHENTICATE:
-                        break;
-                    case wamp_message_type::GOODBYE:
+                    case wamp_message_type::PUBLISH:
                         {
                             std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
                             if (!router) {
-                                wamp_goodbye_message* goodbye_message = static_cast<wamp_goodbye_message*>(message.get());
-                                router->process_goodbye_message(connection->get_session_id(), goodbye_message);
-                                router->detach_session(connection->get_session_id());
+                                wamp_publish_message* publish_message = static_cast<wamp_publish_message*>(message.get());
+                                router->process_publish_message(connection->get_session_id(), publish_message);
                             }
-                            connection->clear_data();
                         }
                         break;
-                    case wamp_message_type::ERROR:
-                        break;
-                    case wamp_message_type::PUBLISH:
+                    case wamp_message_type::REGISTER:
                         break;
                     case wamp_message_type::SUBSCRIBE:
                         {
@@ -230,20 +245,19 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                             if (!router) {
                                 wamp_subscribe_message* subscribe_message = static_cast<wamp_subscribe_message*>(message.get());
                                 router->process_subscribe_message(connection->get_session_id(), subscribe_message);
-                                router->detach_session(connection->get_session_id());
                             }
-                            connection->clear_data();
                         }
                         break;
-                    case wamp_message_type::UNSUBSCRIBE:
-                        break;
-                    case wamp_message_type::CALL:
-                        break;
-                    case wamp_message_type::CANCEL:
-                        break;
-                    case wamp_message_type::REGISTER:
-                        break;
                     case wamp_message_type::UNREGISTER:
+                        break;
+                    case wamp_message_type::UNSUBSCRIBE:
+                        {
+                            std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
+                            if (!router) {
+                                wamp_unsubscribe_message* unsubscribe_message = static_cast<wamp_unsubscribe_message*>(message.get());
+                                router->process_unsubscribe_message(connection->get_session_id(), unsubscribe_message);
+                            }
+                        }
                         break;
                     case wamp_message_type::YIELD:
                         break;
