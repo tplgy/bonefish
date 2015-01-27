@@ -112,6 +112,14 @@ size_t msgpack_serializer::serialize(const wamp_message* message, char* buffer, 
                 return message_serializer.serialize(abort_message, buffer, length);
             }
             break;
+        case wamp_message_type::EVENT:
+            {
+                msgpack_event_message_serializer message_serializer;
+                const wamp_event_message* event_message =
+                        static_cast<const wamp_event_message*>(message);
+                return message_serializer.serialize(event_message, buffer, length);
+            }
+            break;
         case wamp_message_type::GOODBYE:
             {
                 msgpack_goodbye_message_serializer message_serializer;

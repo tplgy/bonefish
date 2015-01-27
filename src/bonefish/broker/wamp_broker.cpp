@@ -105,15 +105,19 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
         }
     }
 
-    std::unique_ptr<wamp_published_message> published_message(new wamp_published_message);
-    published_message->set_request_id(publish_message->get_request_id());
-    published_message->set_publication_id(publication_id);
-    session_itr->second->get_transport()->send_message(published_message.get());
+    // TODO: Publish acknowledgements require support for publish options which
+    //       we currently do not yet have working.
+    //
+    //std::unique_ptr<wamp_published_message> published_message(new wamp_published_message);
+    //published_message->set_request_id(publish_message->get_request_id());
+    //published_message->set_publication_id(publication_id);
+    //session_itr->second->get_transport()->send_message(published_message.get());
 }
 
 void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
         const wamp_subscribe_message* subscribe_message)
 {
+    std::cerr << "processing subscribe message" << std::endl;
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
         throw(std::logic_error("broker session does not exist"));
@@ -128,9 +132,11 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
             subscription_id = m_subscription_id_generator.generate();
             result.first->second.reset(new wamp_broker_subscription(subscription_id));
             result.first->second->add_session(session);
+            std::cerr << "created new broker subscription" << std::endl;
         } else {
             subscription_id = result.first->second->get_subscription_id();
             result.first->second->add_session(session);
+            std::cerr << "added to existing broker subscription" << std::endl;
         }
     }
 
@@ -139,13 +145,16 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
         if (result.second) {
             result.first->second.reset(new wamp_broker_topic(subscribe_message->get_topic()));
             result.first->second->add_session(session);
+            std::cerr << "created new broker topic" << std::endl;
         } else {
             result.first->second->add_session(session);
+            std::cerr << "added to existing broker topic" << std::endl;
         }
     }
 
     m_session_subscriptions[session_id].insert(subscription_id);
 
+    std::cerr << "sending subscribed message to the subscriber" << std::endl;
     std::unique_ptr<wamp_subscribed_message> subscribed_message(new wamp_subscribed_message);
     subscribed_message->set_request_id(subscribe_message->get_request_id());
     subscribed_message->set_subscription_id(subscription_id);

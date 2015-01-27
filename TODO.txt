@@ -9,3 +9,4 @@
 - add support for the broker role to the router
 - add support for the dealer role to the router
 - move uri checking out of the serialiation and allow each broker/dealer/router to perform uri validation so that the appropriate error messages can be generated where applicable.
+- add support for publish options so that publish acknowledgements can be used. make sure you read the event specs carefully as you should not acknowledge the publisher if it is also a subscriber or some such nonsense

@@ -199,7 +199,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case wamp_message_type::GOODBYE:
                         {
                             std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
-                            if (!router) {
+                            if (router) {
                                 wamp_goodbye_message* goodbye_message = static_cast<wamp_goodbye_message*>(message.get());
                                 router->process_goodbye_message(connection->get_session_id(), goodbye_message);
                                 router->detach_session(connection->get_session_id());
@@ -233,7 +233,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case wamp_message_type::PUBLISH:
                         {
                             std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
-                            if (!router) {
+                            if (router) {
                                 wamp_publish_message* publish_message = static_cast<wamp_publish_message*>(message.get());
                                 router->process_publish_message(connection->get_session_id(), publish_message);
                             }
@@ -244,7 +244,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case wamp_message_type::SUBSCRIBE:
                         {
                             std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
-                            if (!router) {
+                            if (router) {
                                 wamp_subscribe_message* subscribe_message = static_cast<wamp_subscribe_message*>(message.get());
                                 router->process_subscribe_message(connection->get_session_id(), subscribe_message);
                             }
@@ -255,7 +255,7 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case wamp_message_type::UNSUBSCRIBE:
                         {
                             std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
-                            if (!router) {
+                            if (router) {
                                 wamp_unsubscribe_message* unsubscribe_message = static_cast<wamp_unsubscribe_message*>(message.get());
                                 router->process_unsubscribe_message(connection->get_session_id(), unsubscribe_message);
                             }

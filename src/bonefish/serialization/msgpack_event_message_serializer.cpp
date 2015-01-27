@@ -26,11 +26,14 @@ size_t msgpack_event_message_serializer::serialize(const wamp_event_message* eve
     msgpack::sbuffer sbuffer;
     msgpack::packer<msgpack::sbuffer> packer(&sbuffer);
 
-    packer.pack_array(3);
+    packer.pack_array(4);
 
     packer.pack(static_cast<unsigned>(event_message->get_type()));
     packer.pack(event_message->get_subscription_id().id());
     packer.pack(event_message->get_publication_id().id());
+
+    // TODO: Add support for details once it becomes useful
+    packer.pack_map(0);
 
     if (sbuffer.size() > length) {
         throw(std::overflow_error("serialization buffer too small"));

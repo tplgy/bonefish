@@ -24,7 +24,6 @@ wamp_publish_message* msgpack_publish_message_serializer::deserialize(
         throw(std::invalid_argument("invalid message type"));
     }
 
-    std::cerr << "RequestId: " << fields[1] << std::endl;
     wamp_request_id request_id(fields[1].as<uint64_t>());
 
     // TODO: process options (fields[2])
