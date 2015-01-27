@@ -10,6 +10,7 @@ set(SOURCES
     bonefish/broker/wamp_broker.cpp
     bonefish/messages/wamp_message_type.cpp
     bonefish/roles/wamp_role_type.cpp
+    bonefish/serialization/msgpack_abort_message_serializer.cpp
     bonefish/serialization/msgpack_event_message_serializer.cpp
     bonefish/serialization/msgpack_goodbye_message_serializer.cpp
     bonefish/serialization/msgpack_hello_message_serializer.cpp
@@ -69,6 +70,7 @@ set(PUBLIC_HEADERS
     bonefish/roles/wamp_role.hpp
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
+    bonefish/serialization/msgpack_abort_message_serializer.hpp
     bonefish/serialization/msgpack_event_message_serializer.hpp
     bonefish/serialization/msgpack_goodbye_message_serializer.hpp
     bonefish/serialization/msgpack_hello_message_serializer.hpp
