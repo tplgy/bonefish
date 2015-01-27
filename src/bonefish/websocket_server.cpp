@@ -82,6 +82,7 @@ void websocket_server::start()
     m_server->clear_access_channels(websocketpp::log::alevel::frame_payload);
 
     m_server->init_asio(&m_io_service);
+    m_server->set_reuse_addr(true);
     m_server->listen(9005);
     m_server->start_accept();
     // The io_service is run from owning context.
@@ -170,6 +171,7 @@ bool websocket_server::on_validate(websocketpp::connection_hdl handle)
 void websocket_server::on_message(websocketpp::connection_hdl handle,
         websocketpp::server<websocket_config>::message_ptr buffer)
 {
+    std::cerr << "received message" << std::endl;
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
 
