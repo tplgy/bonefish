@@ -16,8 +16,7 @@ wamp_dealer::~wamp_dealer()
 bool wamp_dealer::attach_session(const std::shared_ptr<wamp_session>& session)
 {
     std::cerr << "attach session: " << session->get_session_id() << std::endl;
-    auto result = m_sessions.insert(
-            std::make_pair(session->get_session_id(), std::move(session)));
+    auto result = m_sessions.insert(std::make_pair(session->get_session_id(), session));
     return result.second;
 }
 
