@@ -4,6 +4,8 @@
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/wamp_uri.hpp>
+#include <cstdint>
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -13,7 +15,7 @@ namespace bonefish {
 wamp_publish_message* msgpack_publish_message_serializer::deserialize(
         const std::vector<msgpack::object>& fields)
 {
-    if (fields.size() != 4) {
+    if (fields.size() < 4 || fields.size() > 6) {
         throw(std::invalid_argument("invalid number of fields"));
     }
 
@@ -22,7 +24,8 @@ wamp_publish_message* msgpack_publish_message_serializer::deserialize(
         throw(std::invalid_argument("invalid message type"));
     }
 
-    wamp_request_id request_id(fields[1].as<unsigned>());
+    std::cerr << "RequestId: " << fields[1] << std::endl;
+    wamp_request_id request_id(fields[1].as<uint64_t>());
 
     // TODO: process options (fields[2])
 

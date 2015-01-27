@@ -21,7 +21,7 @@ wamp_subscribe_message* msgpack_subscribe_message_serializer::deserialize(
         throw(std::invalid_argument("invalid message type"));
     }
 
-    wamp_request_id request_id(fields[1].as<unsigned>());
+    wamp_request_id request_id(fields[1].as<uint64_t>());
 
     // NOTE: We currently ignore the details as they don't
     // add a whole lot of value at the present time.

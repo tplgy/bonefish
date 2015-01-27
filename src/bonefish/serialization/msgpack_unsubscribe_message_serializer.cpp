@@ -4,6 +4,7 @@
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
 #include <bonefish/wamp_uri.hpp>
+#include <cstdint>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -22,8 +23,8 @@ wamp_unsubscribe_message* msgpack_unsubscribe_message_serializer::deserialize(
         throw(std::invalid_argument("invalid message type"));
     }
 
-    wamp_request_id request_id(fields[1].as<unsigned>());
-    wamp_subscription_id subscription_id(fields[2].as<unsigned>());
+    wamp_request_id request_id(fields[1].as<uint64_t>());
+    wamp_subscription_id subscription_id(fields[2].as<uint64_t>());
 
     std::unique_ptr<wamp_unsubscribe_message> unsubscribe_message(new wamp_unsubscribe_message);
     unsubscribe_message->set_request_id(request_id);

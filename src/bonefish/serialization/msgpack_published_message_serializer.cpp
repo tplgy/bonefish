@@ -3,6 +3,7 @@
 #include <bonefish/identifiers/wamp_publication_id.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_published_message.hpp>
+#include <cstdint>
 #include <memory>
 #include <stdexcept>
 #include <string>

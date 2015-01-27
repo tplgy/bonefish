@@ -4,6 +4,7 @@
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/roles/wamp_role_type.hpp>
 #include <bonefish/wamp_uri.hpp>
+#include <cstdint>
 #include <memory>
 #include <stdexcept>
 #include <string>
