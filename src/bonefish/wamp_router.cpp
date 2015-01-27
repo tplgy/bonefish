@@ -17,8 +17,8 @@ namespace bonefish {
 
 wamp_router::wamp_router(const wamp_uri& realm)
     : m_realm(realm)
-    , m_broker()
-    , m_dealer()
+    , m_broker(new wamp_broker)
+    , m_dealer(new wamp_dealer)
     , m_sessions()
 {
 }
