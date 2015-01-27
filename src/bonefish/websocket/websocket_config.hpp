@@ -1,7 +1,7 @@
-#ifndef BONEFISH_WEBSOCKET_CONFIG_HPP
-#define BONEFISH_WEBSOCKET_CONFIG_HPP
+#ifndef BONEFISH_WEBSOCKET_WEBSOCKET_CONFIG_HPP
+#define BONEFISH_WEBSOCKET_WEBSOCKET_CONFIG_HPP
 
-#include <bonefish/websocket_data.hpp>
+#include <bonefish/websocket/websocket_data.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
 
 namespace bonefish {
@@ -30,4 +30,4 @@ public:
 
 } // namespace bonefish
 
-#endif // BONEFISH_WEBSOCKET_CONFIG_HPP
+#endif // BONEFISH_WEBSOCKET_WEBSOCKET_CONFIG_HPP

@@ -1,4 +1,4 @@
-#include <bonefish/websocket_protocol.hpp>
+#include <bonefish/websocket/websocket_protocol.hpp>
 
 namespace bonefish {
 

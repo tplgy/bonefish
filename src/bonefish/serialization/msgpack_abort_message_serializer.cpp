@@ -1,7 +1,7 @@
 #include <bonefish/serialization/msgpack_abort_message_serializer.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
-#include <bonefish/wamp_uri.hpp>
+#include <bonefish/utility/wamp_uri.hpp>
 #include <cstdint>
 #include <memory>
 #include <stdexcept>

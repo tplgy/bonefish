@@ -1,4 +1,4 @@
-#include <bonefish/websocket_server.hpp>
+#include <bonefish/websocket/websocket_server.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
@@ -7,15 +7,15 @@
 #include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
-#include <bonefish/wamp_router.hpp>
-#include <bonefish/wamp_routers.hpp>
+#include <bonefish/router/wamp_router.hpp>
+#include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
-#include <bonefish/wamp_session.hpp>
-#include <bonefish/wamp_transport.hpp>
-#include <bonefish/websocket_transport.hpp>
-#include <bonefish/websocket_protocol.hpp>
+#include <bonefish/session/wamp_session.hpp>
+#include <bonefish/transport/wamp_transport.hpp>
+#include <bonefish/websocket/websocket_transport.hpp>
+#include <bonefish/websocket/websocket_protocol.hpp>
 #include <boost/asio/io_service.hpp>
 #include <msgpack.hpp>
 #include <websocketpp/common/connection_hdl.hpp>

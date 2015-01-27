@@ -1,5 +1,6 @@
-#include <bonefish/wamp_router.hpp>
+#include <bonefish/router/wamp_router.hpp>
 #include <bonefish/broker/wamp_broker.hpp>
+#include <bonefish/dealer/wamp_dealer.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
@@ -8,8 +9,7 @@
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
-#include <bonefish/wamp_dealer.hpp>
-#include <bonefish/wamp_session.hpp>
+#include <bonefish/session/wamp_session.hpp>
 #include <iostream>
 #include <stdexcept>
 

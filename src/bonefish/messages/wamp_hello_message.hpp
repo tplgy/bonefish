@@ -4,7 +4,7 @@
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
-#include <bonefish/wamp_uri.hpp>
+#include <bonefish/utility/wamp_uri.hpp>
 #include <unordered_set>
 
 namespace bonefish {

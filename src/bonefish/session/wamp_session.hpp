@@ -1,11 +1,11 @@
-#ifndef BONEFISH_WAMP_SESSION_HPP
-#define BONEFISH_WAMP_SESSION_HPP
+#ifndef BONEFISH_SESSION_WAMP_SESSION_HPP
+#define BONEFISH_SESSION_WAMP_SESSION_HPP
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/roles/wamp_role.hpp>
-#include <bonefish/wamp_session_state.hpp>
-#include <bonefish/wamp_transport.hpp>
-#include <bonefish/websocket_config.hpp>
+#include <bonefish/session/wamp_session_state.hpp>
+#include <bonefish/transport/wamp_transport.hpp>
+#include <bonefish/websocket/websocket_config.hpp>
 #include <memory>
 #include <string>
 #include <unordered_set>
@@ -91,4 +91,4 @@ inline wamp_session_state wamp_session::get_state() const
 
 } // namespace bonefish
 
-#endif // BONEFISH_WAMP_SESSION_HPP
+#endif // BONEFISH_SESSION_WAMP_SESSION_HPP

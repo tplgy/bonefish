@@ -1,7 +1,7 @@
 #ifndef BONEFISH_WAMP_ROUTERS_HPP
 #define BONEFISH_WAMP_ROUTERS_HPP
 
-#include <bonefish/wamp_router.hpp>
+#include <bonefish/router/wamp_router.hpp>
 
 namespace bonefish {
 

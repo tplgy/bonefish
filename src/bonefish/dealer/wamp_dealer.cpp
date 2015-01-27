@@ -1,5 +1,5 @@
-#include <bonefish/wamp_dealer.hpp>
-#include <bonefish/wamp_session.hpp>
+#include <bonefish/dealer/wamp_dealer.hpp>
+#include <bonefish/session/wamp_session.hpp>
 #include <iostream>
 
 namespace bonefish {

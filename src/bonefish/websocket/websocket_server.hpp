@@ -1,8 +1,8 @@
-#ifndef BONEFISH_WEBSOCKET_SERVER_HPP
-#define BONEFISH_WEBSOCKET_SERVER_HPP
+#ifndef BONEFISH_WEBSOCKET_WEBSOCKET_SERVER_HPP
+#define BONEFISH_WEBSOCKET_WEBSOCKET_SERVER_HPP
 
 #include <bonefish/identifiers/wamp_session_id_generator.hpp>
-#include <bonefish/websocket_config.hpp>
+#include <bonefish/websocket/websocket_config.hpp>
 #include <memory>
 #include <unordered_map>
 #include <websocketpp/server.hpp>
@@ -50,4 +50,4 @@ private:
 
 } // namespace bonefish
 
-#endif // BONEFISH_WEBSOCKET_SERVER_HPP
+#endif // BONEFISH_WEBSOCKET_WEBSOCKET_SERVER_HPP

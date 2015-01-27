@@ -1,5 +1,5 @@
-#ifndef BONEFISH_WAMP_TRANSPORT_HPP
-#define BONEFISH_WAMP_TRANSPORT_HPP
+#ifndef BONEFISH_TRANSPORT_WAMP_TRANSPORT_HPP
+#define BONEFISH_TRANSPORT_WAMP_TRANSPORT_HPP
 
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>
@@ -29,4 +29,4 @@ inline wamp_transport::~wamp_transport()
 
 } // namespace bonefish
 
-#endif // BONEFISH_WAMP_TRANSPORT_HPP
+#endif // BONEFISH_TRANSPORT_WAMP_TRANSPORT_HPP

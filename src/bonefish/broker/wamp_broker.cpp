@@ -9,8 +9,8 @@
 #include <bonefish/messages/wamp_subscribed_message.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
 #include <bonefish/messages/wamp_unsubscribed_message.hpp>
-#include <bonefish/wamp_session.hpp>
-#include <bonefish/wamp_transport.hpp>
+#include <bonefish/session/wamp_session.hpp>
+#include <bonefish/transport/wamp_transport.hpp>
 #include <iostream>
 
 namespace bonefish {

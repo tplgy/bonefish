@@ -2,7 +2,7 @@
 #define BONEFISH_BROKER_WAMP_BROKER_SUBSCRIPTION_HPP
 
 #include <bonefish/identifiers/wamp_subscription_id.hpp>
-#include <bonefish/wamp_session.hpp>
+#include <bonefish/session/wamp_session.hpp>
 #include <unordered_set>
 
 namespace bonefish {

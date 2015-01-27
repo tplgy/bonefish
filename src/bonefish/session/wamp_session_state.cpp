@@ -1,4 +1,4 @@
-#include <bonefish/wamp_session_state.hpp>
+#include <bonefish/session/wamp_session_state.hpp>
 
 namespace bonefish {
 

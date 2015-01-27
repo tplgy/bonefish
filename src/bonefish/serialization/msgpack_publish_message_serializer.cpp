@@ -3,7 +3,7 @@
 #include <bonefish/identifiers/wamp_subscription_id.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_publish_message.hpp>
-#include <bonefish/wamp_uri.hpp>
+#include <bonefish/utility/wamp_uri.hpp>
 #include <cstdint>
 #include <iostream>
 #include <memory>

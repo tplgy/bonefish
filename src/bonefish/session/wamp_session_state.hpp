@@ -1,5 +1,5 @@
-#ifndef BONEFISH_WAMP_SESSION_STATE_HPP
-#define BONEFISH_WAMP_SESSION_STATE_HPP
+#ifndef BONEFISH_SESSION_WAMP_SESSION_STATE_HPP
+#define BONEFISH_SESSION_WAMP_SESSION_STATE_HPP
 
 #include <string>
 
@@ -16,4 +16,4 @@ const char* session_state_to_string(const wamp_session_state& state);
 
 } // namespace bonefish
 
-#endif // BONEFISH_WAMP_SESSION_STATE_HPP
+#endif // BONEFISH_SESSION_WAMP_SESSION_STATE_HPP

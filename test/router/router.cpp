@@ -1,7 +1,7 @@
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
-#include <bonefish/wamp_routers.hpp>
-#include <bonefish/websocket_server.hpp>
+#include <bonefish/router/wamp_routers.hpp>
+#include <bonefish/websocket/websocket_server.hpp>
 #include <iostream>
 #include <thread>
 

@@ -8,8 +8,10 @@ include_directories(
 
 set(SOURCES
     bonefish/broker/wamp_broker.cpp
+    bonefish/dealer/wamp_dealer.cpp
     bonefish/messages/wamp_message_type.cpp
     bonefish/roles/wamp_role_type.cpp
+    bonefish/router/wamp_router.cpp
     bonefish/serialization/msgpack_abort_message_serializer.cpp
     bonefish/serialization/msgpack_event_message_serializer.cpp
     bonefish/serialization/msgpack_goodbye_message_serializer.cpp
@@ -22,17 +24,16 @@ set(SOURCES
     bonefish/serialization/msgpack_subscribed_message_serializer.cpp
     bonefish/serialization/msgpack_unsubscribe_message_serializer.cpp
     bonefish/serialization/msgpack_unsubscribed_message_serializer.cpp
-    bonefish/wamp_dealer.cpp
-    bonefish/wamp_router.cpp
-    bonefish/wamp_session_state.cpp
-    bonefish/wamp_uri.cpp
-    bonefish/websocket_protocol.cpp
-    bonefish/websocket_server.cpp)
+    bonefish/session/wamp_session_state.cpp
+    bonefish/utility/wamp_uri.cpp
+    bonefish/websocket/websocket_protocol.cpp
+    bonefish/websocket/websocket_server.cpp)
 
 set(PUBLIC_HEADERS
     bonefish/broker/wamp_broker.hpp
     bonefish/broker/wamp_broker_subscription.hpp
     bonefish/broker/wamp_broker_topic.hpp
+    bonefish/dealer/wamp_dealer.hpp
     bonefish/identifiers/wamp_publication_id.hpp
     bonefish/identifiers/wamp_publication_id_generator.hpp
     bonefish/identifiers/wamp_random_id.hpp
@@ -70,6 +71,8 @@ set(PUBLIC_HEADERS
     bonefish/roles/wamp_role.hpp
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
+    bonefish/router/wamp_router.hpp
+    bonefish/router/wamp_routers.hpp
     bonefish/serialization/msgpack_abort_message_serializer.hpp
     bonefish/serialization/msgpack_event_message_serializer.hpp
     bonefish/serialization/msgpack_goodbye_message_serializer.hpp
@@ -84,18 +87,15 @@ set(PUBLIC_HEADERS
     bonefish/serialization/msgpack_unsubscribed_message_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
-    bonefish/wamp_dealer.hpp
-    bonefish/wamp_router.hpp
-    bonefish/wamp_routers.hpp
-    bonefish/wamp_session.hpp
-    bonefish/wamp_session_state.hpp
-    bonefish/wamp_transport.hpp
-    bonefish/wamp_uri.hpp
-    bonefish/websocket_config.hpp
-    bonefish/websocket_data.hpp
-    bonefish/websocket_protocol.hpp
-    bonefish/websocket_server.hpp
-    bonefish/websocket_transport.hpp)
+    bonefish/session/wamp_session.hpp
+    bonefish/session/wamp_session_state.hpp
+    bonefish/transport/wamp_transport.hpp
+    bonefish/utility/wamp_uri.hpp
+    bonefish/websocket/websocket_config.hpp
+    bonefish/websocket/websocket_data.hpp
+    bonefish/websocket/websocket_protocol.hpp
+    bonefish/websocket/websocket_server.hpp
+    bonefish/websocket/websocket_transport.hpp)
 
 add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS})
 install(FILES ${PUBLIC_HEADERS} DESTINATION include/bonefish)

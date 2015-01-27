@@ -2,7 +2,7 @@
 #define BONEFISH_WAMP_ROUTER_HPP
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
-#include <bonefish/wamp_uri.hpp>
+#include <bonefish/utility/wamp_uri.hpp>
 #include <memory>
 #include <unordered_set>
 #include <unordered_map>

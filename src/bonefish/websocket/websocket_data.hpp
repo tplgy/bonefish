@@ -1,5 +1,5 @@
-#ifndef BONEFISH_WEBSOCKET_DATA_HPP
-#define BONEFISH_WEBSOCKET_DATA_HPP
+#ifndef BONEFISH_WEBSOCKET_WEBSOCKET_DATA_HPP
+#define BONEFISH_WEBSOCKET_WEBSOCKET_DATA_HPP
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
@@ -75,4 +75,4 @@ inline void websocket_data::clear_data()
 
 } // namespace bonefish
 
-#endif // BONEFISH_WEBSOCKET_DATA_HPP
+#endif // BONEFISH_WEBSOCKET_WEBSOCKET_DATA_HPP

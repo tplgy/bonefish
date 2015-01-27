@@ -1,4 +1,4 @@
-#include <bonefish/wamp_uri.hpp>
+#include <bonefish/utility/wamp_uri.hpp>
 
 namespace bonefish {
 

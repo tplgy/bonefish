@@ -1,5 +1,5 @@
-#ifndef BONEFISH_WAMP_URI_HPP
-#define BONEFISH_WAMP_URI_HPP
+#ifndef BONEFISH_UTILITY_WAMP_URI_HPP
+#define BONEFISH_UTILITY_WAMP_URI_HPP
 
 #include <string>
 
@@ -39,4 +39,4 @@ bool is_valid_uri(const wamp_uri& uri);
 
 } // namespace bonefish
 
-#endif // BONEFISH_WAMP_URI_HPP
+#endif // BONEFISH_UTILITY_WAMP_URI_HPP

@@ -2,7 +2,7 @@
 #include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_unsubscribed_message.hpp>
-#include <bonefish/wamp_uri.hpp>
+#include <bonefish/utility/wamp_uri.hpp>
 #include <memory>
 #include <stdexcept>
 #include <string>

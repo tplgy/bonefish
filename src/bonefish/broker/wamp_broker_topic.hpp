@@ -1,8 +1,8 @@
 #ifndef BONEFISH_BROKER_WAMP_BROKER_TOPIC_HPP
 #define BONEFISH_BROKER_WAMP_BROKER_TOPIC_HPP
 
-#include <bonefish/wamp_session.hpp>
-#include <bonefish/wamp_uri.hpp>
+#include <bonefish/session/wamp_session.hpp>
+#include <bonefish/utility/wamp_uri.hpp>
 #include <unordered_set>
 
 namespace bonefish {
