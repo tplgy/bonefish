@@ -37,4 +37,4 @@ inline wamp_serializer_type msgpack_serializer::get_type() const
 
 } // namespace bonefish
 
-#endif // BONEFISH_SERIALIZATION_SERIALIZER_HPP
+#endif // BONEFISH_SERIALIZATION_MSGPACK_SERIALIZER_HPP
