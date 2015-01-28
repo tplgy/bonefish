@@ -1,9 +1,9 @@
 find_package(Boost REQUIRED COMPONENTS system thread)
-find_package(Msgpack REQUIRED)
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/third-party/websocketpp
+    ${CMAKE_SOURCE_DIR}/third-party/msgpack-c/include
     ${Boost_INCLUDE_DIRS})
 
 set(SOURCES
