@@ -1,0 +1,5 @@
+{
+  "arc.land.update.default": "rebase",
+  "history.immutable": true,
+  "phabricator.uri": "http://git.topologyinc.com/"
+}

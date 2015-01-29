@@ -34,6 +34,9 @@ public:
 
     void set_state(wamp_session_state session_state);
     void set_roles(const std::unordered_set<wamp_role>& roles);
+    void set_roles(std::unordered_set<wamp_role>&& roles);
+    void add_role(const wamp_role& role);
+    void add_role(wamp_role&& role);
 
 private:
     wamp_session_id m_session_id;
@@ -73,12 +76,6 @@ inline const std::unique_ptr<wamp_transport>& wamp_session::get_transport() cons
     return m_transport;
 }
 
-inline void wamp_session::set_roles(const std::unordered_set<wamp_role>& roles)
-{
-    m_roles.clear();
-    m_roles.insert(roles.begin(), roles.end());
-}
-
 inline void wamp_session::set_state(wamp_session_state state)
 {
     m_session_state = state;
@@ -87,6 +84,26 @@ inline void wamp_session::set_state(wamp_session_state state)
 inline wamp_session_state wamp_session::get_state() const
 {
     return m_session_state;
+}
+
+inline void wamp_session::set_roles(const std::unordered_set<wamp_role>& roles)
+{
+    m_roles = roles;
+}
+
+inline void wamp_session::set_roles(std::unordered_set<wamp_role>&& roles)
+{
+    m_roles = std::move(roles);
+}
+
+inline void wamp_session::add_role(const wamp_role& role)
+{
+    m_roles.insert(role);
+}
+
+inline void wamp_session::add_role(wamp_role&& role)
+{
+    m_roles.insert(std::move(role));
 }
 
 } // namespace bonefish

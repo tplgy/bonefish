@@ -2,6 +2,7 @@
 #define BONEFISH_WAMP_ROUTER_HPP
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
+#include <bonefish/messages/wamp_welcome_details.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
 #include <memory>
 #include <unordered_set>
@@ -43,6 +44,7 @@ public:
 
 private:
     const std::string m_realm;
+    wamp_welcome_details m_welcome_details;
     std::unique_ptr<wamp_broker> m_broker;
     std::unique_ptr<wamp_dealer> m_dealer;
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;

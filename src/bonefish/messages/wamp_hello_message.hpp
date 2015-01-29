@@ -2,10 +2,14 @@
 #define BONEFISH_MESSAGES_WAMP_HELLO_MESSAGE_HPP
 
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/wamp_message_type.hpp>
-#include <bonefish/roles/wamp_role.hpp>
+#include <bonefish/messages/wamp_message_defaults.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
+#include <cstddef>
+#include <iostream>
+#include <msgpack.hpp>
+#include <stdexcept>
 #include <unordered_set>
+#include <vector>
 
 namespace bonefish {
 
@@ -19,21 +23,30 @@ public:
     virtual ~wamp_hello_message() override;
 
     virtual wamp_message_type get_type() const override;
+    virtual std::vector<msgpack::object> marshal() const override;
+    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_uri& get_realm() const;
-    const std::unordered_set<wamp_role>& get_roles() const;
+    const wamp_uri get_realm() const;
+    const msgpack::object& get_details() const;
 
     void set_realm(const wamp_uri& realm);
-    bool add_role(const wamp_role& role);
+    void set_details(const msgpack::object& details);
 
 private:
-    wamp_uri m_realm;
-    std::unordered_set<wamp_role> m_roles;
+    msgpack::zone m_zone;
+    msgpack::object m_type;
+    msgpack::object m_realm;
+    msgpack::object m_details;
+
+private:
+    static const size_t NUM_FIELDS = 3;
 };
 
 inline wamp_hello_message::wamp_hello_message()
-    : m_realm()
-    , m_roles()
+    : m_zone()
+    , m_type(wamp_message_type::HELLO, &m_zone)
+    , m_realm()
+    , m_details(MSGPACK_EMPTY_MAP)
 {
 }
 
@@ -43,28 +56,50 @@ inline wamp_hello_message::~wamp_hello_message()
 
 inline wamp_message_type wamp_hello_message::get_type() const
 {
-    return wamp_message_type::HELLO;
+    return m_type.as<wamp_message_type>();
 }
 
-inline const wamp_uri& wamp_hello_message::get_realm() const
+inline std::vector<msgpack::object> wamp_hello_message::marshal() const
 {
-    return m_realm;
+    std::vector<msgpack::object> fields { m_type, m_realm, m_details };
+    return fields;
 }
 
-inline const std::unordered_set<wamp_role>& wamp_hello_message::get_roles() const
+inline void wamp_hello_message::unmarshal(const std::vector<msgpack::object>& fields)
 {
-    return m_roles;
+    if (fields.size() != NUM_FIELDS) {
+        throw(std::invalid_argument("invalid number of fields"));
+    }
+
+    if (fields[0].as<wamp_message_type>() != get_type()) {
+        throw(std::invalid_argument("invalid message type"));
+    }
+
+    m_realm = msgpack::object(fields[1], &m_zone);
+    m_details = msgpack::object(fields[2], &m_zone);
+
+    std::cerr << "hello message details: " << m_details << std::endl;
+}
+
+inline const wamp_uri wamp_hello_message::get_realm() const
+{
+    return m_realm.as<wamp_uri>();
+}
+
+inline const msgpack::object& wamp_hello_message::get_details() const
+{
+    return m_details;
 }
 
 inline void wamp_hello_message::set_realm(const wamp_uri& realm)
 {
-    m_realm = realm;
+    m_realm = msgpack::object(realm, &m_zone);
 }
 
-inline bool wamp_hello_message::add_role(const wamp_role& role)
+inline void wamp_hello_message::set_details(const msgpack::object& details)
 {
-    auto result = m_roles.insert(role);
-    return result.second;
+    assert(details.type == msgpack::type::MAP);
+    m_details = msgpack::object(details, &m_zone);
 }
 
 } // namespace bonefish

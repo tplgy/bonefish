@@ -88,7 +88,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
         throw(std::logic_error("broker session does not exist"));
     }
 
-    const wamp_uri& topic = publish_message->get_topic();
+    const wamp_uri topic = publish_message->get_topic();
     const wamp_publication_id publication_id = m_publication_id_generator.generate();
 
     auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
@@ -96,6 +96,8 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
         std::unique_ptr<wamp_event_message> event_message(new wamp_event_message);
         event_message->set_subscription_id(topic_subscriptions_itr->second->get_subscription_id());
         event_message->set_publication_id(publication_id);
+        event_message->set_arguments(publish_message->get_arguments());
+        event_message->set_arguments_kw(publish_message->get_arguments_kw());
 
         for (const auto& session : topic_subscriptions_itr->second->get_sessions()) {
             // TODO: Improve performance here by offering a transport api that

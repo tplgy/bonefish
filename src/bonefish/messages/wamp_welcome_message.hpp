@@ -3,8 +3,14 @@
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_message.hpp>
+#include <bonefish/messages/wamp_message_defaults.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
+#include <cstddef>
+#include <memory>
+#include <msgpack.hpp>
+#include <stdexcept>
+#include <vector>
 #include <unordered_set>
 
 namespace bonefish {
@@ -19,22 +25,30 @@ public:
     virtual ~wamp_welcome_message() override;
 
     virtual wamp_message_type get_type() const override;
+    virtual std::vector<msgpack::object> marshal() const override;
+    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_session_id& get_session_id() const;
-    const std::unordered_set<wamp_role>& get_roles() const;
+    const wamp_session_id get_session_id() const;
+    const msgpack::object& get_details() const;
 
     void set_session_id(const wamp_session_id& session_id);
-    void set_roles(const std::unordered_set<wamp_role>& roles);
-    bool add_role(const wamp_role& role);
+    void set_details(const msgpack::object&);
 
 private:
-    wamp_session_id m_session_id;
-    std::unordered_set<wamp_role> m_roles;
+    msgpack::zone m_zone;
+    msgpack::object m_type;
+    msgpack::object m_session_id;
+    msgpack::object m_details;
+
+private:
+    static const size_t NUM_FIELDS = 3;
 };
 
 inline wamp_welcome_message::wamp_welcome_message()
-    : m_session_id()
-    , m_roles()
+    : m_zone()
+    , m_type(wamp_message_type::WELCOME, &m_zone)
+    , m_session_id()
+    , m_details(MSGPACK_EMPTY_MAP)
 {
 }
 
@@ -44,33 +58,48 @@ inline wamp_welcome_message::~wamp_welcome_message()
 
 inline wamp_message_type wamp_welcome_message::get_type() const
 {
-    return wamp_message_type::WELCOME;
+    return m_type.as<wamp_message_type>();
 }
 
-inline const wamp_session_id& wamp_welcome_message::get_session_id() const
+inline std::vector<msgpack::object> wamp_welcome_message::marshal() const
 {
-    return m_session_id;
+    std::vector<msgpack::object> fields { m_type, m_session_id, m_details };
+    return fields;
 }
 
-inline const std::unordered_set<wamp_role>& wamp_welcome_message::get_roles() const
+inline void wamp_welcome_message::unmarshal(const std::vector<msgpack::object>& fields)
 {
-    return m_roles;
+    if (fields.size() != NUM_FIELDS) {
+        throw(std::invalid_argument("invalid number of fields"));
+    }
+
+    if (fields[0].as<wamp_message_type>() != get_type()) {
+        throw(std::invalid_argument("invalid message type"));
+    }
+
+    m_session_id = msgpack::object(fields[1]);
+    m_details = msgpack::object(fields[2], &m_zone);
 }
 
-inline void wamp_welcome_message::set_session_id(const wamp_session_id& id)
+inline const wamp_session_id wamp_welcome_message::get_session_id() const
 {
-    m_session_id = id;
+    return wamp_session_id(m_session_id.as<uint64_t>());
 }
 
-inline void wamp_welcome_message::set_roles(const std::unordered_set<wamp_role>& roles)
+inline const msgpack::object& wamp_welcome_message::get_details() const
 {
-    m_roles = roles;
+    return m_details;
 }
 
-inline bool wamp_welcome_message::add_role(const wamp_role& role)
+inline void wamp_welcome_message::set_session_id(const wamp_session_id& session_id)
 {
-    auto result = m_roles.insert(role);
-    return result.second;
+    m_session_id = msgpack::object(session_id.id());
+}
+
+inline void wamp_welcome_message::set_details(const msgpack::object& details)
+{
+    assert(details.type == msgpack::type::MAP);
+    m_details = msgpack::object(details, &m_zone);
 }
 
 } // namespace bonefish

@@ -12,6 +12,11 @@ public:
     wamp_role_features();
     ~wamp_role_features();
 
+    wamp_role_features(wamp_role_features&& other);
+    wamp_role_features& operator=(wamp_role_features&& other);
+    wamp_role_features(const wamp_role_features& other);
+    wamp_role_features& operator=(const wamp_role_features& other);
+
     void set_option(const std::string& option, bool supported);
     bool get_option(const std::string& option) const;
     const std::unordered_map<std::string, bool>& get_options() const;
@@ -28,6 +33,34 @@ inline wamp_role_features::wamp_role_features()
 
 inline wamp_role_features::~wamp_role_features()
 {
+}
+
+inline wamp_role_features::wamp_role_features(wamp_role_features&& other)
+    : m_options(std::move(other.m_options))
+{
+}
+
+inline wamp_role_features& wamp_role_features::operator=(wamp_role_features&& other)
+{
+    if (this != &other) {
+        m_options = std::move(other.m_options);
+    }
+
+    return *this;
+}
+
+inline wamp_role_features::wamp_role_features(const wamp_role_features& other)
+    : m_options(other.m_options)
+{
+}
+
+inline wamp_role_features& wamp_role_features::operator=(const wamp_role_features& other)
+{
+    if (this != &other) {
+        m_options = other.m_options;
+    }
+
+    return *this;
 }
 
 inline void wamp_role_features::set_option(const std::string& option, bool supported)

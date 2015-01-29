@@ -12,10 +12,15 @@ public:
     wamp_role(wamp_role_type type);
     ~wamp_role();
 
+    wamp_role(wamp_role&& other);
+    wamp_role& operator=(wamp_role&& other);
+    wamp_role(const wamp_role& other);
+    wamp_role& operator=(const wamp_role& other);
+
     wamp_role_type get_type() const;
     wamp_role_features& get_features();
     const wamp_role_features& get_features() const;
-    void set_features(const wamp_role_features& features);
+    void set_features(wamp_role_features&& features);
 
     bool operator==(const wamp_role& other) const;
 
@@ -33,6 +38,38 @@ inline wamp_role::~wamp_role()
 {
 }
 
+inline wamp_role::wamp_role(wamp_role&& other)
+    : m_type(other.m_type)
+    , m_features(std::move(other.m_features))
+{
+}
+
+inline wamp_role& wamp_role::operator=(wamp_role&& other)
+{
+    if (this != &other) {
+        m_type = other.m_type;
+        m_features = std::move(other.m_features);
+    }
+
+    return *this;
+}
+
+inline wamp_role::wamp_role(const wamp_role& other)
+    : m_type(other.m_type)
+    , m_features(other.m_features)
+{
+}
+
+inline wamp_role& wamp_role::operator=(const wamp_role& other)
+{
+    if (this != &other) {
+        m_type = other.m_type;
+        m_features = other.m_features;
+    }
+
+    return *this;
+}
+
 inline wamp_role_type wamp_role::get_type() const
 {
     return m_type;
@@ -48,9 +85,9 @@ inline const wamp_role_features& wamp_role::get_features() const
     return m_features;
 }
 
-inline void wamp_role::set_features(const wamp_role_features& features)
+inline void wamp_role::set_features(wamp_role_features&& features)
 {
-    m_features = features;
+    m_features = std::move(features);
 }
 
 inline bool wamp_role::operator==(const wamp_role& other) const

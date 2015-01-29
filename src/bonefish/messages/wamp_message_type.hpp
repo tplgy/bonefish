@@ -2,10 +2,12 @@
 #define BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP
 
 #include <cstdint>
+#include <msgpack.hpp>
+#include <type_traits>
 
 namespace bonefish {
 
-enum class wamp_message_type : unsigned
+enum class wamp_message_type : int
 {
     HELLO = 1,
     WELCOME = 2,
@@ -34,8 +36,10 @@ enum class wamp_message_type : unsigned
     YIELD = 70
 };
 
-const char* message_type_to_string(const wamp_message_type& type);
+const char* message_type_to_string(wamp_message_type type);
 
 } // namespace bonefish
+
+MSGPACK_ADD_ENUM(bonefish::wamp_message_type);
 
 #endif // BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP

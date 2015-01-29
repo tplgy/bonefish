@@ -3,24 +3,31 @@
 #include <bonefish/dealer/wamp_dealer.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
+#include <bonefish/messages/wamp_hello_details.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
+#include <bonefish/messages/wamp_welcome_details.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/session/wamp_session.hpp>
 #include <iostream>
 #include <stdexcept>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace bonefish {
 
 wamp_router::wamp_router(const wamp_uri& realm)
     : m_realm(realm)
+    , m_welcome_details()
     , m_broker(new wamp_broker)
     , m_dealer(new wamp_dealer)
     , m_sessions()
 {
+    m_welcome_details.add_role(wamp_role(wamp_role_type::BROKER));
+    m_welcome_details.add_role(wamp_role(wamp_role_type::DEALER));
 }
 
 wamp_router::~wamp_router()
@@ -91,13 +98,20 @@ void wamp_router::process_hello_message(const wamp_session_id& session_id,
         return;
     }
 
-    session->set_roles(hello_message->get_roles());
+    wamp_hello_details hello_details;
+    hello_details.unmarshal(hello_message->get_details());
+
+    const auto& roles = hello_details.get_roles();
+    if (roles.empty()) {
+        throw(std::invalid_argument("no roles specified"));
+    }
+    session->set_roles(roles);
+
     session->set_state(wamp_session_state::OPEN);
 
     std::unique_ptr<wamp_welcome_message> welcome_message(new wamp_welcome_message);
     welcome_message->set_session_id(session_id);
-    welcome_message->add_role(wamp_role(wamp_role_type::BROKER));
-    welcome_message->add_role(wamp_role(wamp_role_type::DEALER));
+    welcome_message->set_details(m_welcome_details.marshal());
     session->get_transport()->send_message(welcome_message.get());
 }
 

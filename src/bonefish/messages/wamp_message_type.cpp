@@ -3,7 +3,7 @@
 
 namespace bonefish {
 
-const char* message_type_to_string(const wamp_message_type& type)
+const char* message_type_to_string(wamp_message_type type)
 {
     const char* str = nullptr;
 
