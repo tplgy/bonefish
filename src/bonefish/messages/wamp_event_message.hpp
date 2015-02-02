@@ -28,8 +28,8 @@ public:
     virtual std::vector<msgpack::object> marshal() const override;
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_subscription_id get_subscription_id() const;
-    const wamp_publication_id get_publication_id() const;
+    wamp_subscription_id get_subscription_id() const;
+    wamp_publication_id get_publication_id() const;
     const msgpack::object& get_details() const;
     const msgpack::object& get_arguments() const;
     const msgpack::object& get_arguments_kw() const;
@@ -116,12 +116,12 @@ inline void wamp_event_message::unmarshal(const std::vector<msgpack::object>& fi
     }
 }
 
-inline const wamp_subscription_id wamp_event_message::get_subscription_id() const
+inline wamp_subscription_id wamp_event_message::get_subscription_id() const
 {
     return wamp_subscription_id(m_subscription_id.as<uint64_t>());
 }
 
-inline const wamp_publication_id wamp_event_message::get_publication_id() const
+inline wamp_publication_id wamp_event_message::get_publication_id() const
 {
     return wamp_publication_id(m_publication_id.as<uint64_t>());
 }

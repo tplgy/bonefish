@@ -28,7 +28,7 @@ public:
     virtual std::vector<msgpack::object> marshal() const override;
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_session_id get_session_id() const;
+    wamp_session_id get_session_id() const;
     const msgpack::object& get_details() const;
 
     void set_session_id(const wamp_session_id& session_id);
@@ -81,7 +81,7 @@ inline void wamp_welcome_message::unmarshal(const std::vector<msgpack::object>& 
     m_details = msgpack::object(fields[2], &m_zone);
 }
 
-inline const wamp_session_id wamp_welcome_message::get_session_id() const
+inline wamp_session_id wamp_welcome_message::get_session_id() const
 {
     return wamp_session_id(m_session_id.as<uint64_t>());
 }

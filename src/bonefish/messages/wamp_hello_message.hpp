@@ -26,7 +26,7 @@ public:
     virtual std::vector<msgpack::object> marshal() const override;
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_uri get_realm() const;
+    wamp_uri get_realm() const;
     const msgpack::object& get_details() const;
 
     void set_realm(const wamp_uri& realm);
@@ -81,7 +81,7 @@ inline void wamp_hello_message::unmarshal(const std::vector<msgpack::object>& fi
     std::cerr << "hello message details: " << m_details << std::endl;
 }
 
-inline const wamp_uri wamp_hello_message::get_realm() const
+inline wamp_uri wamp_hello_message::get_realm() const
 {
     return m_realm.as<wamp_uri>();
 }

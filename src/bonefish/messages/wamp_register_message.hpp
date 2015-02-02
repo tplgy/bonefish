@@ -26,9 +26,9 @@ public:
     virtual std::vector<msgpack::object> marshal() const override;
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_request_id get_request_id() const;
+    wamp_request_id get_request_id() const;
     const msgpack::object& get_options() const;
-    const wamp_uri get_procedure() const;
+    wamp_uri get_procedure() const;
 
     void set_request_id(const wamp_request_id& request_id);
     void set_options(const msgpack::object& options);
@@ -82,7 +82,7 @@ inline void wamp_register_message::unmarshal(const std::vector<msgpack::object>&
     m_options = msgpack::object(fields[2], &m_zone);
 }
 
-inline const wamp_request_id wamp_register_message::get_request_id() const
+inline wamp_request_id wamp_register_message::get_request_id() const
 {
     return wamp_request_id(m_request_id.as<uint64_t>());
 }
@@ -92,7 +92,7 @@ inline const msgpack::object& wamp_register_message::get_options() const
     return m_options;
 }
 
-inline const wamp_uri wamp_register_message::get_procedure() const
+inline wamp_uri wamp_register_message::get_procedure() const
 {
     return m_procedure.as<wamp_uri>();
 }

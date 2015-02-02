@@ -24,7 +24,7 @@ public:
     virtual std::vector<msgpack::object> marshal() const override;
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_request_id get_request_id() const;
+    wamp_request_id get_request_id() const;
     void set_request_id(const wamp_request_id& request_id);
 
 private:
@@ -71,7 +71,7 @@ inline void wamp_unregistered_message::unmarshal(const std::vector<msgpack::obje
     m_request_id = msgpack::object(fields[1]);
 }
 
-inline const wamp_request_id wamp_unregistered_message::get_request_id() const
+inline wamp_request_id wamp_unregistered_message::get_request_id() const
 {
     return wamp_request_id(m_request_id.as<uint64_t>());
 }

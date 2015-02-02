@@ -29,9 +29,9 @@ public:
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
     wamp_message_type get_request_type() const;
-    const wamp_request_id get_request_id() const;
+    wamp_request_id get_request_id() const;
     const msgpack::object& get_details() const;
-    const wamp_uri get_error() const;
+    wamp_uri get_error() const;
     const msgpack::object& get_arguments() const;
     const msgpack::object& get_arguments_kw() const;
 
@@ -127,7 +127,7 @@ inline wamp_message_type wamp_error_message::get_request_type() const
     return m_request_type.as<wamp_message_type>();
 }
 
-inline const wamp_request_id wamp_error_message::get_request_id() const
+inline wamp_request_id wamp_error_message::get_request_id() const
 {
     return wamp_request_id(m_request_id.as<uint64_t>());
 }
@@ -137,7 +137,7 @@ inline const msgpack::object& wamp_error_message::get_details() const
     return m_details;
 }
 
-inline const wamp_uri wamp_error_message::get_error() const
+inline wamp_uri wamp_error_message::get_error() const
 {
     return m_error.as<wamp_uri>();
 }

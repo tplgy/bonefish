@@ -27,7 +27,7 @@ public:
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
     const msgpack::object& get_details() const;
-    const wamp_uri get_reason() const;
+    wamp_uri get_reason() const;
 
     void set_details(const msgpack::object& details);
     void set_reason(const wamp_uri& reason);
@@ -84,7 +84,7 @@ inline const msgpack::object& wamp_goodbye_message::get_details() const
     return m_details;
 }
 
-inline const wamp_uri wamp_goodbye_message::get_reason() const
+inline wamp_uri wamp_goodbye_message::get_reason() const
 {
     return m_reason.as<wamp_uri>();
 }

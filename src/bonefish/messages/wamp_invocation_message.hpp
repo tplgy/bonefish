@@ -28,8 +28,8 @@ public:
     virtual std::vector<msgpack::object> marshal() const override;
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
-    const wamp_request_id get_request_id() const;
-    const wamp_registration_id get_registration_id() const;
+    wamp_request_id get_request_id() const;
+    wamp_registration_id get_registration_id() const;
     const msgpack::object& get_details() const;
     const msgpack::object& get_arguments() const;
     const msgpack::object& get_arguments_kw() const;
@@ -116,12 +116,12 @@ inline void wamp_invocation_message::unmarshal(const std::vector<msgpack::object
     }
 }
 
-inline const wamp_request_id wamp_invocation_message::get_request_id() const
+inline wamp_request_id wamp_invocation_message::get_request_id() const
 {
     return wamp_request_id(m_request_id.as<uint64_t>());
 }
 
-inline const wamp_registration_id wamp_invocation_message::get_registration_id() const
+inline wamp_registration_id wamp_invocation_message::get_registration_id() const
 {
     return wamp_registration_id(m_registration_id.as<uint64_t>());
 }
