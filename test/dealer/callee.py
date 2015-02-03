@@ -28,34 +28,24 @@ from autobahn.wamp import types
 
 class MyFrontendComponent(wamp.ApplicationSession):
    """
-   Application code goes here. This is an example component that calls
-   a remote procedure on a WAMP peer, subscribes to a topic to receive
-   events, and then stops the world after some events.
+   Application code goes here. This is an example component that provides
+   a simple procedure which can be called remotely from any WAMP peer.
+   It also publishes an event every second to some topic.
    """
 
    @inlineCallbacks
    def onJoin(self, details):
-      ## subscribe to a topic
+      ## register a procedure for remote calling
       ##
-      self.received = 0
+      def utcnow():
+         print("Someone is calling me;)")
+         now = datetime.datetime.utcnow()
+         return six.u(now.strftime("%Y-%m-%dT%H:%M:%SZ"))
 
-      def on_event(i):
-         print("Got event: {}".format(i))
-         self.received += 1
-         if self.received > 5:
-            self.leave()
-
-      sub = yield self.subscribe(on_event, u'com.myapp.topic1')
-      print("Subscribed with subscription ID {}".format(sub.id))
-
-
-   def onDisconnect(self):
-      reactor.stop()
-
-
+      reg = yield self.register(utcnow, u'com.timeservice.now')
+      print("Registered procedure with ID {}".format(reg.id))
 
 if __name__ == '__main__':
-
    ## 0) start logging to console
    log.startLogging(sys.stdout)
 
@@ -77,7 +67,7 @@ if __name__ == '__main__':
 
    ## 2) create a WAMP-over-WebSocket transport client factory
    transport_factory = websocket.WampWebSocketClientFactory(session_factory,
-      serializers = serializers, debug = True, debug_wamp = True)
+      serializers = serializers, debug = False, debug_wamp = False)
 
    ## 3) start the client from a Twisted endpoint
    client = clientFromString(reactor, "tcp:127.0.0.1:9005")

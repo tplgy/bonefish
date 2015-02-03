@@ -49,35 +49,36 @@ void wamp_broker::detach_session(const wamp_session_id& session_id)
     }
 
     auto session_subscriptions_itr = m_session_subscriptions.find(session_id);
-    if (session_subscriptions_itr == m_session_subscriptions.end()) {
-        return;
+    if (session_subscriptions_itr != m_session_subscriptions.end()) {
+        for (const auto& subscription_id : session_subscriptions_itr->second) {
+            auto subscription_topics_itr = m_subscription_topics.find(subscription_id);
+            if (subscription_topics_itr == m_subscription_topics.end()) {
+                std::cerr << "error: broker subscription topics out of sync" << std::endl;
+                continue;
+            }
+
+            wamp_uri topic = subscription_topics_itr->second->get_topic();
+            subscription_topics_itr->second->remove_session(session_itr->second);
+            if (subscription_topics_itr->second->get_sessions().size() == 0) {
+                m_subscription_topics.erase(subscription_id);
+            }
+
+            auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
+            if (topic_subscriptions_itr == m_topic_subscriptions.end()) {
+                std::cerr << "error: broker topic subscriptions out of sync" << std::endl;
+                continue;
+            }
+
+            topic_subscriptions_itr->second->remove_session(session_itr->second);
+            if (topic_subscriptions_itr->second->get_sessions().size() == 0) {
+                m_topic_subscriptions.erase(topic);
+            }
+        }
+
+        m_session_subscriptions.erase(session_subscriptions_itr);
     }
 
-    for (const auto& subscription_id : session_subscriptions_itr->second) {
-        auto subscription_topics_itr = m_subscription_topics.find(subscription_id);
-        if (subscription_topics_itr == m_subscription_topics.end()) {
-            throw(std::logic_error("broker subscription topics out of sync"));
-        }
-
-        wamp_uri topic = subscription_topics_itr->second->get_topic();
-        subscription_topics_itr->second->remove_session(session_itr->second);
-        if (subscription_topics_itr->second->get_sessions().size() == 0) {
-            m_subscription_topics.erase(subscription_id);
-        }
-
-        auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
-        if (topic_subscriptions_itr == m_topic_subscriptions.end()) {
-            throw(std::logic_error("broker topic subscriptions out of sync"));
-        }
-
-        topic_subscriptions_itr->second->remove_session(session_itr->second);
-        if (topic_subscriptions_itr->second->get_sessions().size() == 0) {
-            m_topic_subscriptions.erase(topic);
-        }
-    }
-
-    m_session_subscriptions.erase(session_subscriptions_itr);
-    m_sessions.erase(session_id);
+    m_sessions.erase(session_itr);
 }
 
 void wamp_broker::process_publish_message(const wamp_session_id& session_id,
@@ -178,31 +179,36 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
     }
 
     const wamp_subscription_id& subscription_id = unsubscribe_message->get_subscription_id();
-    if (session_subscriptions_itr->second.erase(subscription_id)) {
+    if (session_subscriptions_itr->second.erase(subscription_id) == 0) {
         return send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
                 unsubscribe_message->get_request_id(), "wamp.error.no_such_subscription");
     }
 
     auto subscription_topics_itr = m_subscription_topics.find(subscription_id);
     if (subscription_topics_itr == m_subscription_topics.end()) {
-        throw(std::logic_error("broker subscription topics out of sync"));
+        std::cerr << "error: broker subscription topics out of sync" << std::endl;
+    } else {
+        wamp_uri topic = subscription_topics_itr->second->get_topic();
+        subscription_topics_itr->second->remove_session(session_itr->second);
+        if (subscription_topics_itr->second->get_sessions().size() == 0) {
+            m_subscription_topics.erase(subscription_id);
+        }
+
+        auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
+        if (topic_subscriptions_itr == m_topic_subscriptions.end()) {
+            std::cerr << "error: broker topic subscription out of sync" << std::endl;
+        } else {
+            topic_subscriptions_itr->second->remove_session(session_itr->second);
+            if (topic_subscriptions_itr->second->get_sessions().size() == 0) {
+                m_topic_subscriptions.erase(topic);
+            }
+        }
     }
 
-    wamp_uri topic = subscription_topics_itr->second->get_topic();
-    subscription_topics_itr->second->remove_session(session_itr->second);
-    if (subscription_topics_itr->second->get_sessions().size() == 0) {
-        m_subscription_topics.erase(subscription_id);
-    }
-
-    auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
-    if (topic_subscriptions_itr == m_topic_subscriptions.end()) {
-        throw(std::logic_error("broker topic subscriptions out of sync"));
-    }
-
-    topic_subscriptions_itr->second->remove_session(session_itr->second);
-    if (topic_subscriptions_itr->second->get_sessions().size() == 0) {
-        m_topic_subscriptions.erase(topic);
-    }
+    std::cerr << "sending unsubscribed message to the subscriber" << std::endl;
+    std::unique_ptr<wamp_unsubscribed_message> unsubscribed_message(new wamp_unsubscribed_message);
+    unsubscribed_message->set_request_id(unsubscribe_message->get_request_id());
+    session_itr->second->get_transport()->send_message(unsubscribed_message.get());
 }
 
 void wamp_broker::send_error(const std::unique_ptr<wamp_transport>& transport,

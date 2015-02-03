@@ -28,21 +28,34 @@ from autobahn.wamp import types
 
 class MyFrontendComponent(wamp.ApplicationSession):
    """
-   Application code goes here. This is an example component that provides
-   a simple procedure which can be called remotely from any WAMP peer.
-   It also publishes an event every second to some topic.
+   Application code goes here. This is an example component that calls
+   a remote procedure on a WAMP peer, subscribes to a topic to receive
+   events, and then stops the world after some events.
    """
 
    @inlineCallbacks
    def onJoin(self, details):
-      yield reactor.callLater(1, self.publishEvent)
+      ## subscribe to a topic
+      ##
+      self.received = 0
 
-   def publishEvent(self):
-      print("Published event.")
-      self.publish(u'com.myapp.topic1')
-      reactor.callLater(1, self.publishEvent)
+      def on_event(i):
+         print("Got event: {}".format(i))
+         self.received += 1
+         if self.received > 5:
+            self.leave()
+
+      sub = yield self.subscribe(on_event, u'com.myapp.topic1')
+      print("Subscribed with subscription ID {}".format(sub.id))
+
+
+   def onDisconnect(self):
+      reactor.stop()
+
+
 
 if __name__ == '__main__':
+
    ## 0) start logging to console
    log.startLogging(sys.stdout)
 

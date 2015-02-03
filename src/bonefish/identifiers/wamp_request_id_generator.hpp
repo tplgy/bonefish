@@ -15,11 +15,11 @@ public:
     wamp_request_id generate();
 
 private:
-    sequential_id_generator m_sequential_id_generator;
+    wamp_sequential_id_generator m_sequential_id_generator;
 };
 
 inline wamp_request_id_generator::wamp_request_id_generator()
-    : m_sequential_id_generator(request_id::MIN, request_id::MAX)
+    : m_sequential_id_generator(wamp_request_id::MIN, wamp_request_id::MAX)
 {
 }
 

@@ -26,6 +26,7 @@ set(HEADERS
     bonefish/broker/wamp_broker_subscription.hpp
     bonefish/broker/wamp_broker_topic.hpp
     bonefish/dealer/wamp_dealer.hpp
+    bonefish/dealer/wamp_dealer_registration.hpp
     bonefish/identifiers/wamp_publication_id.hpp
     bonefish/identifiers/wamp_publication_id_generator.hpp
     bonefish/identifiers/wamp_random_id.hpp
