@@ -6,14 +6,18 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${Boost_INCLUDE_DIRS})
 
-set(SOURCES router.cpp)
+set(SOURCES bonefish.cpp)
 
-add_executable(router ${SOURCES})
+add_executable(bonefish_bin ${SOURCES})
 
-add_dependencies(router bonefish)
+set_target_properties(bonefish_bin PROPERTIES OUTPUT_NAME bonefish)
 
-target_link_libraries(router
+add_dependencies(bonefish_bin bonefish)
+
+target_link_libraries(bonefish_bin
     bonefish
     ${Boost_LIBRARIES}
     ${CMAKE_DL_LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
+
+
