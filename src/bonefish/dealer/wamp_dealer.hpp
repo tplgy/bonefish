@@ -35,14 +35,14 @@ public:
 
     void process_call_message(const wamp_session_id& session_id,
             const wamp_call_message* call_message);
-    void process_yield_message(const wamp_session_id& session_id,
-            const wamp_yield_message* yield_message);
     void process_error_message(const wamp_session_id& session_id,
             const wamp_error_message* error_message);
     void process_register_message(const wamp_session_id& session_id,
             const wamp_register_message* register_message);
     void process_unregister_message(const wamp_session_id& session_id,
             const wamp_unregister_message* unregister_message);
+    void process_yield_message(const wamp_session_id& session_id,
+            const wamp_yield_message* yield_message);
 
 private:
     void send_error(const std::unique_ptr<wamp_transport>& transport,

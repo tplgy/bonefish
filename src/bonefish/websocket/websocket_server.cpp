@@ -1,6 +1,7 @@
 #include <bonefish/websocket/websocket_server.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
+#include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_call_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
@@ -206,6 +207,13 @@ void websocket_server::on_message(websocketpp::connection_hdl handle,
                     case wamp_message_type::CANCEL:
                         break;
                     case wamp_message_type::ERROR:
+                        {
+                            std::shared_ptr<wamp_router> router = m_routers->get_router(connection->get_realm());
+                            if (router) {
+                                wamp_error_message* error_message = static_cast<wamp_error_message*>(message.get());
+                                router->process_error_message(connection->get_session_id(), error_message);
+                            }
+                        }
                         break;
                     case wamp_message_type::GOODBYE:
                         {

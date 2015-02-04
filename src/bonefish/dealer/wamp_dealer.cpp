@@ -118,28 +118,32 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     session->get_transport()->send_message(invocation_message.get());
 }
 
-void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
-        const wamp_yield_message* yield_message)
+void wamp_dealer::process_error_message(const wamp_session_id& session_id,
+        const wamp_error_message* error_message)
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
         throw std::logic_error("dealer session does not exist");
     }
 
-    const auto request_id = yield_message->get_request_id();
+    const auto request_id = error_message->get_request_id();
     auto pending_invocations_itr = m_pending_invocations.find(request_id);
     if (pending_invocations_itr == m_pending_invocations.end()) {
-        std::cerr << "unable to find invocation ... timed out or session closed" << std::endl;
+        std::cerr << "unable to find invocation ... ignoring error" << std::endl;
         return;
     }
 
     const auto& dealer_invocation = pending_invocations_itr->second;
     const auto& session = dealer_invocation->get_session();
-    std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
-    result_message->set_request_id(dealer_invocation->get_request_id());
-    result_message->set_arguments(yield_message->get_arguments());
-    result_message->set_arguments_kw(yield_message->get_arguments_kw());
-    session->get_transport()->send_message(result_message.get());
+
+    std::unique_ptr<wamp_error_message> caller_error_message(new wamp_error_message);
+    caller_error_message->set_request_type(wamp_message_type::CALL);
+    caller_error_message->set_request_id(dealer_invocation->get_request_id());
+    caller_error_message->set_details(error_message->get_details());
+    caller_error_message->set_error(error_message->get_error());
+    caller_error_message->set_arguments(error_message->get_arguments());
+    caller_error_message->set_arguments_kw(error_message->get_arguments_kw());
+    session->get_transport()->send_message(caller_error_message.get());
 
     m_pending_invocations.erase(pending_invocations_itr);
 }
@@ -213,6 +217,32 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
     std::unique_ptr<wamp_unregistered_message> unregistered_message(new wamp_unregistered_message);
     unregistered_message->set_request_id(unregister_message->get_request_id());
     session_itr->second->get_transport()->send_message(unregistered_message.get());
+}
+
+void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
+        const wamp_yield_message* yield_message)
+{
+    auto session_itr = m_sessions.find(session_id);
+    if (session_itr == m_sessions.end()) {
+        throw std::logic_error("dealer session does not exist");
+    }
+
+    const auto request_id = yield_message->get_request_id();
+    auto pending_invocations_itr = m_pending_invocations.find(request_id);
+    if (pending_invocations_itr == m_pending_invocations.end()) {
+        std::cerr << "unable to find invocation ... timed out or session closed" << std::endl;
+        return;
+    }
+
+    const auto& dealer_invocation = pending_invocations_itr->second;
+    const auto& session = dealer_invocation->get_session();
+    std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
+    result_message->set_request_id(dealer_invocation->get_request_id());
+    result_message->set_arguments(yield_message->get_arguments());
+    result_message->set_arguments_kw(yield_message->get_arguments_kw());
+    session->get_transport()->send_message(result_message.get());
+
+    m_pending_invocations.erase(pending_invocations_itr);
 }
 
 void wamp_dealer::send_error(const std::unique_ptr<wamp_transport>& transport,

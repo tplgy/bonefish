@@ -14,6 +14,7 @@ namespace bonefish {
 class wamp_broker;
 class wamp_dealer;
 class wamp_call_message;
+class wamp_error_message;
 class wamp_goodbye_message;
 class wamp_hello_message;
 class wamp_publish_message;
@@ -38,6 +39,8 @@ public:
 
     void process_call_message(const wamp_session_id& session_id,
             const wamp_call_message* call_message);
+    void process_error_message(const wamp_session_id& session_id,
+            const wamp_error_message* error_message);
     void process_hello_message(const wamp_session_id& session_id,
             const wamp_hello_message* hello_message);
     void process_goodbye_message(const wamp_session_id& session_id,

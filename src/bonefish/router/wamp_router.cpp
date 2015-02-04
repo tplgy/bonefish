@@ -2,6 +2,7 @@
 #include <bonefish/broker/wamp_broker.hpp>
 #include <bonefish/dealer/wamp_dealer.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
+#include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_details.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
@@ -105,8 +106,8 @@ void wamp_router::process_hello_message(const wamp_session_id& session_id,
     if (roles.empty()) {
         throw std::invalid_argument("no roles specified");
     }
-    session->set_roles(roles);
 
+    session->set_roles(roles);
     session->set_state(wamp_session_state::OPEN);
 
     std::unique_ptr<wamp_welcome_message> welcome_message(new wamp_welcome_message);
@@ -140,6 +141,17 @@ void wamp_router::process_call_message(const wamp_session_id& session_id,
         const wamp_call_message* call_message)
 {
     m_dealer->process_call_message(session_id, call_message);
+}
+
+void wamp_router::process_error_message(const wamp_session_id& session_id,
+        const wamp_error_message* error_message)
+{
+    const auto request_type = error_message->get_request_type();
+    if (request_type == wamp_message_type::INVOCATION) {
+        m_dealer->process_error_message(session_id, error_message);
+    } else {
+        throw std::logic_error("received an unexpected error message");
+    }
 }
 
 void wamp_router::process_publish_message(const wamp_session_id& session_id,

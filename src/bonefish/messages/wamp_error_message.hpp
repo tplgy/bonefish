@@ -56,11 +56,10 @@ private:
     static const size_t MIN_FIELDS = 5;
     static const size_t MAX_FIELDS = 7;
 };
-static const wamp_message_type mytype = wamp_message_type::ERROR;
+
 inline wamp_error_message::wamp_error_message()
     : m_zone()
-    //, m_type(wamp_message_type::ERROR)
-    , m_type(mytype, &m_zone)
+    , m_type(wamp_message_type::ERROR, &m_zone)
     , m_request_type()
     , m_request_id()
     , m_details(MSGPACK_EMPTY_MAP)

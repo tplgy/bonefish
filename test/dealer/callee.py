@@ -27,6 +27,7 @@ from twisted.internet.endpoints import clientFromString
 
 from autobahn.twisted import wamp, websocket
 from autobahn.wamp import types
+from autobahn.wamp.exception import ApplicationError
 
 class MyFrontendComponent(wamp.ApplicationSession):
    """
@@ -41,6 +42,7 @@ class MyFrontendComponent(wamp.ApplicationSession):
       ##
       def utcnow():
          print("Someone is calling me;)")
+         #raise ApplicationError("com.timeservice.error.clock_is_dead")
          now = datetime.datetime.utcnow()
          return six.u(now.strftime("%Y-%m-%dT%H:%M:%SZ"))
 
