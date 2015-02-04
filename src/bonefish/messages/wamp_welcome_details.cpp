@@ -1,4 +1,5 @@
 #include <bonefish/messages/wamp_welcome_details.hpp>
+
 #include <iostream>
 
 namespace bonefish {

@@ -2,6 +2,7 @@
 #define BONEFISH_WEBSOCKET_WEBSOCKET_CONFIG_HPP
 
 #include <bonefish/websocket/websocket_data.hpp>
+
 #include <websocketpp/config/asio_no_tls.hpp>
 
 namespace bonefish {

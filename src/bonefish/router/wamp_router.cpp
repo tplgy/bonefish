@@ -13,6 +13,7 @@
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/session/wamp_session.hpp>
+
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>

@@ -11,6 +11,7 @@
 #include <bonefish/messages/wamp_unregistered_message.hpp>
 #include <bonefish/messages/wamp_yield_message.hpp>
 #include <bonefish/session/wamp_session.hpp>
+
 #include <iostream>
 #include <stdexcept>
 

@@ -1,5 +1,6 @@
 #include <bonefish/messages/wamp_message_type.hpp>
-#include <cassert>
+
+#include <stdexcept>
 
 namespace bonefish {
 
@@ -85,8 +86,7 @@ const char* message_type_to_string(wamp_message_type type)
             str = "yield";
             break;
         default:
-            assert(0);
-            str = "<<invalid>>";
+            throw std::invalid_argument("unknown message type");
             break;
     }
 

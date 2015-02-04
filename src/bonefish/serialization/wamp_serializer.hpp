@@ -2,6 +2,7 @@
 #define BONEFISH_SERIALIZATION_WAMP_SERIALIZER_HPP
 
 #include <bonefish/serialization/wamp_serializer_type.hpp>
+
 #include <cstddef>
 
 namespace bonefish

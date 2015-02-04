@@ -3,6 +3,7 @@
 
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>
+
 #include <memory>
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/server.hpp>

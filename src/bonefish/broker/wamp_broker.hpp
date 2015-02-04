@@ -9,6 +9,7 @@
 #include <bonefish/identifiers/wamp_subscription_id_generator.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
+
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>

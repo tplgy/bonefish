@@ -3,6 +3,7 @@
 
 #include <bonefish/serialization/wamp_serializer.hpp>
 #include <bonefish/serialization/wamp_serializer_type.hpp>
+
 #include <cstddef>
 
 namespace bonefish {

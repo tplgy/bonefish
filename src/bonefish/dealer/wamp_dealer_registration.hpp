@@ -3,6 +3,7 @@
 
 #include <bonefish/identifiers/wamp_registration_id.hpp>
 #include <bonefish/session/wamp_session.hpp>
+
 #include <unordered_set>
 
 namespace bonefish {

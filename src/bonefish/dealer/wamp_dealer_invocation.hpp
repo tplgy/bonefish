@@ -3,6 +3,7 @@
 
 #include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/session/wamp_session.hpp>
+
 #include <boost/asio.hpp>
 #include <functional>
 #include <unordered_set>

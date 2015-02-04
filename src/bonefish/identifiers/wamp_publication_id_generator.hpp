@@ -3,6 +3,7 @@
 
 #include <bonefish/identifiers/wamp_publication_id.hpp>
 #include <bonefish/identifiers/wamp_random_id_generator.hpp>
+
 #include <cstdint>
 
 namespace bonefish {

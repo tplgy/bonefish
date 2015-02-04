@@ -8,6 +8,7 @@
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
+
 #include <boost/asio.hpp>
 #include <memory>
 #include <unordered_map>

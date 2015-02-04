@@ -1,8 +1,9 @@
 #ifndef BONEFISH_IDENTIFIERS_WAMP_SESSION_ID_GENERATOR_HPP
 #define BONEFISH_IDENTIFIERS_WAMP_SESSION_ID_GENERATOR_HPP
 
-#include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/identifiers/wamp_random_id_generator.hpp>
+#include <bonefish/identifiers/wamp_session_id.hpp>
+
 #include <cstdint>
 
 namespace bonefish {

@@ -2,6 +2,7 @@
 #define BONEFISH_MESSAGES_WAMP_WELCOME_DETAILS_HPP
 
 #include <bonefish/roles/wamp_role.hpp>
+
 #include <cstddef>
 #include <msgpack_fwd.hpp>
 #include <stdexcept>

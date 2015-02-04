@@ -1,9 +1,10 @@
 #ifndef BONEFISH_MESSAGES_WAMP_PUBLISHED_MESSAGE_HPP
 #define BONEFISH_MESSAGES_WAMP_PUBLISHED_MESSAGE_HPP
 
-#include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/identifiers/wamp_publication_id.hpp>
+#include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/messages/wamp_message.hpp>
+
 #include <cstddef>
 #include <msgpack.hpp>
 #include <stdexcept>

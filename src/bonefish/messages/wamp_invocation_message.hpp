@@ -1,11 +1,12 @@
 #ifndef BONEFISH_MESSAGES_WAMP_INVOCATION_MESSAGE_HPP
 #define BONEFISH_MESSAGES_WAMP_INVOCATION_MESSAGE_HPP
 
-#include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/identifiers/wamp_registration_id.hpp>
+#include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_message_defaults.hpp>
+
 #include <cstddef>
 #include <msgpack.hpp>
 #include <stdexcept>

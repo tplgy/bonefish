@@ -1,8 +1,8 @@
 #include <bonefish/websocket/websocket_server.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
-#include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_call_message.hpp>
+#include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
@@ -21,6 +21,7 @@
 #include <bonefish/transport/wamp_transport.hpp>
 #include <bonefish/websocket/websocket_transport.hpp>
 #include <bonefish/websocket/websocket_protocol.hpp>
+
 #include <boost/asio/io_service.hpp>
 #include <msgpack.hpp>
 #include <websocketpp/common/connection_hdl.hpp>

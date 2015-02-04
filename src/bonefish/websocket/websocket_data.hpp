@@ -2,6 +2,7 @@
 #define BONEFISH_WEBSOCKET_WEBSOCKET_DATA_HPP
 
 #include <bonefish/identifiers/wamp_session_id.hpp>
+
 #include <websocketpp/config/asio_no_tls.hpp>
 
 namespace bonefish {

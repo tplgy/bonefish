@@ -3,6 +3,7 @@
 
 #include <bonefish/serialization/wamp_serializer.hpp>
 #include <bonefish/serialization/wamp_serializer_type.hpp>
+
 #include <memory>
 #include <unordered_map>
 

@@ -1,5 +1,7 @@
 #include <bonefish/session/wamp_session_state.hpp>
 
+#include <stdexcept>
+
 namespace bonefish {
 
 const char* session_state_to_string(const wamp_session_state& state)
@@ -20,7 +22,7 @@ const char* session_state_to_string(const wamp_session_state& state)
             str = "closed";
             break;
         default:
-            str = "<<invalid>>";
+            throw std::invalid_argument("unknown session state");
             break;
     }
 

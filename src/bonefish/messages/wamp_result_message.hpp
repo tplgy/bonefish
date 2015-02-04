@@ -3,9 +3,10 @@
 
 #include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/messages/wamp_message_defaults.hpp>
+#include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
+
 #include <cstddef>
 #include <msgpack.hpp>
 #include <stdexcept>

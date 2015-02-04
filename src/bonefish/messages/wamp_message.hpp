@@ -2,6 +2,7 @@
 #define BONEFISH_MESSAGES_WAMP_MESSAGE_HPP
 
 #include <bonefish/messages/wamp_message_type.hpp>
+
 #include <msgpack.hpp>
 #include <vector>
 

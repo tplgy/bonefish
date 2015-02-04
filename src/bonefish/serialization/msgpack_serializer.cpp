@@ -1,6 +1,7 @@
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_factory.hpp>
+
 #include <iostream>
 #include <msgpack.hpp>
 #include <sstream>

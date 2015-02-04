@@ -2,7 +2,7 @@
 #define BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP
 
 #include <cstdint>
-#include <msgpack.hpp>
+#include <msgpack_fwd.hpp>
 #include <type_traits>
 
 namespace bonefish {
@@ -41,5 +41,7 @@ const char* message_type_to_string(wamp_message_type type);
 } // namespace bonefish
 
 MSGPACK_ADD_ENUM(bonefish::wamp_message_type);
+
+#include <msgpack.hpp>
 
 #endif // BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP

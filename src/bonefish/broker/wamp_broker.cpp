@@ -11,6 +11,7 @@
 #include <bonefish/messages/wamp_unsubscribed_message.hpp>
 #include <bonefish/session/wamp_session.hpp>
 #include <bonefish/transport/wamp_transport.hpp>
+
 #include <iostream>
 
 namespace bonefish {

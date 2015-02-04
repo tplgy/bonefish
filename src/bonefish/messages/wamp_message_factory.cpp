@@ -7,17 +7,17 @@
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_invocation_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/wamp_published_message.hpp>
 #include <bonefish/messages/wamp_publish_message.hpp>
-#include <bonefish/messages/wamp_registered_message.hpp>
+#include <bonefish/messages/wamp_published_message.hpp>
 #include <bonefish/messages/wamp_register_message.hpp>
+#include <bonefish/messages/wamp_registered_message.hpp>
 #include <bonefish/messages/wamp_result_message.hpp>
-#include <bonefish/messages/wamp_subscribed_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
-#include <bonefish/messages/wamp_unregistered_message.hpp>
+#include <bonefish/messages/wamp_subscribed_message.hpp>
 #include <bonefish/messages/wamp_unregister_message.hpp>
-#include <bonefish/messages/wamp_unsubscribed_message.hpp>
+#include <bonefish/messages/wamp_unregistered_message.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
+#include <bonefish/messages/wamp_unsubscribed_message.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/messages/wamp_yield_message.hpp>
 

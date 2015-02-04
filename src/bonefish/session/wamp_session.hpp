@@ -6,6 +6,7 @@
 #include <bonefish/session/wamp_session_state.hpp>
 #include <bonefish/transport/wamp_transport.hpp>
 #include <bonefish/websocket/websocket_config.hpp>
+
 #include <memory>
 #include <string>
 #include <unordered_set>

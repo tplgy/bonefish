@@ -3,6 +3,7 @@
 
 #include <bonefish/identifiers/wamp_session_id_generator.hpp>
 #include <bonefish/websocket/websocket_config.hpp>
+
 #include <memory>
 #include <unordered_map>
 #include <websocketpp/server.hpp>

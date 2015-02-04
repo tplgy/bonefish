@@ -6,6 +6,7 @@
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_defaults.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
+
 #include <cstddef>
 #include <memory>
 #include <msgpack.hpp>
