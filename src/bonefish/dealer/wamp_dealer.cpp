@@ -1,23 +1,30 @@
 #include <bonefish/dealer/wamp_dealer.hpp>
+#include <bonefish/dealer/wamp_dealer_invocation.hpp>
 #include <bonefish/dealer/wamp_dealer_registration.hpp>
+#include <bonefish/messages/wamp_call_message.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
+#include <bonefish/messages/wamp_invocation_message.hpp>
 #include <bonefish/messages/wamp_register_message.hpp>
 #include <bonefish/messages/wamp_registered_message.hpp>
+#include <bonefish/messages/wamp_result_message.hpp>
 #include <bonefish/messages/wamp_unregister_message.hpp>
 #include <bonefish/messages/wamp_unregistered_message.hpp>
+#include <bonefish/messages/wamp_yield_message.hpp>
 #include <bonefish/session/wamp_session.hpp>
 #include <iostream>
 #include <stdexcept>
 
 namespace bonefish {
 
-wamp_dealer::wamp_dealer()
+wamp_dealer::wamp_dealer(boost::asio::io_service& io_service)
     : m_request_id_generator()
     , m_registration_id_generator()
     , m_sessions()
     , m_session_registrations()
     , m_procedure_registrations()
     , m_registered_procedures()
+    , m_io_service(io_service)
+    , m_pending_invocations()
 {
 }
 
@@ -40,7 +47,7 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
 
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("broker session does not exist"));
+        throw std::logic_error("broker session does not exist");
     }
 
     auto session_registration_itr = m_session_registrations.find(session_id);
@@ -65,12 +72,84 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
     m_sessions.erase(session_itr);
 }
 
+void wamp_dealer::process_call_message(const wamp_session_id& session_id,
+        const wamp_call_message* call_message)
+{
+    auto session_itr = m_sessions.find(session_id);
+    if (session_itr == m_sessions.end()) {
+        throw std::logic_error("dealer session does not exist");
+    }
+
+    const auto procedure = call_message->get_procedure();
+    if (!is_valid_uri(procedure)) {
+        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+                call_message->get_request_id(), "wamp.error.invalid_uri");
+    }
+
+    auto procedure_registrations_itr = m_procedure_registrations.find(procedure);
+    if (procedure_registrations_itr == m_procedure_registrations.end()) {
+        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+                call_message->get_request_id(), "wamp.error.no_such_procedure");
+    }
+
+    // TODO: Check for invalid call arguments. If they are invalid then send an
+    //       error back to the caller.
+
+    const wamp_request_id request_id = m_request_id_generator.generate();
+    std::unique_ptr<wamp_dealer_invocation> dealer_invocation(
+            new wamp_dealer_invocation(m_io_service));
+
+    dealer_invocation->set_session(session_itr->second);
+    dealer_invocation->set_request_id(call_message->get_request_id());
+    dealer_invocation->set_timeout(
+            std::bind(&wamp_dealer::invocation_timeout_handler, this, request_id, std::placeholders::_1), 30);
+
+    m_pending_invocations.insert(std::make_pair(request_id, std::move(dealer_invocation)));
+
+    const std::shared_ptr<wamp_session>& session =
+            procedure_registrations_itr->second->get_session();
+
+    const wamp_registration_id& registration_id =
+            procedure_registrations_itr->second->get_registration_id();
+
+    std::unique_ptr<wamp_invocation_message> invocation_message(new wamp_invocation_message);
+    invocation_message->set_request_id(request_id);
+    invocation_message->set_registration_id(registration_id);
+    session->get_transport()->send_message(invocation_message.get());
+}
+
+void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
+        const wamp_yield_message* yield_message)
+{
+    auto session_itr = m_sessions.find(session_id);
+    if (session_itr == m_sessions.end()) {
+        throw std::logic_error("dealer session does not exist");
+    }
+
+    const auto request_id = yield_message->get_request_id();
+    auto pending_invocations_itr = m_pending_invocations.find(request_id);
+    if (pending_invocations_itr == m_pending_invocations.end()) {
+        std::cerr << "unable to find invocation ... timed out or session closed" << std::endl;
+        return;
+    }
+
+    const auto& dealer_invocation = pending_invocations_itr->second;
+    const auto& session = dealer_invocation->get_session();
+    std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
+    result_message->set_request_id(dealer_invocation->get_request_id());
+    result_message->set_arguments(yield_message->get_arguments());
+    result_message->set_arguments_kw(yield_message->get_arguments_kw());
+    session->get_transport()->send_message(result_message.get());
+
+    m_pending_invocations.erase(pending_invocations_itr);
+}
+
 void wamp_dealer::process_register_message(const wamp_session_id& session_id,
         const wamp_register_message* register_message)
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("dealer session does not exist"));
+        throw std::logic_error("dealer session does not exist");
     }
 
     const auto procedure = register_message->get_procedure();
@@ -104,7 +183,7 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("dealer session does not exist"));
+        throw std::logic_error("dealer session does not exist");
     }
 
     auto session_registration_itr = m_session_registrations.find(session_id);
@@ -146,6 +225,27 @@ void wamp_dealer::send_error(const std::unique_ptr<wamp_transport>& transport,
     error_message->set_error(error);
 
     transport->send_message(error_message.get());
+}
+
+void wamp_dealer::invocation_timeout_handler(const wamp_request_id& request_id,
+        const boost::system::error_code& error)
+{
+    if (error == boost::asio::error::operation_aborted) {
+        return;
+    }
+
+    auto pending_invocations_itr = m_pending_invocations.find(request_id);
+    if (pending_invocations_itr == m_pending_invocations.end()) {
+        std::cerr << "error: unable to find pending invocation" << std::endl;
+    }
+
+    std::cerr << "timing out a pending invocation" << std::endl;
+    const auto& call_request_id = pending_invocations_itr->second->get_request_id();
+    const std::shared_ptr<wamp_session>& session = pending_invocations_itr->second->get_session();
+    send_error(session->get_transport(), wamp_message_type::CALL,
+            call_request_id, "wamp.error.call_timed_out");
+
+    m_pending_invocations.erase(pending_invocations_itr);
 }
 
 } // namespace bonefish

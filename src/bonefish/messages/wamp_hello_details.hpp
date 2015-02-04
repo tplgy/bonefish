@@ -37,7 +37,7 @@ inline wamp_hello_details::~wamp_hello_details()
 
 inline msgpack::object wamp_hello_details::marshal(msgpack::zone*) const
 {
-    throw(std::logic_error("marshal not implemented"));
+    throw std::logic_error("marshal not implemented");
 }
 
 inline void wamp_hello_details::unmarshal(const msgpack::object& object)

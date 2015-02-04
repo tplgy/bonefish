@@ -19,11 +19,11 @@
 
 namespace bonefish {
 
-wamp_router::wamp_router(const wamp_uri& realm)
+wamp_router::wamp_router(boost::asio::io_service& io_service, const wamp_uri& realm)
     : m_realm(realm)
     , m_welcome_details()
     , m_broker(new wamp_broker)
-    , m_dealer(new wamp_dealer)
+    , m_dealer(new wamp_dealer(io_service))
     , m_sessions()
 {
     m_welcome_details.add_role(wamp_role(wamp_role_type::BROKER));
@@ -61,7 +61,7 @@ void wamp_router::close_session(const wamp_session_id& session_id, const wamp_ur
     std::cerr << "close session: " << session_id << std::endl;
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("session does not exist"));
+        throw std::logic_error("session does not exist");
     }
 
     auto& session = session_itr->second;
@@ -87,7 +87,7 @@ void wamp_router::process_hello_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("session does not exist"));
+        throw std::logic_error("session does not exist");
     }
 
     auto& session = session_itr->second;
@@ -103,7 +103,7 @@ void wamp_router::process_hello_message(const wamp_session_id& session_id,
 
     const auto& roles = hello_details.get_roles();
     if (roles.empty()) {
-        throw(std::invalid_argument("no roles specified"));
+        throw std::invalid_argument("no roles specified");
     }
     session->set_roles(roles);
 
@@ -120,7 +120,7 @@ void wamp_router::process_goodbye_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("session does not exist"));
+        throw std::logic_error("session does not exist");
     }
 
     auto& session = session_itr->second;
@@ -132,8 +132,14 @@ void wamp_router::process_goodbye_message(const wamp_session_id& session_id,
     } else if (session->get_state() == wamp_session_state::CLOSING) {
         session->set_state(wamp_session_state::CLOSED);
     } else {
-        throw(std::logic_error("session already closed"));
+        throw std::logic_error("session already closed");
     }
+}
+
+void wamp_router::process_call_message(const wamp_session_id& session_id,
+        const wamp_call_message* call_message)
+{
+    m_dealer->process_call_message(session_id, call_message);
 }
 
 void wamp_router::process_publish_message(const wamp_session_id& session_id,
@@ -142,16 +148,34 @@ void wamp_router::process_publish_message(const wamp_session_id& session_id,
     m_broker->process_publish_message(session_id, publish_message);
 }
 
+void wamp_router::process_register_message(const wamp_session_id& session_id,
+        const wamp_register_message* register_message)
+{
+    m_dealer->process_register_message(session_id, register_message);
+}
+
 void wamp_router::process_subscribe_message(const wamp_session_id& session_id,
         const wamp_subscribe_message* subscribe_message)
 {
     m_broker->process_subscribe_message(session_id, subscribe_message);
 }
 
+void wamp_router::process_unregister_message(const wamp_session_id& session_id,
+        const wamp_unregister_message* unregister_message)
+{
+    m_dealer->process_unregister_message(session_id, unregister_message);
+}
+
 void wamp_router::process_unsubscribe_message(const wamp_session_id& session_id,
         const wamp_unsubscribe_message* unsubscribe_message)
 {
     m_broker->process_unsubscribe_message(session_id, unsubscribe_message);
+}
+
+void wamp_router::process_yield_message(const wamp_session_id& session_id,
+        const wamp_yield_message* yield_message)
+{
+    m_dealer->process_yield_message(session_id, yield_message);
 }
 
 } // namespace bonefish

@@ -61,11 +61,11 @@ inline std::vector<msgpack::object> wamp_unregistered_message::marshal() const
 inline void wamp_unregistered_message::unmarshal(const std::vector<msgpack::object>& fields)
 {
     if (fields.size() != NUM_FIELDS) {
-        throw(std::invalid_argument("invalid number of fields"));
+        throw std::invalid_argument("invalid number of fields");
     }
 
     if (fields[0].as<wamp_message_type>() != get_type()) {
-        throw(std::invalid_argument("invalid message type"));
+        throw std::invalid_argument("invalid message type");
     }
 
     m_request_id = msgpack::object(fields[1]);

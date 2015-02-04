@@ -13,12 +13,9 @@ int main(int argc, char** argv)
             std::make_shared<bonefish::wamp_routers>();
 
     std::shared_ptr<bonefish::wamp_router> realm1_router =
-            std::make_shared<bonefish::wamp_router>("realm1");
-    std::shared_ptr<bonefish::wamp_router> realm2_router =
-            std::make_shared<bonefish::wamp_router>("realm2");
+            std::make_shared<bonefish::wamp_router>(io_service, "realm1");
 
     routers->add_router(realm1_router);
-    routers->add_router(realm2_router);
 
     std::shared_ptr<bonefish::wamp_serializers> serializers =
             std::make_shared<bonefish::wamp_serializers>();

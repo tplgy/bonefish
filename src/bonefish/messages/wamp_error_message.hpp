@@ -103,21 +103,21 @@ inline std::vector<msgpack::object> wamp_error_message::marshal() const
 inline void wamp_error_message::unmarshal(const std::vector<msgpack::object>& fields)
 {
     if (fields.size() < MIN_FIELDS || fields.size() > MAX_FIELDS) {
-        throw(std::invalid_argument("invalid number of fields"));
+        throw std::invalid_argument("invalid number of fields");
     }
 
     if (fields[0].as<wamp_message_type>() != get_type()) {
-        throw(std::invalid_argument("invalid message type"));
+        throw std::invalid_argument("invalid message type");
     }
 
     m_request_type = msgpack::object(fields[1]);
     m_request_id = msgpack::object(fields[2]);
     m_details = msgpack::object(fields[3], &m_zone);
     m_error = msgpack::object(fields[4], &m_zone);
-    if (fields.size() >= 5) {
+    if (fields.size() >= 6) {
         m_arguments = msgpack::object(fields[5], &m_zone);
     }
-    if (fields.size() == 6) {
+    if (fields.size() == 7) {
         m_arguments_kw = msgpack::object(fields[6], &m_zone);
     }
 }
@@ -164,25 +164,34 @@ inline void wamp_error_message::set_request_id(const wamp_request_id& request_id
 
 inline void wamp_error_message::set_details(const msgpack::object& details)
 {
-    assert(details.type == msgpack::type::MAP);
-    m_details = msgpack::object(details, &m_zone);
+    if (details.type == msgpack::type::MAP) {
+        m_details = msgpack::object(details, &m_zone);
+    } else {
+        throw std::invalid_argument("invalid details");
+    }
 }
 
 inline void wamp_error_message::set_error(const wamp_uri& error)
 {
-    m_error =msgpack::object(error, &m_zone);
+    m_error = msgpack::object(error, &m_zone);
 }
 
 inline void wamp_error_message::set_arguments(const msgpack::object& arguments)
 {
-    assert(arguments.type == msgpack::type::ARRAY);
-    m_arguments = msgpack::object(arguments, &m_zone);
+    if (arguments.type == msgpack::type::NIL || arguments.type == msgpack::type::ARRAY) {
+        m_arguments = msgpack::object(arguments, &m_zone);
+    } else {
+        throw std::invalid_argument("invalid arguments");
+    }
 }
 
 inline void wamp_error_message::set_arguments_kw(const msgpack::object& arguments_kw)
 {
-    assert(arguments_kw.type == msgpack::type::MAP);
-    m_arguments_kw = msgpack::object(arguments_kw, &m_zone);
+    if (arguments_kw.type == msgpack::type::NIL || arguments_kw.type == msgpack::type::MAP) {
+        m_arguments_kw = msgpack::object(arguments_kw, &m_zone);
+    } else {
+        throw std::invalid_argument("invalid arguments_kw");
+    }
 }
 
 } // namespace bonefish

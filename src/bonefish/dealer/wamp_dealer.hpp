@@ -8,26 +8,37 @@
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
+#include <boost/asio.hpp>
 #include <memory>
 #include <unordered_map>
 
 namespace bonefish {
 
+class wamp_call_message;
+class wamp_dealer_invocation;
 class wamp_dealer_registration;
+class wamp_error_message;
 class wamp_register_message;
 class wamp_session;
 class wamp_transport;
 class wamp_unregister_message;
+class wamp_yield_message;
 
 class wamp_dealer
 {
 public:
-    wamp_dealer();
+    wamp_dealer(boost::asio::io_service& io_service);
     ~wamp_dealer();
 
     void attach_session(const std::shared_ptr<wamp_session>& session);
     void detach_session(const wamp_session_id& id);
 
+    void process_call_message(const wamp_session_id& session_id,
+            const wamp_call_message* call_message);
+    void process_yield_message(const wamp_session_id& session_id,
+            const wamp_yield_message* yield_message);
+    void process_error_message(const wamp_session_id& session_id,
+            const wamp_error_message* error_message);
     void process_register_message(const wamp_session_id& session_id,
             const wamp_register_message* register_message);
     void process_unregister_message(const wamp_session_id& session_id,
@@ -38,6 +49,9 @@ private:
             const wamp_message_type request_type, const wamp_request_id& request_id,
             const wamp_uri& error) const;
 
+    void invocation_timeout_handler(const wamp_request_id& request_id,
+            const boost::system::error_code& error);
+
 private:
     wamp_request_id_generator m_request_id_generator;
     wamp_registration_id_generator m_registration_id_generator;
@@ -45,6 +59,9 @@ private:
     std::unordered_map<wamp_session_id, wamp_registration_id> m_session_registrations;
     std::unordered_map<wamp_uri, std::unique_ptr<wamp_dealer_registration>> m_procedure_registrations;
     std::unordered_map<wamp_registration_id, wamp_uri> m_registered_procedures;
+
+    boost::asio::io_service& m_io_service;
+    std::unordered_map<wamp_request_id, std::unique_ptr<wamp_dealer_invocation>> m_pending_invocations;
 };
 
 } // namespace bonefish

@@ -1,5 +1,6 @@
 #include <bonefish/messages/wamp_message_factory.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
+#include <bonefish/messages/wamp_call_message.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_event_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
@@ -10,6 +11,7 @@
 #include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/messages/wamp_registered_message.hpp>
 #include <bonefish/messages/wamp_register_message.hpp>
+#include <bonefish/messages/wamp_result_message.hpp>
 #include <bonefish/messages/wamp_subscribed_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
 #include <bonefish/messages/wamp_unregistered_message.hpp>
@@ -74,13 +76,13 @@ wamp_message* create_message(wamp_message_type type)
             message = new wamp_event_message;
             break;
         case wamp_message_type::CALL:
-            message = nullptr;
+            message = new wamp_call_message;
             break;
         case wamp_message_type::CANCEL:
             message = nullptr;
             break;
         case wamp_message_type::RESULT:
-            message = nullptr;
+            message = new wamp_result_message;
             break;
         case wamp_message_type::REGISTER:
             message = new wamp_register_message;

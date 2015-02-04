@@ -50,6 +50,7 @@ inline wamp_register_message::wamp_register_message()
     , m_type(wamp_message_type::REGISTER, &m_zone)
     , m_request_id()
     , m_options(MSGPACK_EMPTY_MAP)
+    , m_procedure()
 {
 }
 
@@ -71,15 +72,16 @@ inline std::vector<msgpack::object> wamp_register_message::marshal() const
 inline void wamp_register_message::unmarshal(const std::vector<msgpack::object>& fields)
 {
     if (fields.size() != NUM_FIELDS) {
-        throw(std::invalid_argument("invalid number of fields"));
+        throw std::invalid_argument("invalid number of fields");
     }
 
     if (fields[0].as<wamp_message_type>() != get_type()) {
-        throw(std::invalid_argument("invalid message type"));
+        throw std::invalid_argument("invalid message type");
     }
 
     m_request_id = msgpack::object(fields[1]);
     m_options = msgpack::object(fields[2], &m_zone);
+    m_procedure = msgpack::object(fields[3], &m_zone);
 }
 
 inline wamp_request_id wamp_register_message::get_request_id() const

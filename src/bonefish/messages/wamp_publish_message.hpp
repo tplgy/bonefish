@@ -96,11 +96,11 @@ inline std::vector<msgpack::object> wamp_publish_message::marshal() const
 inline void wamp_publish_message::unmarshal(const std::vector<msgpack::object>& fields)
 {
     if (fields.size() < MIN_FIELDS || fields.size() > MAX_FIELDS) {
-        throw(std::invalid_argument("invalid number of fields"));
+        throw std::invalid_argument("invalid number of fields");
     }
 
     if (fields[0].as<wamp_message_type>() != get_type()) {
-        throw(std::invalid_argument("invalid message type"));
+        throw std::invalid_argument("invalid message type");
     }
 
     m_request_id = msgpack::object(fields[1]);
@@ -146,8 +146,11 @@ inline void wamp_publish_message::set_request_id(const wamp_request_id& request_
 
 inline void wamp_publish_message::set_options(const msgpack::object& options)
 {
-    assert(options.type == msgpack::type::MAP);
-    m_options = msgpack::object(options, &m_zone);
+    if (options.type == msgpack::type::MAP) {
+        m_options = msgpack::object(options, &m_zone);
+    } else {
+        throw std::invalid_argument("invalid options");
+    }
 }
 
 inline void wamp_publish_message::set_topic(const wamp_uri& topic)
@@ -157,14 +160,20 @@ inline void wamp_publish_message::set_topic(const wamp_uri& topic)
 
 inline void wamp_publish_message::set_arguments(const msgpack::object& arguments)
 {
-    assert(arguments.type == msgpack::type::ARRAY);
-    m_arguments = msgpack::object(arguments, &m_zone);
+    if (arguments.type == msgpack::type::NIL || arguments.type == msgpack::type::ARRAY) {
+        m_arguments = msgpack::object(arguments, &m_zone);
+    } else {
+        throw std::invalid_argument("invalid arguments");
+    }
 }
 
 inline void wamp_publish_message::set_arguments_kw(const msgpack::object& arguments_kw)
 {
-    assert(arguments_kw.type == msgpack::type::MAP);
-    m_arguments_kw = msgpack::object(arguments_kw, &m_zone);
+    if (arguments_kw.type == msgpack::type::NIL || arguments_kw.type == msgpack::type::MAP) {
+        m_arguments_kw = msgpack::object(arguments_kw, &m_zone);
+    } else {
+        throw std::invalid_argument("invalid arguments_kw");
+    }
 }
 
 } // namespace bonefish

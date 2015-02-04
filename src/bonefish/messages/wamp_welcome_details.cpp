@@ -14,7 +14,7 @@ msgpack::object wamp_welcome_details::marshal(msgpack::zone* zone)
 
 void wamp_welcome_details::unmarshal(const msgpack::object& object)
 {
-    throw(std::logic_error("unmarshal not implemented"));
+    throw std::logic_error("unmarshal not implemented");
 }
 
 } // namespace bonefish
@@ -24,13 +24,13 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
 
 inline object const& operator>> (msgpack::object const&, bonefish::wamp_welcome_details&)
 {
-    throw(std::logic_error("no msgpack object deserializer defined"));
+    throw std::logic_error("no msgpack object deserializer defined");
 }
 
 template <typename Stream>
 inline packer<Stream>& operator<< (packer<Stream>&, bonefish::wamp_welcome_details const&)
 {
-    throw(std::logic_error("no msgpack object packer serializer defined"));
+    throw std::logic_error("no msgpack object packer serializer defined");
 }
 
 inline void operator<< (object::with_zone& details,

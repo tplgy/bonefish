@@ -29,7 +29,7 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
     if (message) {
         message->unmarshal(fields);
     } else {
-        throw(std::runtime_error("no deserializer defined for message"));
+        throw std::runtime_error("no deserializer defined for message");
     }
 
     return message.release();
@@ -42,7 +42,7 @@ size_t msgpack_serializer::serialize(const wamp_message* message, char* buffer, 
     packer.pack(message->marshal());
 
     if (sbuffer.size() > length) {
-        throw(std::overflow_error("serialization buffer too small"));
+        throw std::overflow_error("serialization buffer too small");
     }
 
     // TODO: Fix this ugly copy. It would be nice if we could just

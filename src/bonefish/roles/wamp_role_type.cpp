@@ -29,7 +29,7 @@ const char* role_type_to_string(const wamp_role_type& type)
             str = "broker";
             break;
         default:
-            throw(std::invalid_argument("unknown role type"));
+            throw std::invalid_argument("unknown role type");
             break;
     }
 
@@ -62,7 +62,7 @@ wamp_role_type role_type_from_string(const std::string& type)
         return wamp_role_type::BROKER;
     }
 
-    throw(std::invalid_argument("unknown role type"));
+    throw std::invalid_argument("unknown role type");
 }
 
 } // namespace bonefish

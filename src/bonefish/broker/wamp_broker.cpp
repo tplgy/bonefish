@@ -35,7 +35,7 @@ void wamp_broker::attach_session(const std::shared_ptr<wamp_session>& session)
     auto result = m_sessions.insert(
             std::make_pair(session->get_session_id(), std::move(session)));
     if (!result.second) {
-        throw(std::logic_error("broker session already registered"));
+        throw std::logic_error("broker session already registered");
     }
 }
 
@@ -45,7 +45,7 @@ void wamp_broker::detach_session(const wamp_session_id& session_id)
 
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("broker session does not exist"));
+        throw std::logic_error("broker session does not exist");
     }
 
     auto session_subscriptions_itr = m_session_subscriptions.find(session_id);
@@ -86,7 +86,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("broker session does not exist"));
+        throw std::logic_error("broker session does not exist");
     }
 
     const wamp_uri topic = publish_message->get_topic();
@@ -123,7 +123,7 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
     std::cerr << "processing subscribe message" << std::endl;
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("broker session does not exist"));
+        throw std::logic_error("broker session does not exist");
     }
 
     wamp_subscription_id subscription_id;
@@ -169,7 +169,7 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw(std::logic_error("broker session does not exist"));
+        throw std::logic_error("broker session does not exist");
     }
 
     auto session_subscriptions_itr = m_session_subscriptions.find(session_id);
