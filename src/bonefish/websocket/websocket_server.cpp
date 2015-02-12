@@ -97,6 +97,7 @@ void websocket_server::start()
 
 void websocket_server::shutdown()
 {
+    m_server->stop();
 }
 
 void websocket_server::on_open(websocketpp::connection_hdl handle)

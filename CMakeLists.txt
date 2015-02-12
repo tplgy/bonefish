@@ -18,6 +18,7 @@ set(Msgpack_USE_STATIC_LIBS ON)
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
+add_subdirectory(examples)
 add_subdirectory(src)
 add_subdirectory(bin)
 add_subdirectory(test)

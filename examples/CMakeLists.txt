@@ -6,15 +6,13 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${Boost_INCLUDE_DIRS})
 
-set(SOURCES bonefish.cpp daemon.cpp)
+set(SOURCES integration.cpp)
 
-add_executable(bonefish_bin ${SOURCES})
+add_executable(integration ${SOURCES})
 
-set_target_properties(bonefish_bin PROPERTIES OUTPUT_NAME bonefish)
+add_dependencies(integration bonefish)
 
-add_dependencies(bonefish_bin bonefish)
-
-target_link_libraries(bonefish_bin
+target_link_libraries(integration
     bonefish
     ${Boost_LIBRARIES}
     ${CMAKE_DL_LIBS}

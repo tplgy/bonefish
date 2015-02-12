@@ -1,6 +1,4 @@
 - split component and router roles into two different types
-- create a proper bonefish daemon process
-- manage proper startup and shutdown of daemon process
 - add approriate system/debug logging facilities
 - add appropriate json based daemon configuration
 - add proper uri validation according to the spec
