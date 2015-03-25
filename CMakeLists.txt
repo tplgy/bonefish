@@ -21,13 +21,16 @@ option(asio_source "include Boost.Asio implementation (src.hpp) in library" ON)
 
 if(shared)
     set(Boost_USE_STATIC_LIBS OFF)
-    set(Msgpack_USE_STATIC_LIBS OFF)
     add_definitions(-DBOOST_ALL_DYN_LINK)
 else()
     set(Boost_USE_STATIC_LIBS ON)
-    set(Msgpack_USE_STATIC_LIBS ON)
     add_definitions(-DBOOST_ASIO_SEPARATE_COMPILATION)
 endif()
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}/third-party/msgpack-c/include
+    ${CMAKE_SOURCE_DIR}/third-party/websocketpp
+)
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
