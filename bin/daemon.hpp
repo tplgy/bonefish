@@ -12,8 +12,10 @@
 namespace bonefish
 {
 
+class tcp_server;
 class wamp_routers;
 class wamp_serializers;
+class wamp_session_id_generator;
 class websocket_server;
 
 class daemon
@@ -38,7 +40,9 @@ private:
 
     std::shared_ptr<bonefish::wamp_routers> m_routers;
     std::shared_ptr<bonefish::wamp_serializers> m_serializers;
-    std::unique_ptr<bonefish::websocket_server> m_websocket_server;
+    std::shared_ptr<bonefish::wamp_session_id_generator> m_session_id_generator;
+    std::shared_ptr<bonefish::tcp_server> m_tcp_server;
+    std::shared_ptr<bonefish::websocket_server> m_websocket_server;
 };
 
 } // namespace bonefish

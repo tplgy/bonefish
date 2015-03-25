@@ -8,6 +8,7 @@ include_directories(
 
 set(SOURCES
     bonefish/broker/wamp_broker.cpp
+    bonefish/common/wamp_message_processor.cpp
     bonefish/dealer/wamp_dealer.cpp
     bonefish/messages/wamp_message_defaults.cpp
     bonefish/messages/wamp_message_factory.cpp
@@ -17,14 +18,21 @@ set(SOURCES
     bonefish/router/wamp_router.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/session/wamp_session_state.cpp
+    bonefish/tcp/tcp_connection.cpp
+    bonefish/tcp/tcp_listener.cpp
+    bonefish/tcp/tcp_server.cpp
+    bonefish/tcp/tcp_transport.cpp
     bonefish/utility/wamp_uri.cpp
     bonefish/websocket/websocket_protocol.cpp
-    bonefish/websocket/websocket_server.cpp)
+    bonefish/websocket/websocket_server.cpp
+    bonefish/websocket/websocket_transport.cpp)
 
 set(HEADERS
     bonefish/broker/wamp_broker.hpp
     bonefish/broker/wamp_broker_subscription.hpp
     bonefish/broker/wamp_broker_topic.hpp
+    bonefish/common/wamp_connection_base.hpp
+    bonefish/common/wamp_message_processor.hpp
     bonefish/dealer/wamp_dealer.hpp
     bonefish/dealer/wamp_dealer_registration.hpp
     bonefish/identifiers/wamp_publication_id.hpp
@@ -75,10 +83,13 @@ set(HEADERS
     bonefish/serialization/wamp_serializer.hpp
     bonefish/session/wamp_session.hpp
     bonefish/session/wamp_session_state.hpp
+    bonefish/tcp/tcp_connection.hpp
+    bonefish/tcp/tcp_listener.hpp
+    bonefish/tcp/tcp_server.hpp
+    bonefish/tcp/tcp_transport.hpp
     bonefish/transport/wamp_transport.hpp
     bonefish/utility/wamp_uri.hpp
     bonefish/websocket/websocket_config.hpp
-    bonefish/websocket/websocket_data.hpp
     bonefish/websocket/websocket_protocol.hpp
     bonefish/websocket/websocket_server.hpp
     bonefish/websocket/websocket_transport.hpp)

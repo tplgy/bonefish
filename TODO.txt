@@ -1,6 +1,35 @@
-- split component and router roles into two different types
+Higher Priority
+- add api to allow for setting the tcp/websocket servers listening ip/port
+- bonefish router running inside tplgyd via tcp
+- bonefish component running inside tplgyd
+    - this is a starting point for migrating from msgpack-rpc
+- service discovery working with bonefish
+    - follow up with Tobias on the wamp meta-data api
+    - might be best at this point to just enforce ordered startup of services similar to what we are doing now
+
+Lower Priority
 - add approriate system/debug logging facilities
+    - explore a non-boost based approach
+        - the boost logging library is very bloated
+        - just need something simple to just use for debugging
+            - the debugging framework in libnl was nice and simple
 - add appropriate json based daemon configuration
+    - this would allow for specifying things like
+        - realm configuration
+        - transport configuration
+        - router configuration
+        - hardware concurreny
 - add proper uri validation according to the spec
-- move uri checking out of the serialiation and allow each broker/dealer/router to perform uri validation so that the appropriate error messages can be generated where applicable.
-- add support for publish options so that publish acknowledgements can be used. make sure you read the event specs carefully as you should not acknowledge the publisher if it is also a subscriber or some such nonsense
+- move uri checking out of the serialization
+    - allow each broker/dealer/router to perform uri validation so that the appropriate error messages can be generated where applicable.
+- add support for publish options so that publish acknowledgements can be used
+- enumerate wampv2 subprotocol to eliminate string comparisons
+- split component and router roles into two different types
+
+Performance
+- revisit the data path that messages follow and eliminate any unnecessary copies
+- take a look at how we can use multiple cores more effectively
+- vertical scalability
+    - option 1: multiple message queues/threads per router (lockless)
+    - option 2: multiple router instances per realm
+    - for now we are running lean with everything running on a single thread

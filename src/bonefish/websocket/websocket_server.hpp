@@ -1,21 +1,17 @@
 #ifndef BONEFISH_WEBSOCKET_WEBSOCKET_SERVER_HPP
 #define BONEFISH_WEBSOCKET_WEBSOCKET_SERVER_HPP
 
-#include <bonefish/identifiers/wamp_session_id_generator.hpp>
+#include <bonefish/common/wamp_message_processor.hpp>
 #include <bonefish/websocket/websocket_config.hpp>
 
+#include <boost/asio/io_service.hpp>
 #include <memory>
 #include <unordered_map>
 #include <websocketpp/server.hpp>
 
-namespace boost {
-namespace asio {
-class io_service;
-} // namespace asio
-} // namespace boost
-
 namespace bonefish {
 
+class wamp_session_id_generator;
 class wamp_routers;
 class wamp_serializers;
 
@@ -24,7 +20,8 @@ class websocket_server
 public:
     websocket_server(boost::asio::io_service& io_service,
             const std::shared_ptr<wamp_routers>& routers,
-            const std::shared_ptr<wamp_serializers>& serializers);
+            const std::shared_ptr<wamp_serializers>& serializers,
+            const std::shared_ptr<wamp_session_id_generator>& generator);
     ~websocket_server();
 
     void start();
@@ -46,7 +43,7 @@ private:
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
     std::shared_ptr<wamp_routers> m_routers;
     std::shared_ptr<wamp_serializers> m_serializers;
-    wamp_session_id_generator m_session_id_generator;
+    wamp_message_processor m_message_processor;
 };
 
 } // namespace bonefish

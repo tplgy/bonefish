@@ -1,7 +1,7 @@
 #ifndef BONEFISH_WEBSOCKET_WEBSOCKET_CONFIG_HPP
 #define BONEFISH_WEBSOCKET_WEBSOCKET_CONFIG_HPP
 
-#include <bonefish/websocket/websocket_data.hpp>
+#include <bonefish/common/wamp_connection_base.hpp>
 
 #include <websocketpp/config/asio_no_tls.hpp>
 
@@ -26,7 +26,7 @@ public:
     typedef core::endpoint_base endpoint_base;
 
     // Set a custom connection_base class
-    typedef websocket_data connection_base;
+    typedef wamp_connection_base connection_base;
 };
 
 } // namespace bonefish

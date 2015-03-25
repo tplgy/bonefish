@@ -1,8 +1,10 @@
 #include "daemon.hpp"
+#include <bonefish/identifiers/wamp_session_id_generator.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/router/wamp_router.hpp>
 #include <bonefish/router/wamp_routers.hpp>
+#include <bonefish/tcp/tcp_server.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
 #include <signal.h>
@@ -18,15 +20,22 @@ daemon::daemon()
     , m_termination_signals(m_io_service, SIGTERM, SIGINT, SIGQUIT)
     , m_routers(new wamp_routers)
     , m_serializers(new wamp_serializers)
+    , m_session_id_generator()
+    , m_tcp_server()
     , m_websocket_server()
 {
     // TODO: This should all come from configuration that is passed in to the daemon.
-    //       For now we just hard code the necessary bits and pieces.
-    std::shared_ptr<bonefish::wamp_router> realm1_router =
-            std::make_shared<bonefish::wamp_router>(m_io_service, "realm1");
-    m_routers->add_router(realm1_router);
-    m_serializers->add_serializer(std::make_shared<bonefish::msgpack_serializer>());
-    m_websocket_server.reset(new websocket_server(m_io_service, m_routers, m_serializers));
+    //       For now we just hard code the necessary bits and pieces to give us
+    //       somthing functinal to work with.
+    std::shared_ptr<wamp_router> router =
+            std::make_shared<wamp_router>(m_io_service, "default");
+    m_routers->add_router(router);
+    m_serializers->add_serializer(std::make_shared<msgpack_serializer>());
+    m_session_id_generator = std::make_shared<wamp_session_id_generator>();
+    m_tcp_server = std::make_shared<tcp_server>(
+            m_io_service, m_routers, m_serializers, m_session_id_generator);
+    m_websocket_server = std::make_shared<websocket_server>(
+            m_io_service, m_routers, m_serializers, m_session_id_generator);
 }
 
 daemon::~daemon()
@@ -41,6 +50,8 @@ void daemon::run()
             boost::bind(&daemon::termination_signal_handler, this, _1, _2));
 
     m_websocket_server->start();
+    m_tcp_server->start();
+
     m_io_service.run();
 }
 
@@ -63,6 +74,7 @@ void daemon::shutdown_handler()
     {
         m_termination_signals.cancel();
         m_websocket_server->shutdown();
+        m_tcp_server->shutdown();
         m_work.reset();
     }
 }
