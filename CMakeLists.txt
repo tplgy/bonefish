@@ -13,8 +13,18 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Msgpack_USE_STATIC_LIBS ON)
+option(shared "build bonefish as a shared library" OFF)
+option(asio_source "include Boost.Asio implementation (src.hpp) in library" ON)
+
+if(shared)
+    set(Boost_USE_STATIC_LIBS OFF)
+    set(Msgpack_USE_STATIC_LIBS OFF)
+    add_definitions(-DBOOST_ALL_DYN_LINK)
+else()
+    set(Boost_USE_STATIC_LIBS ON)
+    set(Msgpack_USE_STATIC_LIBS ON)
+    add_definitions(-DBOOST_ASIO_SEPARATE_COMPILATION)
+endif()
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 

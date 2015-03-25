@@ -27,6 +27,10 @@ set(SOURCES
     bonefish/websocket/websocket_server.cpp
     bonefish/websocket/websocket_transport.cpp)
 
+if (asio_source)
+    list(APPEND SOURCES bonefish/boost/asio.cpp)
+endif ()
+
 set(HEADERS
     bonefish/broker/wamp_broker.hpp
     bonefish/broker/wamp_broker_subscription.hpp
