@@ -2,6 +2,7 @@
 #define BONEFISH_SERIALIZATION_WAMP_SERIALIZER_TYPE_HPP
 
 #include <cstddef>
+#include <functional>
 #include <string>
 #include <type_traits>
 
