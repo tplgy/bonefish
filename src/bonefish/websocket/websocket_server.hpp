@@ -5,6 +5,8 @@
 #include <bonefish/websocket/websocket_config.hpp>
 
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/address.hpp>
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <websocketpp/server.hpp>
@@ -24,16 +26,13 @@ public:
             const std::shared_ptr<wamp_session_id_generator>& generator);
     ~websocket_server();
 
-    void start();
+    void start(const boost::asio::ip::address& ip_address, uint16_t port);
     void shutdown();
 
 private:
     void on_open(websocketpp::connection_hdl handle);
     void on_close(websocketpp::connection_hdl handle);
     void on_fail(websocketpp::connection_hdl handle);
-    bool on_ping(websocketpp::connection_hdl handle, std::string message);
-    void on_pong(websocketpp::connection_hdl handle, std::string message);
-    void on_pong_timeout(websocketpp::connection_hdl handle, std::string message);
     bool on_validate(websocketpp::connection_hdl handle);
     void on_message(websocketpp::connection_hdl handle,
             websocketpp::server<websocket_config>::message_ptr message);

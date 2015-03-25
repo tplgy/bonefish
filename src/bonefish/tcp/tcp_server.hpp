@@ -25,7 +25,7 @@ public:
             const std::shared_ptr<wamp_session_id_generator>& generator);
     ~tcp_server();
 
-    void start();
+    void start(const boost::asio::ip::address& ip_address, uint16_t port);
     void shutdown();
 
 private:

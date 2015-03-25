@@ -7,9 +7,10 @@
 #include <bonefish/tcp/tcp_server.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
+#include <boost/asio/ip/address.hpp>
+#include <boost/bind.hpp>
 #include <signal.h>
 #include <string.h>
-#include <boost/bind.hpp>
 
 namespace bonefish
 {
@@ -49,8 +50,8 @@ void daemon::run()
     m_termination_signals.async_wait(
             boost::bind(&daemon::termination_signal_handler, this, _1, _2));
 
-    m_websocket_server->start();
-    m_tcp_server->start();
+    m_tcp_server->start(boost::asio::ip::address(), 8888);
+    m_websocket_server->start(boost::asio::ip::address(), 9999);
 
     m_io_service.run();
 }

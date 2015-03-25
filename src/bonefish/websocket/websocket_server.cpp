@@ -32,8 +32,10 @@ websocket_server::~websocket_server()
 {
 }
 
-void websocket_server::start()
+void websocket_server::start(const boost::asio::ip::address& ip_address, uint16_t port)
 {
+    boost::asio::ip::tcp::endpoint endpoint(ip_address, port);
+
     m_server->set_open_handler(
             websocketpp::lib::bind(&websocket_server::on_open, this,
                     websocketpp::lib::placeholders::_1));
@@ -45,21 +47,6 @@ void websocket_server::start()
     m_server->set_fail_handler(
             websocketpp::lib::bind(&websocket_server::on_fail, this,
                     websocketpp::lib::placeholders::_1));
-
-    m_server->set_ping_handler(
-            websocketpp::lib::bind(&websocket_server::on_ping, this,
-                    websocketpp::lib::placeholders::_1,
-                    websocketpp::lib::placeholders::_2));
-
-    m_server->set_pong_handler(
-            websocketpp::lib::bind(&websocket_server::on_pong, this,
-                    websocketpp::lib::placeholders::_1,
-                    websocketpp::lib::placeholders::_2));
-
-    m_server->set_pong_timeout_handler(
-            websocketpp::lib::bind(&websocket_server::on_pong_timeout, this,
-                    websocketpp::lib::placeholders::_1,
-                    websocketpp::lib::placeholders::_2));
 
     m_server->set_validate_handler(
             websocketpp::lib::bind(&websocket_server::on_validate, this,
@@ -76,7 +63,7 @@ void websocket_server::start()
 
     m_server->init_asio(&m_io_service);
     m_server->set_reuse_addr(true);
-    m_server->listen(9005);
+    m_server->listen(endpoint);
     m_server->start_accept();
 
     // The io_service is run from owning context.
@@ -121,22 +108,6 @@ void websocket_server::on_fail(websocketpp::connection_hdl handle)
             router->detach_session(connection->get_session_id());
         }
     }
-}
-
-bool websocket_server::on_ping(websocketpp::connection_hdl handle, std::string message)
-{
-    std::cerr << "ping handler called: " << handle.lock().get() << std::endl;
-    return true;
-}
-
-void websocket_server::on_pong(websocketpp::connection_hdl handle, std::string message)
-{
-    std::cerr << "pong handler called: " << handle.lock().get() << std::endl;
-}
-
-void websocket_server::on_pong_timeout(websocketpp::connection_hdl handle, std::string message)
-{
-    std::cerr << "pong timeout handler called: " << handle.lock().get() << std::endl;
 }
 
 bool websocket_server::on_validate(websocketpp::connection_hdl handle)

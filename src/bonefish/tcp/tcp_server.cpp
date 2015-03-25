@@ -9,6 +9,8 @@
 #include <bonefish/tcp/tcp_transport.hpp>
 #include <bonefish/transport/wamp_transport.hpp>
 
+#include <boost/asio/ip/address.hpp>
+
 namespace bonefish {
 
 tcp_server::tcp_server(boost::asio::io_service& io_service,
@@ -27,10 +29,10 @@ tcp_server::~tcp_server()
 {
 }
 
-void tcp_server::start()
+void tcp_server::start(const boost::asio::ip::address& ip_address, uint16_t port)
 {
     assert(!m_listener);
-    m_listener = std::make_shared<tcp_listener>(m_io_service, boost::asio::ip::address(), 6969);
+    m_listener = std::make_shared<tcp_listener>(m_io_service, ip_address, port);
     m_listener->set_accept_handler(
             std::bind(&tcp_server::on_connect, shared_from_this(), std::placeholders::_1));
     m_listener->start_listening();

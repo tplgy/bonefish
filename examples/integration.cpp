@@ -5,6 +5,8 @@
 #include <bonefish/tcp/tcp_server.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
+#include <boost/asio/ip/address.hpp>
+
 // In some cases you may need to integrate bonefish with your application
 // such that it is running in the same process space. This serves as a simple
 // example of how to use the bonefish library to startup your own instance
@@ -31,11 +33,11 @@ int main(int argc, char** argv)
 
     std::shared_ptr<bonefish::tcp_server> tcp_server =
             std::make_shared<bonefish::tcp_server>(io_service, routers, serializers, generator);
-    tcp_server->start();
+    tcp_server->start(boost::asio::ip::address(), 8888);
 
     std::shared_ptr<bonefish::websocket_server> websocket_server =
             std::make_shared<bonefish::websocket_server>(io_service, routers, serializers, generator);
-    websocket_server->start();
+    websocket_server->start(boost::asio::ip::address(), 9999);
 
     io_service.run();
 
