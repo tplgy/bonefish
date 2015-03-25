@@ -4,7 +4,7 @@
 #include <bonefish/roles/wamp_role.hpp>
 
 #include <cstddef>
-#include <msgpack_fwd.hpp>
+#include <msgpack.hpp>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -27,8 +27,6 @@ inline void operator<< (object::with_zone& details,
 
 } // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 } // namespace msgpack
-
-#include <msgpack.hpp>
 
 namespace bonefish {
 
