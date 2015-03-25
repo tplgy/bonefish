@@ -7,6 +7,7 @@
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 
+#include <cassert>
 #include <cstddef>
 #include <memory>
 #include <msgpack.hpp>

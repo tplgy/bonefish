@@ -5,6 +5,7 @@
 #include <bonefish/messages/wamp_message_defaults.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
 
+#include <cassert>
 #include <cstddef>
 #include <iostream>
 #include <msgpack.hpp>
