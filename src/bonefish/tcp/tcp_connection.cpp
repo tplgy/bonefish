@@ -4,6 +4,8 @@
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
 
+#include <iostream>
+
 namespace bonefish {
 
 tcp_connection::tcp_connection(boost::asio::ip::tcp::socket&& socket)
