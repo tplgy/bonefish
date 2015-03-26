@@ -99,5 +99,5 @@ set(HEADERS
     bonefish/websocket/websocket_transport.hpp)
 
 add_library(bonefish STATIC ${SOURCES} ${HEADERS})
-install(FILES ${HEADERS} DESTINATION include/bonefish)
+install(DIRECTORY bonefish/ DESTINATION include/bonefish FILES_MATCHING PATTERN *.hpp)
 install(TARGETS bonefish DESTINATION lib)
