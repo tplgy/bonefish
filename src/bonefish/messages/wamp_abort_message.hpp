@@ -2,8 +2,8 @@
 #define BONEFISH_MESSAGES_WAMP_ABORT_MESSAGE_HPP
 
 #include <bonefish/messages/wamp_message.hpp>
-#include <bonefish/messages/wamp_message_defaults.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
+#include <bonefish/messages/wamp_message_defaults.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
 
 #include <cassert>
@@ -45,8 +45,8 @@ private:
 
 inline wamp_abort_message::wamp_abort_message()
     : m_zone()
-    , m_type(wamp_message_type::ABORT, &m_zone)
-    , m_details(MSGPACK_EMPTY_MAP)
+    , m_type(wamp_message_type::ABORT)
+    , m_details(msgpack_empty_map())
     , m_reason()
 {
 }

@@ -49,9 +49,9 @@ private:
 
 inline wamp_register_message::wamp_register_message()
     : m_zone()
-    , m_type(wamp_message_type::REGISTER, &m_zone)
+    , m_type(wamp_message_type::REGISTER)
     , m_request_id()
-    , m_options(MSGPACK_EMPTY_MAP)
+    , m_options(msgpack_empty_map())
     , m_procedure()
 {
 }

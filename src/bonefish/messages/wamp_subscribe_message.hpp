@@ -49,9 +49,9 @@ private:
 
 inline wamp_subscribe_message::wamp_subscribe_message()
     : m_zone()
-    , m_type(wamp_message_type::SUBSCRIBE, &m_zone)
+    , m_type(wamp_message_type::SUBSCRIBE)
     , m_request_id()
-    , m_options(MSGPACK_EMPTY_MAP)
+    , m_options(msgpack_empty_map())
     , m_topic()
 {
 }

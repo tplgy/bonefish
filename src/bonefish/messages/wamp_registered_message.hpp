@@ -44,7 +44,7 @@ private:
 
 inline wamp_registered_message::wamp_registered_message()
     : m_zone()
-    , m_type(wamp_message_type::REGISTERED, &m_zone)
+    , m_type(wamp_message_type::REGISTERED)
     , m_request_id()
     , m_registration_id()
 {

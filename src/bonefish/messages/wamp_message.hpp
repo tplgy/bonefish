@@ -3,7 +3,7 @@
 
 #include <bonefish/messages/wamp_message_type.hpp>
 
-#include <msgpack.hpp>
+#include <msgpack/object_fwd.hpp>
 #include <vector>
 
 namespace bonefish {

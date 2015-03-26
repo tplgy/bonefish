@@ -45,7 +45,7 @@ private:
 
 inline wamp_unsubscribe_message::wamp_unsubscribe_message()
     : m_zone()
-    , m_type(wamp_message_type::UNSUBSCRIBE, &m_zone)
+    , m_type(wamp_message_type::UNSUBSCRIBE)
     , m_request_id()
     , m_subscription_id()
 {

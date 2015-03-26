@@ -57,9 +57,9 @@ private:
 
 inline wamp_publish_message::wamp_publish_message()
     : m_zone()
-    , m_type(wamp_message_type::PUBLISH, &m_zone)
+    , m_type(wamp_message_type::PUBLISH)
     , m_request_id()
-    , m_options(MSGPACK_EMPTY_MAP)
+    , m_options(msgpack_empty_map())
     , m_topic()
     , m_arguments()
     , m_arguments_kw()
@@ -83,7 +83,7 @@ inline std::vector<msgpack::object> wamp_publish_message::marshal() const
         if (!m_arguments.is_nil()) {
             fields = { m_type, m_request_id, m_options, m_topic, m_arguments, m_arguments_kw };
         } else {
-            fields = { m_type, m_request_id, m_options, m_topic, MSGPACK_EMPTY_MAP, m_arguments_kw };
+            fields = { m_type, m_request_id, m_options, m_topic, msgpack_empty_map(), m_arguments_kw };
         }
     } else if (!m_arguments.is_nil()) {
         fields = { m_type, m_request_id, m_options, m_topic, m_arguments };

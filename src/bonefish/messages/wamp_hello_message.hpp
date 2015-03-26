@@ -46,9 +46,9 @@ private:
 
 inline wamp_hello_message::wamp_hello_message()
     : m_zone()
-    , m_type(wamp_message_type::HELLO, &m_zone)
+    , m_type(wamp_message_type::HELLO)
     , m_realm()
-    , m_details(MSGPACK_EMPTY_MAP)
+    , m_details(msgpack_empty_map())
 {
 }
 

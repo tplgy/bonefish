@@ -43,7 +43,7 @@ private:
 
 inline wamp_published_message::wamp_published_message()
     : m_zone()
-    , m_type(wamp_message_type::PUBLISHED, &m_zone)
+    , m_type(wamp_message_type::PUBLISHED)
     , m_request_id()
     , m_publication_id()
 {

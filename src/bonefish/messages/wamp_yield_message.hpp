@@ -55,9 +55,9 @@ private:
 
 inline wamp_yield_message::wamp_yield_message()
     : m_zone()
-    , m_type(wamp_message_type::YIELD, &m_zone)
+    , m_type(wamp_message_type::YIELD)
     , m_request_id()
-    , m_options(MSGPACK_EMPTY_MAP)
+    , m_options(msgpack_empty_map())
     , m_arguments()
     , m_arguments_kw()
 {
@@ -80,7 +80,7 @@ inline std::vector<msgpack::object> wamp_yield_message::marshal() const
         if (!m_arguments.is_nil()) {
             fields = { m_type, m_request_id, m_options, m_arguments, m_arguments_kw };
         } else {
-            fields = { m_type, m_request_id, m_options, MSGPACK_EMPTY_MAP, m_arguments_kw };
+            fields = { m_type, m_request_id, m_options, msgpack_empty_map(), m_arguments_kw };
         }
     } else if (!m_arguments.is_nil()) {
         fields = { m_type, m_request_id, m_options, m_arguments };

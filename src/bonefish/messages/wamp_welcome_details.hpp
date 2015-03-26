@@ -9,28 +9,6 @@
 #include <unordered_set>
 
 namespace bonefish {
-class wamp_welcome_details;
-} // namespace bonefish
-
-namespace msgpack {
-MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
-
-inline object const& operator>> (msgpack::object const&,
-        bonefish::wamp_welcome_details&);
-
-template <typename Stream>
-inline packer<Stream>& operator<< (msgpack::packer<Stream>&,
-        bonefish::wamp_welcome_details const&);
-
-inline void operator<< (object::with_zone& details,
-        bonefish::wamp_welcome_details const& welcome_details);
-
-} // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
-} // namespace msgpack
-
-#include <msgpack.hpp>
-
-namespace bonefish {
 
 class wamp_welcome_details
 {

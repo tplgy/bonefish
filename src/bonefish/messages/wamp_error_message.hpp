@@ -60,10 +60,10 @@ private:
 
 inline wamp_error_message::wamp_error_message()
     : m_zone()
-    , m_type(wamp_message_type::ERROR, &m_zone)
+    , m_type(wamp_message_type::ERROR)
     , m_request_type()
     , m_request_id()
-    , m_details(MSGPACK_EMPTY_MAP)
+    , m_details(msgpack_empty_map())
     , m_error()
     , m_arguments()
     , m_arguments_kw()
@@ -89,7 +89,7 @@ inline std::vector<msgpack::object> wamp_error_message::marshal() const
                     m_error, m_arguments, m_arguments_kw };
         } else {
             fields = { m_type, m_request_type, m_request_id, m_details,
-                m_error, MSGPACK_EMPTY_MAP, m_arguments_kw };
+                m_error, msgpack_empty_map(), m_arguments_kw };
         }
     } else if (!m_arguments.is_nil()) {
         fields = { m_type, m_request_type, m_request_id, m_details, m_error, m_arguments };

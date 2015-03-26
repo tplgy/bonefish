@@ -48,9 +48,9 @@ private:
 
 inline wamp_welcome_message::wamp_welcome_message()
     : m_zone()
-    , m_type(wamp_message_type::WELCOME, &m_zone)
+    , m_type(wamp_message_type::WELCOME)
     , m_session_id()
-    , m_details(MSGPACK_EMPTY_MAP)
+    , m_details(msgpack_empty_map())
 {
 }
 

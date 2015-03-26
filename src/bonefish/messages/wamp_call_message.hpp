@@ -57,9 +57,9 @@ private:
 
 inline wamp_call_message::wamp_call_message()
     : m_zone()
-    , m_type(wamp_message_type::CALL, &m_zone)
+    , m_type(wamp_message_type::CALL)
     , m_request_id()
-    , m_options(MSGPACK_EMPTY_MAP)
+    , m_options(msgpack_empty_map())
     , m_procedure()
     , m_arguments()
     , m_arguments_kw()
@@ -85,7 +85,7 @@ inline std::vector<msgpack::object> wamp_call_message::marshal() const
                     m_arguments, m_arguments_kw };
         } else {
             fields = { m_type, m_request_id, m_options, m_procedure,
-                    MSGPACK_EMPTY_MAP, m_arguments_kw };
+                    msgpack_empty_map(), m_arguments_kw };
         }
     } else if (!m_arguments.is_nil()) {
         fields = { m_type, m_request_id, m_options, m_procedure, m_arguments };

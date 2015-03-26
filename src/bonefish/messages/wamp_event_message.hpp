@@ -56,10 +56,10 @@ private:
 
 inline wamp_event_message::wamp_event_message()
     : m_zone()
-    , m_type(wamp_message_type::EVENT, &m_zone)
+    , m_type(wamp_message_type::EVENT)
     , m_subscription_id()
     , m_publication_id()
-    , m_details(MSGPACK_EMPTY_MAP)
+    , m_details(msgpack_empty_map())
     , m_arguments()
     , m_arguments_kw()
 {
@@ -84,7 +84,7 @@ inline std::vector<msgpack::object> wamp_event_message::marshal() const
                     m_arguments, m_arguments_kw };
         } else {
             fields = { m_type, m_subscription_id, m_publication_id, m_details,
-                    MSGPACK_EMPTY_MAP, m_arguments_kw };
+                    msgpack_empty_map(), m_arguments_kw };
         }
     } else if (!m_arguments.is_nil()) {
         fields = { m_type, m_subscription_id, m_publication_id, m_details, m_arguments };

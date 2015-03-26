@@ -1,11 +1,11 @@
 #ifndef BONEFISH_MESSAGES_WAMP_MESSAGE_DEFAULTS_HPP
 #define BONEFISH_MESSAGES_WAMP_MESSAGE_DEFAULTS_HPP
 
-#include <msgpack.hpp>
+#include <msgpack/object_fwd.hpp>
 
 namespace bonefish {
 
-extern const msgpack::object MSGPACK_EMPTY_MAP;
+const msgpack::object& msgpack_empty_map();
 
 } // namespace bonefish
 

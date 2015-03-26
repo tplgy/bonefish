@@ -46,8 +46,8 @@ private:
 
 inline wamp_goodbye_message::wamp_goodbye_message()
     : m_zone()
-    , m_type(wamp_message_type::GOODBYE, &m_zone)
-    , m_details(MSGPACK_EMPTY_MAP)
+    , m_type(wamp_message_type::GOODBYE)
+    , m_details(msgpack_empty_map())
     , m_reason()
 {
 }

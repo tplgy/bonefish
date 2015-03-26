@@ -1,40 +1,25 @@
 #include <bonefish/messages/wamp_welcome_details.hpp>
 
 #include <iostream>
-
-namespace bonefish {
-
-msgpack::object wamp_welcome_details::marshal(msgpack::zone* zone)
-{
-    if (zone) {
-        return msgpack::object(*this, zone);
-    }
-
-    return msgpack::object(*this, &m_zone);
-}
-
-void wamp_welcome_details::unmarshal(const msgpack::object& object)
-{
-    throw std::logic_error("unmarshal not implemented");
-}
-
-} // namespace bonefish
+#include <msgpack/object.hpp>
+#include <msgpack/pack.hpp>
 
 namespace msgpack {
 MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
 
-inline object const& operator>> (msgpack::object const&, bonefish::wamp_welcome_details&)
+object const& operator>> (msgpack::object const&, bonefish::wamp_welcome_details&)
 {
     throw std::logic_error("no msgpack object deserializer defined");
 }
 
 template <typename Stream>
-inline packer<Stream>& operator<< (packer<Stream>&, bonefish::wamp_welcome_details const&)
+packer<Stream>& operator<< (packer<Stream>&, bonefish::wamp_welcome_details const&)
 {
     throw std::logic_error("no msgpack object packer serializer defined");
 }
 
-inline void operator<< (object::with_zone& details,
+template<>
+void operator<< (object::with_zone& details,
         bonefish::wamp_welcome_details const& welcome_details)
 {
     object::with_zone roles(details.zone);
@@ -61,3 +46,21 @@ inline void operator<< (object::with_zone& details,
 
 } // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 } // namespace msgpack
+
+namespace bonefish {
+
+msgpack::object wamp_welcome_details::marshal(msgpack::zone* zone)
+{
+    if (zone) {
+        return msgpack::object(*this, zone);
+    }
+
+    return msgpack::object(*this, &m_zone);
+}
+
+void wamp_welcome_details::unmarshal(const msgpack::object& object)
+{
+    throw std::logic_error("unmarshal not implemented");
+}
+
+} // namespace bonefish

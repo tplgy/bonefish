@@ -41,7 +41,7 @@ private:
 
 inline wamp_unsubscribed_message::wamp_unsubscribed_message()
     : m_zone()
-    , m_type(wamp_message_type::UNSUBSCRIBED, &m_zone)
+    , m_type(wamp_message_type::UNSUBSCRIBED)
     , m_request_id()
 {
 }

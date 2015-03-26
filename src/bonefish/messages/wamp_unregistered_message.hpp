@@ -39,7 +39,7 @@ private:
 
 inline wamp_unregistered_message::wamp_unregistered_message()
     : m_zone()
-    , m_type(wamp_message_type::UNREGISTERED, &m_zone)
+    , m_type(wamp_message_type::UNREGISTERED)
     , m_request_id()
 {
 }

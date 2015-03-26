@@ -44,7 +44,7 @@ private:
 
 inline wamp_subscribed_message::wamp_subscribed_message()
     : m_zone()
-    , m_type(wamp_message_type::SUBSCRIBED, &m_zone)
+    , m_type(wamp_message_type::SUBSCRIBED)
     , m_request_id()
     , m_subscription_id()
 {

@@ -44,7 +44,7 @@ private:
 
 inline wamp_unregister_message::wamp_unregister_message()
     : m_zone()
-    , m_type(wamp_message_type::UNREGISTER, &m_zone)
+    , m_type(wamp_message_type::UNREGISTER)
     , m_request_id()
     , m_registration_id()
 {
