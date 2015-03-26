@@ -12,6 +12,7 @@ tcp_connection::tcp_connection(boost::asio::ip::tcp::socket&& socket)
     : m_close_handler()
     , m_fail_handler()
     , m_message_handler()
+    , m_message_length(0)
     , m_message_buffer()
     , m_socket(std::move(socket))
 {
@@ -36,7 +37,7 @@ void tcp_connection::send_message(const char* message, size_t length)
 
 void tcp_connection::async_receive_message()
 {
-    auto buffer = boost::asio::buffer(m_message_header_buffer, MESSAGE_HEADER_LENGTH);
+    auto buffer = boost::asio::buffer(&m_message_length, sizeof(m_message_length));
     auto handler = std::bind(&tcp_connection::async_receive_message_header,
             shared_from_this(), std::placeholders::_1, std::placeholders::_2);
 
@@ -50,10 +51,9 @@ void tcp_connection::async_receive_message_header(
         return handle_system_error(error_code);
     }
 
-    size_t message_length = ntohl(*reinterpret_cast<uint32_t*>(m_message_header_buffer));
-    m_message_buffer.reserve(message_length);
+    m_message_buffer.reserve(ntohl(m_message_length));
 
-    auto buffer = boost::asio::buffer(m_message_buffer.data(), message_length);
+    auto buffer = boost::asio::buffer(m_message_buffer.data(), ntohl(m_message_length));
     auto handler = std::bind(&tcp_connection::async_receive_message_body,
             shared_from_this(), std::placeholders::_1, std::placeholders::_2);
 

@@ -42,9 +42,7 @@ private:
     fail_handler m_fail_handler;
     message_handler m_message_handler;
 
-    static const uint32_t MESSAGE_HEADER_LENGTH = 4;
-    char m_message_header_buffer[MESSAGE_HEADER_LENGTH];
-
+    uint32_t m_message_length;
     std::vector<char> m_message_buffer;
     boost::asio::ip::tcp::socket m_socket;
 };
