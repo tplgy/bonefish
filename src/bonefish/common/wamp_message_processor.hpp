@@ -17,8 +17,7 @@ class wamp_message_processor
 {
 public:
     wamp_message_processor(
-            const std::shared_ptr<wamp_routers>& routers,
-            const std::shared_ptr<wamp_session_id_generator>& generator);
+            const std::shared_ptr<wamp_routers>& routers);
 
     void process_message(
             const std::unique_ptr<wamp_message>& message,
@@ -27,14 +26,11 @@ public:
 
 private:
     std::shared_ptr<wamp_routers> m_routers;
-    std::shared_ptr<wamp_session_id_generator> m_session_id_generator;
 };
 
 inline wamp_message_processor::wamp_message_processor(
-        const std::shared_ptr<wamp_routers>& routers,
-        const std::shared_ptr<wamp_session_id_generator>& generator)
+        const std::shared_ptr<wamp_routers>& routers)
     : m_routers(routers)
-    , m_session_id_generator(generator)
 {
 }
 

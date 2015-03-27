@@ -1,5 +1,4 @@
 #include "daemon.hpp"
-#include <bonefish/identifiers/wamp_session_id_generator.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/router/wamp_router.hpp>
@@ -21,7 +20,6 @@ daemon::daemon()
     , m_termination_signals(m_io_service, SIGTERM, SIGINT, SIGQUIT)
     , m_routers(new wamp_routers)
     , m_serializers(new wamp_serializers)
-    , m_session_id_generator()
     , m_tcp_server()
     , m_websocket_server()
 {
@@ -32,11 +30,10 @@ daemon::daemon()
             std::make_shared<wamp_router>(m_io_service, "default");
     m_routers->add_router(router);
     m_serializers->add_serializer(std::make_shared<msgpack_serializer>());
-    m_session_id_generator = std::make_shared<wamp_session_id_generator>();
     m_tcp_server = std::make_shared<tcp_server>(
-            m_io_service, m_routers, m_serializers, m_session_id_generator);
+            m_io_service, m_routers, m_serializers);
     m_websocket_server = std::make_shared<websocket_server>(
-            m_io_service, m_routers, m_serializers, m_session_id_generator);
+            m_io_service, m_routers, m_serializers);
 }
 
 daemon::~daemon()

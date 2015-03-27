@@ -3,6 +3,8 @@
 
 #include <bonefish/router/wamp_router.hpp>
 
+#include <unordered_map>
+
 namespace bonefish {
 
 class wamp_routers

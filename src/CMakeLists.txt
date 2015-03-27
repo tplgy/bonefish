@@ -35,12 +35,12 @@ if (asio_source)
 endif ()
 
 set(PUBLIC_HEADERS
-    bonefish/identifiers/wamp_random_id.hpp
-    bonefish/identifiers/wamp_random_id_generator.hpp
-    bonefish/identifiers/wamp_session_id.hpp
-    bonefish/identifiers/wamp_session_id_generator.hpp
     bonefish/router/wamp_router.hpp
     bonefish/router/wamp_routers.hpp
+    bonefish/serialization/msgpack_serializer.hpp
+    bonefish/serialization/wamp_serializer_type.hpp
+    bonefish/serialization/wamp_serializer.hpp
+    bonefish/serialization/wamp_serializers.hpp
     bonefish/tcp/tcp_server.hpp
     bonefish/websocket/websocket_server.hpp)
 
@@ -90,9 +90,6 @@ set(PRIVATE_HEADERS
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
     bonefish/router/wamp_router_impl.hpp
-    bonefish/serialization/msgpack_serializer.hpp
-    bonefish/serialization/wamp_serializer_type.hpp
-    bonefish/serialization/wamp_serializer.hpp
     bonefish/session/wamp_session.hpp
     bonefish/session/wamp_session_state.hpp
     bonefish/tcp/tcp_connection.hpp
@@ -106,7 +103,7 @@ set(PRIVATE_HEADERS
     bonefish/websocket/websocket_server_impl.hpp
     bonefish/websocket/websocket_transport.hpp)
 
-add_library(bonefish STATIC ${SOURCES} ${HEADERS})
+add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
 
 foreach(h ${PUBLIC_HEADERS})
     get_filename_component(HEADER_INCLUDE_DIRECTORY include/${h} DIRECTORY)

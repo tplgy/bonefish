@@ -71,8 +71,9 @@ void wamp_message_processor::process_message(
                 transport->send_message(abort_message.get());
             } else {
                 wamp_session_id id;
+                auto generator = router->get_session_id_generator();
                 do {
-                    id = m_session_id_generator->generate();
+                    id = generator->generate();
                 } while(router->has_session(id));
 
                 connection->set_session_id(id);

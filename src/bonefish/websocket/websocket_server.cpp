@@ -9,9 +9,8 @@ namespace bonefish {
 websocket_server::websocket_server(
         boost::asio::io_service& io_service,
         const std::shared_ptr<wamp_routers>& routers,
-        const std::shared_ptr<wamp_serializers>& serializers,
-        const std::shared_ptr<wamp_session_id_generator>& generator)
-    : m_impl(new websocket_server_impl(io_service, routers, serializers, generator))
+        const std::shared_ptr<wamp_serializers>& serializers)
+    : m_impl(new websocket_server_impl(io_service, routers, serializers))
 {
 }
 

@@ -1,11 +1,9 @@
 #ifndef BONEFISH_WAMP_ROUTER_HPP
 #define BONEFISH_WAMP_ROUTER_HPP
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
 #include <memory>
 #include <string>
-#include <unordered_set>
-#include <unordered_map>
 
 namespace bonefish {
 
@@ -20,6 +18,7 @@ class wamp_register_message;
 class wamp_router_impl;
 class wamp_session;
 class wamp_session_id;
+class wamp_session_id_generator;
 class wamp_subscribe_message;
 class wamp_unregister_message;
 class wamp_unsubscribe_message;
@@ -33,6 +32,8 @@ public:
     ~wamp_router();
 
     const std::string& get_realm() const;
+    const std::shared_ptr<wamp_session_id_generator>& get_session_id_generator() const;
+
     bool has_session(const wamp_session_id& session_id);
     bool attach_session(const std::shared_ptr<wamp_session>& session);
     void close_session(const wamp_session_id& session_id, const std::string& reason);

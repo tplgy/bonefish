@@ -19,6 +19,7 @@ class wamp_publish_message;
 class wamp_register_message;
 class wamp_session;
 class wamp_session_id;
+class wamp_session_id_generator;
 class wamp_subscribe_message;
 class wamp_unregister_message;
 class wamp_unsubscribe_message;
@@ -31,6 +32,8 @@ public:
     ~wamp_router_impl();
 
     const std::string& get_realm() const;
+    const std::shared_ptr<wamp_session_id_generator>& get_session_id_generator() const;
+
     bool has_session(const wamp_session_id& session_id);
     bool attach_session(const std::shared_ptr<wamp_session>& session);
     void close_session(const wamp_session_id& session_id, const std::string& reason);
@@ -62,6 +65,7 @@ private:
     wamp_broker m_broker;
     wamp_dealer m_dealer;
     wamp_welcome_details m_welcome_details;
+    std::shared_ptr<wamp_session_id_generator> m_session_id_generator;
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
 };
 

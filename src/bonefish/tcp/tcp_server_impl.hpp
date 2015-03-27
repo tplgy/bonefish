@@ -15,15 +15,13 @@ class tcp_connection;
 class tcp_listener;
 class wamp_routers;
 class wamp_serializers;
-class wamp_session_id_generator;
 
 class tcp_server_impl : public std::enable_shared_from_this<tcp_server_impl>
 {
 public:
     tcp_server_impl(boost::asio::io_service& io_service,
             const std::shared_ptr<wamp_routers>& routers,
-            const std::shared_ptr<wamp_serializers>& serializers,
-            const std::shared_ptr<wamp_session_id_generator>& generator);
+            const std::shared_ptr<wamp_serializers>& serializers);
     ~tcp_server_impl();
 
     void start(const boost::asio::ip::address& ip_address, uint16_t port);

@@ -1,4 +1,3 @@
-#include <bonefish/identifiers/wamp_session_id_generator.hpp>
 #include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
@@ -6,6 +5,7 @@
 #include <bonefish/websocket/websocket_server.hpp>
 
 #include <boost/asio/ip/address.hpp>
+#include <memory>
 
 // In some cases you may need to integrate bonefish with your application
 // such that it is running in the same process space. This serves as a simple
@@ -28,15 +28,12 @@ int main(int argc, char** argv)
             std::make_shared<bonefish::wamp_serializers>();
     serializers->add_serializer(std::make_shared<bonefish::msgpack_serializer>());
 
-    std::shared_ptr<bonefish::wamp_session_id_generator> generator =
-            std::make_shared<bonefish::wamp_session_id_generator>();
-
     std::shared_ptr<bonefish::tcp_server> tcp_server =
-            std::make_shared<bonefish::tcp_server>(io_service, routers, serializers, generator);
+            std::make_shared<bonefish::tcp_server>(io_service, routers, serializers);
     tcp_server->start(boost::asio::ip::address(), 8888);
 
     std::shared_ptr<bonefish::websocket_server> websocket_server =
-            std::make_shared<bonefish::websocket_server>(io_service, routers, serializers, generator);
+            std::make_shared<bonefish::websocket_server>(io_service, routers, serializers);
     websocket_server->start(boost::asio::ip::address(), 9999);
 
     io_service.run();

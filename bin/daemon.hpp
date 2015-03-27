@@ -8,6 +8,7 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/signal_set.hpp>
+#include <memory>
 
 namespace bonefish
 {
@@ -15,7 +16,6 @@ namespace bonefish
 class tcp_server;
 class wamp_routers;
 class wamp_serializers;
-class wamp_session_id_generator;
 class websocket_server;
 
 class daemon
@@ -35,12 +35,11 @@ private:
 
 private:
     boost::asio::io_service m_io_service;
-    boost::shared_ptr<boost::asio::io_service::work> m_work;
+    std::shared_ptr<boost::asio::io_service::work> m_work;
     boost::asio::signal_set m_termination_signals;
 
     std::shared_ptr<bonefish::wamp_routers> m_routers;
     std::shared_ptr<bonefish::wamp_serializers> m_serializers;
-    std::shared_ptr<bonefish::wamp_session_id_generator> m_session_id_generator;
     std::shared_ptr<bonefish::tcp_server> m_tcp_server;
     std::shared_ptr<bonefish::websocket_server> m_websocket_server;
 };

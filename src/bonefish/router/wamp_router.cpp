@@ -2,6 +2,7 @@
 #include <bonefish/broker/wamp_broker.hpp>
 #include <bonefish/dealer/wamp_dealer.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
+#include <bonefish/identifiers/wamp_session_id_generator.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
@@ -36,6 +37,12 @@ const std::string& wamp_router::get_realm() const
 {
     return m_impl->get_realm();
 }
+
+const std::shared_ptr<wamp_session_id_generator>& wamp_router::get_session_id_generator() const
+{
+    return m_impl->get_session_id_generator();
+}
+
 
 bool wamp_router::has_session(const wamp_session_id& session_id)
 {
