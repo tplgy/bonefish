@@ -3,6 +3,7 @@
 #include <bonefish/dealer/wamp_dealer.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/identifiers/wamp_session_id_generator.hpp>
+#include <bonefish/identifiers/wamp_session_id_factory.hpp>
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
@@ -28,6 +29,7 @@ wamp_router_impl::wamp_router_impl(boost::asio::io_service& io_service, const st
     , m_broker()
     , m_dealer(io_service)
     , m_welcome_details()
+    , m_session_id_generator(wamp_session_id_factory::create(realm))
     , m_sessions()
 {
     m_welcome_details.add_role(wamp_role(wamp_role_type::BROKER));
