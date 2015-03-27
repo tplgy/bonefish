@@ -18,6 +18,7 @@ set(SOURCES
     bonefish/roles/wamp_role_type.cpp
     bonefish/router/wamp_router.cpp
     bonefish/router/wamp_router_impl.cpp
+    bonefish/serialization/json_serializer.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/session/wamp_session_state.cpp
     bonefish/tcp/tcp_connection.cpp
@@ -38,6 +39,7 @@ endif ()
 set(PUBLIC_HEADERS
     bonefish/router/wamp_router.hpp
     bonefish/router/wamp_routers.hpp
+    bonefish/serialization/json_serializer.hpp
     bonefish/serialization/msgpack_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
@@ -94,6 +96,7 @@ set(PRIVATE_HEADERS
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
     bonefish/router/wamp_router_impl.hpp
+    bonefish/serialization/json_msgpack_sax.hpp
     bonefish/session/wamp_session.hpp
     bonefish/session/wamp_session_state.hpp
     bonefish/tcp/tcp_connection.hpp

@@ -124,6 +124,12 @@ bool websocket_server_impl::on_validate(websocketpp::connection_hdl handle)
                 connection->select_subprotocol(subprotocol);
                 return true;
             }
+        } else if (subprotocol == WAMPV2_JSON_SUBPROTOCOL) {
+            if (m_serializers->has_serializer(wamp_serializer_type::JSON)) {
+                std::cerr << "negotiated subprotocol " << subprotocol << std::endl;
+                connection->select_subprotocol(subprotocol);
+                return true;
+            }
         } else {
             std::cerr << "requested subprotocol " << subprotocol << " is unsupported" << std::endl;
         }
@@ -139,24 +145,27 @@ void websocket_server_impl::on_message(websocketpp::connection_hdl handle,
     std::cerr << "received message" << std::endl;
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
+    std::shared_ptr<wamp_serializer> serializer;
 
     if (connection->get_subprotocol() == WAMPV2_MSGPACK_SUBPROTOCOL) {
-        try {
-            std::shared_ptr<wamp_serializer> serializer =
-                    m_serializers->get_serializer(wamp_serializer_type::MSGPACK);
-            std::unique_ptr<wamp_message> message(
-                    serializer->deserialize(buffer->get_payload().c_str(), buffer->get_payload().size()));
-            std::unique_ptr<wamp_transport> transport(
-                    new websocket_transport(serializer, handle, m_server));
+        serializer = m_serializers->get_serializer(wamp_serializer_type::MSGPACK);
+    } else if (connection->get_subprotocol() == WAMPV2_JSON_SUBPROTOCOL) {
+        serializer = m_serializers->get_serializer(wamp_serializer_type::JSON);
+    }
 
-            if (message) {
-                m_message_processor.process_message(message, std::move(transport), connection.get());
-            } else {
-                std::cerr << "error: unable to deserialize message" << std::endl;
-            }
-        } catch (const std::exception& e) {
-            std::cerr << "unhandled exception: " << e.what() << std::endl;
+    try {
+        std::unique_ptr<wamp_message> message(
+                serializer->deserialize(buffer->get_payload().c_str(), buffer->get_payload().size()));
+        std::unique_ptr<wamp_transport> transport(
+                new websocket_transport(serializer, handle, m_server));
+
+        if (message) {
+            m_message_processor.process_message(message, std::move(transport), connection.get());
+        } else {
+            std::cerr << "error: unable to deserialize message" << std::endl;
         }
+    } catch (const std::exception& e) {
+        std::cerr << "unhandled exception: " << e.what() << std::endl;
     }
 }
 

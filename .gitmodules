@@ -1,6 +1,9 @@
 [submodule "third-party/msgpack-c"]
 	path = third-party/msgpack-c
 	url = https://github.com/msgpack/msgpack-c.git
+[submodule "third-party/rapidjson"]
+	path = third-party/rapidjson
+	url = https://github.com/miloyip/rapidjson.git
 [submodule "third-party/websocketpp"]
 	path = third-party/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git

@@ -10,7 +10,8 @@ namespace bonefish {
 
 enum class wamp_serializer_type : unsigned
 {
-    MSGPACK
+    MSGPACK,
+    JSON
 };
 
 } // namespace bonefish

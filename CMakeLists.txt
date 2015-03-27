@@ -29,6 +29,7 @@ endif()
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/third-party/msgpack-c/include
+    ${CMAKE_SOURCE_DIR}/third-party/rapidjson/include
     ${CMAKE_SOURCE_DIR}/third-party/websocketpp
 )
 
