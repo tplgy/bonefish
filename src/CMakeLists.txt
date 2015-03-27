@@ -34,7 +34,17 @@ if (asio_source)
     list(APPEND SOURCES bonefish/boost/asio.cpp)
 endif ()
 
-set(HEADERS
+set(PUBLIC_HEADERS
+    bonefish/identifiers/wamp_random_id.hpp
+    bonefish/identifiers/wamp_random_id_generator.hpp
+    bonefish/identifiers/wamp_session_id.hpp
+    bonefish/identifiers/wamp_session_id_generator.hpp
+    bonefish/router/wamp_router.hpp
+    bonefish/router/wamp_routers.hpp
+    bonefish/tcp/tcp_server.hpp
+    bonefish/websocket/websocket_server.hpp)
+
+set(PRIVATE_HEADERS
     bonefish/broker/wamp_broker.hpp
     bonefish/broker/wamp_broker_subscription.hpp
     bonefish/broker/wamp_broker_topic.hpp
@@ -44,16 +54,12 @@ set(HEADERS
     bonefish/dealer/wamp_dealer_registration.hpp
     bonefish/identifiers/wamp_publication_id.hpp
     bonefish/identifiers/wamp_publication_id_generator.hpp
-    bonefish/identifiers/wamp_random_id.hpp
-    bonefish/identifiers/wamp_random_id_generator.hpp
     bonefish/identifiers/wamp_registration_id.hpp
     bonefish/identifiers/wamp_registration_id_generator.hpp
     bonefish/identifiers/wamp_request_id.hpp
     bonefish/identifiers/wamp_request_id_generator.hpp
     bonefish/identifiers/wamp_sequential_id.hpp
     bonefish/identifiers/wamp_sequential_id_generator.hpp
-    bonefish/identifiers/wamp_session_id.hpp
-    bonefish/identifiers/wamp_session_id_generator.hpp
     bonefish/identifiers/wamp_subscription_id.hpp
     bonefish/identifiers/wamp_subscription_id_generator.hpp
     bonefish/messages/wamp_abort_message.hpp
@@ -83,9 +89,7 @@ set(HEADERS
     bonefish/roles/wamp_role.hpp
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
-    bonefish/router/wamp_router.hpp
     bonefish/router/wamp_router_impl.hpp
-    bonefish/router/wamp_routers.hpp
     bonefish/serialization/msgpack_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
@@ -93,19 +97,20 @@ set(HEADERS
     bonefish/session/wamp_session_state.hpp
     bonefish/tcp/tcp_connection.hpp
     bonefish/tcp/tcp_listener.hpp
-    bonefish/tcp/tcp_server.hpp
     bonefish/tcp/tcp_server_impl.hpp
     bonefish/tcp/tcp_transport.hpp
     bonefish/transport/wamp_transport.hpp
     bonefish/utility/wamp_uri.hpp
     bonefish/websocket/websocket_config.hpp
     bonefish/websocket/websocket_protocol.hpp
-    bonefish/websocket/websocket_server.hpp
     bonefish/websocket/websocket_server_impl.hpp
     bonefish/websocket/websocket_transport.hpp)
 
 add_library(bonefish STATIC ${SOURCES} ${HEADERS})
-#install(DIRECTORY bonefish/ DESTINATION include/bonefish FILES_MATCHING PATTERN *.hpp)
-install(FILES bonefish/tcp/tcp_server.hpp DESTINATION include/bonefish/tcp)
-install(FILES bonefish/tcp/tcp_server.hpp DESTINATION include/bonefish/tcp)
+
+foreach(h ${PUBLIC_HEADERS})
+    get_filename_component(HEADER_INCLUDE_DIRECTORY include/${h} DIRECTORY)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h} DESTINATION ${HEADER_INCLUDE_DIRECTORY} COMPONENT "headers")
+endforeach()
+
 install(TARGETS bonefish DESTINATION lib)
