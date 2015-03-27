@@ -47,7 +47,7 @@ if __name__ == '__main__':
    log.startLogging(sys.stdout)
 
    ## 1) create a WAMP application session factory
-   component_config = types.ComponentConfig(realm = "realm1")
+   component_config = types.ComponentConfig(realm = "default")
    session_factory = wamp.ApplicationSessionFactory(config = component_config)
    session_factory.session = MyFrontendComponent
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
       serializers = serializers, debug = False, debug_wamp = False)
 
    ## 3) start the client from a Twisted endpoint
-   client = clientFromString(reactor, "tcp:127.0.0.1:9005")
+   client = clientFromString(reactor, "tcp:127.0.0.1:9999")
    client.connect(transport_factory)
 
    ## 4) now enter the Twisted reactor loop
