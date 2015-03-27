@@ -1,36 +1,34 @@
-#ifndef BONEFISH_WAMP_ROUTER_HPP
-#define BONEFISH_WAMP_ROUTER_HPP
+#ifndef BONEFISH_WAMP_ROUTER_IMPL_HPP
+#define BONEFISH_WAMP_ROUTER_IMPL_HPP
+
+#include <bonefish/broker/wamp_broker.hpp>
+#include <bonefish/dealer/wamp_dealer.hpp>
+#include <bonefish/messages/wamp_welcome_details.hpp>
 
 #include <boost/asio.hpp>
 #include <memory>
-#include <string>
-#include <unordered_set>
 #include <unordered_map>
 
 namespace bonefish {
 
-class wamp_broker;
-class wamp_dealer;
 class wamp_call_message;
 class wamp_error_message;
 class wamp_goodbye_message;
 class wamp_hello_message;
 class wamp_publish_message;
 class wamp_register_message;
-class wamp_router_impl;
 class wamp_session;
 class wamp_session_id;
 class wamp_subscribe_message;
 class wamp_unregister_message;
 class wamp_unsubscribe_message;
-class wamp_welcome_details;
 class wamp_yield_message;
 
-class wamp_router
+class wamp_router_impl
 {
 public:
-    wamp_router(boost::asio::io_service& io_service, const std::string& realm);
-    ~wamp_router();
+    wamp_router_impl(boost::asio::io_service& io_service, const std::string& realm);
+    ~wamp_router_impl();
 
     const std::string& get_realm() const;
     bool has_session(const wamp_session_id& session_id);
@@ -60,9 +58,13 @@ public:
             const wamp_yield_message* yield_message);
 
 private:
-    std::unique_ptr<wamp_router_impl> m_impl;
+    std::string m_realm;
+    wamp_broker m_broker;
+    wamp_dealer m_dealer;
+    wamp_welcome_details m_welcome_details;
+    std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
 };
 
 } // namespace bonefish
 
-#endif // BONEFISH_WAMP_ROUTER_HPP
+#endif // BONEFISH_WAMP_ROUTER_IMPL_HPP

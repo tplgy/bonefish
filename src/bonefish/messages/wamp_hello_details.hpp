@@ -1,6 +1,8 @@
 #ifndef BONEFISH_MESSAGES_WAMP_HELLO_DETAILS_HPP
 #define BONEFISH_MESSAGES_WAMP_HELLO_DETAILS_HPP
 
+#include <bonefish/roles/wamp_role.hpp>
+
 #include <cstddef>
 #include <iostream>
 #include <msgpack.hpp>
@@ -66,7 +68,7 @@ inline const std::unordered_set<wamp_role>& wamp_hello_details::get_roles() cons
     return m_roles;
 }
 
-void wamp_hello_details::add_role(const wamp_role& role)
+inline void wamp_hello_details::add_role(const wamp_role& role)
 {
     m_roles.insert(role);
 }

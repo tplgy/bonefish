@@ -248,7 +248,7 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
 
 void wamp_dealer::send_error(const std::unique_ptr<wamp_transport>& transport,
             const wamp_message_type request_type, const wamp_request_id& request_id,
-            const wamp_uri& error) const
+            const std::string& error) const
 {
     std::unique_ptr<wamp_error_message> error_message(new wamp_error_message);
     error_message->set_request_type(request_type);

@@ -16,15 +16,18 @@ set(SOURCES
     bonefish/messages/wamp_welcome_details.cpp
     bonefish/roles/wamp_role_type.cpp
     bonefish/router/wamp_router.cpp
+    bonefish/router/wamp_router_impl.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/session/wamp_session_state.cpp
     bonefish/tcp/tcp_connection.cpp
     bonefish/tcp/tcp_listener.cpp
     bonefish/tcp/tcp_server.cpp
+    bonefish/tcp/tcp_server_impl.cpp
     bonefish/tcp/tcp_transport.cpp
     bonefish/utility/wamp_uri.cpp
     bonefish/websocket/websocket_protocol.cpp
     bonefish/websocket/websocket_server.cpp
+    bonefish/websocket/websocket_server_impl.cpp
     bonefish/websocket/websocket_transport.cpp)
 
 if (asio_source)
@@ -81,6 +84,7 @@ set(HEADERS
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
     bonefish/router/wamp_router.hpp
+    bonefish/router/wamp_router_impl.hpp
     bonefish/router/wamp_routers.hpp
     bonefish/serialization/msgpack_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp
@@ -90,14 +94,18 @@ set(HEADERS
     bonefish/tcp/tcp_connection.hpp
     bonefish/tcp/tcp_listener.hpp
     bonefish/tcp/tcp_server.hpp
+    bonefish/tcp/tcp_server_impl.hpp
     bonefish/tcp/tcp_transport.hpp
     bonefish/transport/wamp_transport.hpp
     bonefish/utility/wamp_uri.hpp
     bonefish/websocket/websocket_config.hpp
     bonefish/websocket/websocket_protocol.hpp
     bonefish/websocket/websocket_server.hpp
+    bonefish/websocket/websocket_server_impl.hpp
     bonefish/websocket/websocket_transport.hpp)
 
 add_library(bonefish STATIC ${SOURCES} ${HEADERS})
-install(DIRECTORY bonefish/ DESTINATION include/bonefish FILES_MATCHING PATTERN *.hpp)
+#install(DIRECTORY bonefish/ DESTINATION include/bonefish FILES_MATCHING PATTERN *.hpp)
+install(FILES bonefish/tcp/tcp_server.hpp DESTINATION include/bonefish/tcp)
+install(FILES bonefish/tcp/tcp_server.hpp DESTINATION include/bonefish/tcp)
 install(TARGETS bonefish DESTINATION lib)

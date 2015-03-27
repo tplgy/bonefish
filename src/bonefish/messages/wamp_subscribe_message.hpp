@@ -30,11 +30,11 @@ public:
 
     wamp_request_id get_request_id() const;
     const msgpack::object& get_options() const;
-    wamp_uri get_topic() const;
+    std::string get_topic() const;
 
     void set_request_id(const wamp_request_id& request_id);
     void set_options(const msgpack::object& options);
-    void set_topic(const wamp_uri& topic);
+    void set_topic(const std::string& topic);
 
 private:
     msgpack::zone m_zone;
@@ -96,9 +96,9 @@ inline const msgpack::object& wamp_subscribe_message::get_options() const
     return m_options;
 }
 
-inline wamp_uri wamp_subscribe_message::get_topic() const
+inline std::string wamp_subscribe_message::get_topic() const
 {
-    return m_topic.as<wamp_uri>();
+    return m_topic.as<std::string>();
 }
 
 inline void wamp_subscribe_message::set_request_id(const wamp_request_id& request_id)
@@ -112,7 +112,7 @@ inline void wamp_subscribe_message::set_options(const msgpack::object& options)
     m_options = msgpack::object(options, &m_zone);
 }
 
-inline void wamp_subscribe_message::set_topic(const wamp_uri& topic)
+inline void wamp_subscribe_message::set_topic(const std::string& topic)
 {
     m_topic = msgpack::object(topic, &m_zone);
 }

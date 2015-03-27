@@ -2,7 +2,6 @@
 #define BONEFISH_BROKER_WAMP_BROKER_TOPIC_HPP
 
 #include <bonefish/session/wamp_session.hpp>
-#include <bonefish/utility/wamp_uri.hpp>
 
 #include <unordered_set>
 
@@ -12,16 +11,16 @@ class wamp_broker_topic
 {
 public:
     wamp_broker_topic();
-    wamp_broker_topic(const wamp_uri& topic);
+    wamp_broker_topic(const std::string& topic);
     ~wamp_broker_topic();
 
     bool add_session(const std::shared_ptr<wamp_session>& session);
     bool remove_session(const std::shared_ptr<wamp_session>& session);
-    const wamp_uri& get_topic() const;
+    const std::string& get_topic() const;
     const std::unordered_set<std::shared_ptr<wamp_session>>& get_sessions();
 
 private:
-    const wamp_uri m_topic;
+    const std::string m_topic;
     std::unordered_set<std::shared_ptr<wamp_session>> m_sessions;
 };
 
@@ -31,7 +30,7 @@ inline wamp_broker_topic::wamp_broker_topic()
 {
 }
 
-inline wamp_broker_topic::wamp_broker_topic(const wamp_uri& topic)
+inline wamp_broker_topic::wamp_broker_topic(const std::string& topic)
     : m_topic(topic)
     , m_sessions()
 {
@@ -52,7 +51,7 @@ inline bool wamp_broker_topic::remove_session(const std::shared_ptr<wamp_session
     return m_sessions.erase(session) != 0;
 }
 
-inline const wamp_uri& wamp_broker_topic::get_topic() const
+inline const std::string& wamp_broker_topic::get_topic() const
 {
     return m_topic;
 }

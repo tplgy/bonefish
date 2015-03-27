@@ -30,11 +30,11 @@ public:
 
     wamp_request_id get_request_id() const;
     const msgpack::object& get_options() const;
-    wamp_uri get_procedure() const;
+    std::string get_procedure() const;
 
     void set_request_id(const wamp_request_id& request_id);
     void set_options(const msgpack::object& options);
-    void set_procedure(const wamp_uri& procedure);
+    void set_procedure(const std::string& procedure);
 
 private:
     msgpack::zone m_zone;
@@ -96,9 +96,9 @@ inline const msgpack::object& wamp_register_message::get_options() const
     return m_options;
 }
 
-inline wamp_uri wamp_register_message::get_procedure() const
+inline std::string wamp_register_message::get_procedure() const
 {
-    return m_procedure.as<wamp_uri>();
+    return m_procedure.as<std::string>();
 }
 
 inline void wamp_register_message::set_request_id(const wamp_request_id& request_id)
@@ -112,7 +112,7 @@ inline void wamp_register_message::set_options(const msgpack::object& options)
     m_options = msgpack::object(options, &m_zone);
 }
 
-inline void wamp_register_message::set_procedure(const wamp_uri& procedure)
+inline void wamp_register_message::set_procedure(const std::string& procedure)
 {
     m_procedure = msgpack::object(procedure, &m_zone);
 }

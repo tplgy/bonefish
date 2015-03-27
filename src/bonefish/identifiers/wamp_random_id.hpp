@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <functional>
 #include <sstream>
 #include <stdexcept>
 

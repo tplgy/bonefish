@@ -8,7 +8,6 @@
 #include <bonefish/identifiers/wamp_subscription_id.hpp>
 #include <bonefish/identifiers/wamp_subscription_id_generator.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
-#include <bonefish/utility/wamp_uri.hpp>
 
 #include <memory>
 #include <unordered_map>
@@ -43,14 +42,14 @@ public:
 private:
     void send_error(const std::unique_ptr<wamp_transport>& transport,
             const wamp_message_type request_type, const wamp_request_id& request_id,
-            const wamp_uri& error) const;
+            const std::string& error) const;
 
 private:
     wamp_publication_id_generator m_publication_id_generator;
     wamp_subscription_id_generator m_subscription_id_generator;
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
     std::unordered_map<wamp_session_id, std::unordered_set<wamp_subscription_id>> m_session_subscriptions;
-    std::unordered_map<wamp_uri, std::unique_ptr<wamp_broker_subscription>> m_topic_subscriptions;
+    std::unordered_map<std::string, std::unique_ptr<wamp_broker_subscription>> m_topic_subscriptions;
     std::unordered_map<wamp_subscription_id, std::unique_ptr<wamp_broker_topic>> m_subscription_topics;
 };
 

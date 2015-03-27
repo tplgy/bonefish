@@ -29,10 +29,10 @@ public:
     virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
 
     const msgpack::object& get_details() const;
-    wamp_uri get_reason() const;
+    std::string get_reason() const;
 
     void set_details(const msgpack::object& details);
-    void set_reason(const wamp_uri& reason);
+    void set_reason(const std::string& reason);
 
 private:
     msgpack::zone m_zone;
@@ -86,9 +86,9 @@ inline const msgpack::object& wamp_goodbye_message::get_details() const
     return m_details;
 }
 
-inline wamp_uri wamp_goodbye_message::get_reason() const
+inline std::string wamp_goodbye_message::get_reason() const
 {
-    return m_reason.as<wamp_uri>();
+    return m_reason.as<std::string>();
 }
 
 inline void wamp_goodbye_message::set_details(const msgpack::object& details)
@@ -97,7 +97,7 @@ inline void wamp_goodbye_message::set_details(const msgpack::object& details)
     m_details = msgpack::object(details, &m_zone);
 }
 
-inline void wamp_goodbye_message::set_reason(const wamp_uri& reason)
+inline void wamp_goodbye_message::set_reason(const std::string& reason)
 {
     m_reason = msgpack::object(reason, &m_zone);
 }

@@ -32,14 +32,14 @@ public:
     wamp_message_type get_request_type() const;
     wamp_request_id get_request_id() const;
     const msgpack::object& get_details() const;
-    wamp_uri get_error() const;
+    std::string get_error() const;
     const msgpack::object& get_arguments() const;
     const msgpack::object& get_arguments_kw() const;
 
     void set_request_type(const wamp_message_type& request_type);
     void set_request_id(const wamp_request_id& request_id);
     void set_details(const msgpack::object& details);
-    void set_error(const wamp_uri& error);
+    void set_error(const std::string& error);
     void set_arguments(const msgpack::object& arguments);
     void set_arguments_kw(const msgpack::object& arguments_kw);
 
@@ -137,9 +137,9 @@ inline const msgpack::object& wamp_error_message::get_details() const
     return m_details;
 }
 
-inline wamp_uri wamp_error_message::get_error() const
+inline std::string wamp_error_message::get_error() const
 {
-    return m_error.as<wamp_uri>();
+    return m_error.as<std::string>();
 }
 
 inline const msgpack::object& wamp_error_message::get_arguments() const
@@ -171,7 +171,7 @@ inline void wamp_error_message::set_details(const msgpack::object& details)
     }
 }
 
-inline void wamp_error_message::set_error(const wamp_uri& error)
+inline void wamp_error_message::set_error(const std::string& error)
 {
     m_error = msgpack::object(error, &m_zone);
 }

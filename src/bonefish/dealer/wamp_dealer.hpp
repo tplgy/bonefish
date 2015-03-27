@@ -48,7 +48,7 @@ public:
 private:
     void send_error(const std::unique_ptr<wamp_transport>& transport,
             const wamp_message_type request_type, const wamp_request_id& request_id,
-            const wamp_uri& error) const;
+            const std::string& error) const;
 
     void invocation_timeout_handler(const wamp_request_id& request_id,
             const boost::system::error_code& error);
@@ -58,8 +58,8 @@ private:
     wamp_registration_id_generator m_registration_id_generator;
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
     std::unordered_map<wamp_session_id, wamp_registration_id> m_session_registrations;
-    std::unordered_map<wamp_uri, std::unique_ptr<wamp_dealer_registration>> m_procedure_registrations;
-    std::unordered_map<wamp_registration_id, wamp_uri> m_registered_procedures;
+    std::unordered_map<std::string, std::unique_ptr<wamp_dealer_registration>> m_procedure_registrations;
+    std::unordered_map<wamp_registration_id, std::string> m_registered_procedures;
 
     boost::asio::io_service& m_io_service;
     std::unordered_map<wamp_request_id, std::unique_ptr<wamp_dealer_invocation>> m_pending_invocations;
