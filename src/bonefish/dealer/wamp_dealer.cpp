@@ -116,6 +116,8 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     std::unique_ptr<wamp_invocation_message> invocation_message(new wamp_invocation_message);
     invocation_message->set_request_id(request_id);
     invocation_message->set_registration_id(registration_id);
+    invocation_message->set_arguments(call_message->get_arguments());
+    invocation_message->set_arguments_kw(call_message->get_arguments_kw());
     session->get_transport()->send_message(invocation_message.get());
 }
 
