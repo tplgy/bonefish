@@ -10,7 +10,7 @@
 namespace msgpack {
 MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
 
-bool reference_func(type::object_type type, uint64_t length, void* user_data) {
+bool reference_func(type::object_type type, std::size_t length, void* user_data) {
     // Never copy any STR, BIN or EXT out of the client buffer on parsing,
     // since we create a deep copy of the unpacked item anyway.
     return false;
