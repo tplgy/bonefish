@@ -204,7 +204,7 @@ struct msgpack_from_json_handler
         if (m_queued.size() < elementCount) { return false; }
         msgpack::object* o = m_containers.top();
         m_containers.pop();
-        if (o->type != msgpack::type::MAP) { return false; }
+        if (o->type != msgpack::type::ARRAY) { return false; }
 
         if (elementCount == 0) {
             o->via.array.ptr = nullptr;
