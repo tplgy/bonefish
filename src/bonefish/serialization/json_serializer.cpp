@@ -2,6 +2,7 @@
 
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_factory.hpp>
+#include <bonefish/serialization/base64.hpp>
 #include <bonefish/serialization/json_msgpack_sax.hpp>
 
 #include <iostream>
@@ -98,6 +99,65 @@ private:
     bool m_buffer_too_small;
 };
 
+struct wamp_bin_string_conversion
+{
+    using convert_from_string = bool;
+
+    static bool should_convert_from_string(const char* str, size_t length)
+    {
+        return length > 0 && str[0] == '\0';
+    }
+
+    static bool to_bool(const convert_from_string& convert) { return convert; }
+
+    // Any type can be returned instead of void, as long as convert() takes the same type.
+    static void* to_userdata(const convert_from_string&) { return nullptr; }
+
+    static bool convert(
+            msgpack::object& o, msgpack::zone& zone,
+            const char* str, size_t length, bool copy,
+            void* userdata)
+    {
+        (void) copy; // unused
+        (void) userdata;
+
+        size_t decode_size = base64::decode_size(str + 1, length - 1);
+        char* decoded = static_cast<char*>(zone.allocate_align(decode_size));
+        if (!decoded) { return false; }
+
+        try {
+            base64::decode(decoded, decode_size, str + 1, length - 1);
+        } catch (boost::archive::iterators::dataflow_exception&) {
+            return false;
+        }
+
+        o.type = msgpack::type::BIN;
+        o.via.bin.ptr = decoded;
+        o.via.bin.size = decode_size;
+
+        return true;
+    }
+
+    template <typename Writer>
+    static bool from_bin(Writer& writer, const msgpack::object& o)
+    {
+        size_t encode_size = base64::encode_size(o.via.bin.ptr, o.via.bin.size);
+        std::vector<char> encoded(1 + encode_size);
+        encoded.at(1) = '\0';
+
+        try {
+            base64::encode(encoded.data() + 1, encode_size, o.via.bin.ptr, o.via.bin.size);
+        } catch (boost::archive::iterators::dataflow_exception&) {
+            return false;
+        }
+
+        return writer.String(encoded.data(), encode_size);
+    }
+
+    template <typename Writer>
+    static bool from_ext(Writer&, const msgpack::object&) { return false; }
+};
+
 } // anonymous namespace
 
 wamp_message* json_serializer::deserialize(const char* buffer, size_t length) const
@@ -106,7 +166,7 @@ wamp_message* json_serializer::deserialize(const char* buffer, size_t length) co
     msgpack::object item;
 
     imemstream bufferstream(buffer, length);
-    serialization::msgpack_from_json_handler handler(item, zone);
+    serialization::msgpack_from_json_handler<wamp_bin_string_conversion> handler(item, zone);
     rapidjson::Reader reader;
     reader.Parse(bufferstream, handler);
 
@@ -145,7 +205,7 @@ size_t json_serializer::serialize(const wamp_message* message, char* buffer, siz
         }
 
         for (const msgpack::object& field : fields) {
-            if (!serialization::write_json(field, writer)) {
+            if (!serialization::write_json<decltype(writer), wamp_bin_string_conversion>(writer, field)) {
                 write_failed = true;
                 break;
             }

@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2015 Topology LP
+//
 // Adapted from:
 //
 // MessagePack for C++ (release 1.0.1)
@@ -30,6 +32,57 @@
 namespace bonefish {
 namespace serialization {
 
+/**
+ * When converting between JSON and msgpack, the user can customize whether some
+ * JSON strings map to msgpack BIN or EXT types, and if so, how to convert between those.
+ *
+ * This class is the default implementation that keeps all JSON strings as msgpack STR,
+ * with no conversion to BIN or EXT at all.
+ */
+struct no_custom_string_conversion
+{
+    using convert_from_string = bool;
+
+    inline static bool should_convert_from_string(const char* str, size_t length)
+    {
+        (void) str; // unused
+        (void) length;
+
+        return false;
+    }
+    inline static bool to_bool(const convert_from_string& convert) { return convert; }
+
+    // Any type can be returned instead of void, as long as convert() takes the same type.
+    inline static void* to_userdata(const convert_from_string&) { return nullptr; }
+
+    inline static bool convert(
+            msgpack::object&, msgpack::zone& zone,
+            const char* str, size_t length, bool copy,
+            void* userdata)
+    {
+        (void) str;// unused
+        (void) length;
+        (void) copy;
+        (void) userdata;
+
+        return false;
+    }
+
+    template <typename Writer>
+    inline static bool from_bin(Writer&, const msgpack::object&)
+    {
+        //return writer.String(o.via.bin.ptr, o.via.bin.size);
+        return false;
+    }
+
+    template <typename Writer>
+    inline static bool from_ext(Writer&, const msgpack::object&)
+    {
+        //return writer.String(o.via.ext.ptr, o.via.ext.size);
+        return false;
+    }
+};
+
 // Adapted from msgpack::detail::unpack_array_item(), include/msgpack/unpack.hpp.
 inline void copy_array_item(msgpack::object& c, std::size_t index, msgpack::object const& o)
 {
@@ -54,6 +107,7 @@ inline void copy_map_item(
 }
 
 // (Heavily) Adapted from https://github.com/xpol/xchange, src/msgpack/type/rapidjson/document.hpp.
+template <typename StringConversion = no_custom_string_conversion>
 struct msgpack_from_json_handler
 {
     msgpack_from_json_handler(msgpack::object& root, msgpack::zone& zone)
@@ -138,7 +192,14 @@ struct msgpack_from_json_handler
         msgpack::object* o = queue_object();
         if (!o) { return false; }
 
-        // FIXME: Implement support for BIN.
+        typename StringConversion::convert_from_string convert_from_string =
+                StringConversion::should_convert_from_string(str, length);
+
+        if (StringConversion::to_bool(convert_from_string)) {
+            return StringConversion::convert(
+                    *o, m_zone, str, length, copy,
+                    StringConversion::to_userdata(convert_from_string));
+        }
 
         o->type = msgpack::type::STR;
         if (copy) {
@@ -233,8 +294,8 @@ private:
 };
 
 // (Heavily) Adapted from https://github.com/xpol/xchange, src/msgpack/type/rapidjson/document.hpp.
-template <typename Writer>
-inline bool write_json(const msgpack::object& o, Writer& writer)
+template <typename Writer, typename StringConversion = no_custom_string_conversion>
+inline bool write_json(Writer& writer, const msgpack::object& o)
 {
     switch (o.type) {
     case msgpack::type::BOOLEAN: return writer.Bool(o.via.boolean);
@@ -242,14 +303,15 @@ inline bool write_json(const msgpack::object& o, Writer& writer)
     case msgpack::type::NEGATIVE_INTEGER: return writer.Int64(o.via.i64);
     case msgpack::type::FLOAT: return writer.Double(o.via.f64); break;
     case msgpack::type::STR: return writer.String(o.via.str.ptr, o.via.str.size);
-    case msgpack::type::BIN: return writer.String(o.via.bin.ptr, o.via.bin.size); // FIXME: implement correctly
+    case msgpack::type::BIN: return StringConversion::from_bin(writer, o);
+    case msgpack::type::EXT: return StringConversion::from_ext(writer, o);
     case msgpack::type::ARRAY:
         {
             writer.StartArray();
             msgpack::object* ptr = o.via.array.ptr;
             msgpack::object* end = ptr + o.via.array.size;
             for (; ptr < end; ++ptr) {
-                if (!write_json(*ptr, writer)) {
+                if (!write_json(writer, *ptr)) {
                     return false;
                 }
             }
@@ -264,16 +326,15 @@ inline bool write_json(const msgpack::object& o, Writer& writer)
                 // Writer::Key() is a synonym of Writer::String() so we can delegate.
                 // The SAX API will likely complain if the key is not a string, but we
                 // can offload that responsibility instead of ensuring it ourselves.
-                if (!write_json(ptr->key, writer)) {
+                if (!write_json(writer, ptr->key)) {
                     return false;
                 }
-                if (!write_json(ptr->val, writer)) {
+                if (!write_json(writer, ptr->val)) {
                     return false;
                 }
             }
             return writer.EndObject();
         }
-    case msgpack::type::EXT: // FIXME: implement some extension types?
     case msgpack::type::NIL:
     default:
         return writer.Null();

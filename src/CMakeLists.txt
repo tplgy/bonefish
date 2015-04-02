@@ -104,6 +104,7 @@ set(PRIVATE_HEADERS
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
     bonefish/router/wamp_router_impl.hpp
+    bonefish/serialization/base64.hpp
     bonefish/serialization/json_msgpack_sax.hpp
     bonefish/session/wamp_session.hpp
     bonefish/session/wamp_session_state.hpp
