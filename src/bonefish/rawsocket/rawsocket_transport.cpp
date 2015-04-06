@@ -1,22 +1,22 @@
-#include <bonefish/tcp/tcp_transport.hpp>
+#include <bonefish/rawsocket/rawsocket_transport.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>
-#include <bonefish/tcp/tcp_connection.hpp>
+#include <bonefish/rawsocket/rawsocket_connection.hpp>
 
 #include <iostream>
 
 namespace bonefish {
 
-tcp_transport::tcp_transport(
+rawsocket_transport::rawsocket_transport(
         const std::shared_ptr<wamp_serializer>& serializer,
-        const std::shared_ptr<tcp_connection>& connection)
+        const std::shared_ptr<rawsocket_connection>& connection)
     : m_serializer(serializer)
     , m_connection(connection)
 {
 }
 
-bool tcp_transport::send_message(const wamp_message* message)
+bool rawsocket_transport::send_message(const wamp_message* message)
 {
     // TODO: Fix me to use a proper expandable buffer.
     char buffer[10*1024];

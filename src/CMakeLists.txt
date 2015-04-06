@@ -21,11 +21,11 @@ set(SOURCES
     bonefish/serialization/json_serializer.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/session/wamp_session_state.cpp
-    bonefish/tcp/tcp_connection.cpp
-    bonefish/tcp/tcp_listener.cpp
-    bonefish/tcp/tcp_server.cpp
-    bonefish/tcp/tcp_server_impl.cpp
-    bonefish/tcp/tcp_transport.cpp
+    bonefish/rawsocket/tcp_connection.cpp
+    bonefish/rawsocket/tcp_listener.cpp
+    bonefish/rawsocket/rawsocket_server.cpp
+    bonefish/rawsocket/rawsocket_server_impl.cpp
+    bonefish/rawsocket/rawsocket_transport.cpp
     bonefish/utility/wamp_uri.cpp
     bonefish/websocket/websocket_protocol.cpp
     bonefish/websocket/websocket_server.cpp
@@ -37,6 +37,8 @@ if (asio_source)
 endif ()
 
 set(PUBLIC_HEADERS
+    bonefish/rawsocket/rawsocket_listener.hpp
+    bonefish/rawsocket/rawsocket_server.hpp
     bonefish/router/wamp_router.hpp
     bonefish/router/wamp_routers.hpp
     bonefish/serialization/json_serializer.hpp
@@ -44,7 +46,7 @@ set(PUBLIC_HEADERS
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
     bonefish/serialization/wamp_serializers.hpp
-    bonefish/tcp/tcp_server.hpp
+    bonefish/rawsocket/rawsocket_server.hpp
     bonefish/websocket/websocket_server.hpp)
 
 set(PRIVATE_HEADERS
@@ -99,10 +101,11 @@ set(PRIVATE_HEADERS
     bonefish/serialization/json_msgpack_sax.hpp
     bonefish/session/wamp_session.hpp
     bonefish/session/wamp_session_state.hpp
-    bonefish/tcp/tcp_connection.hpp
-    bonefish/tcp/tcp_listener.hpp
-    bonefish/tcp/tcp_server_impl.hpp
-    bonefish/tcp/tcp_transport.hpp
+    bonefish/rawsocket/rawsocket_connection.hpp
+    bonefish/rawsocket/rawsocket_server_impl.hpp
+    bonefish/rawsocket/rawsocket_transport.hpp
+    bonefish/rawsocket/tcp_connection.hpp
+    bonefish/rawsocket/tcp_listener.hpp
     bonefish/transport/wamp_transport.hpp
     bonefish/utility/wamp_uri.hpp
     bonefish/websocket/websocket_config.hpp

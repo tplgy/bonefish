@@ -1,5 +1,5 @@
-#ifndef BONEFISH_TCP_TRANSPORT_HPP
-#define BONEFISH_TCP_TRANSPORT_HPP
+#ifndef BONEFISH_RAWSOCKET_TRANSPORT_HPP
+#define BONEFISH_RAWSOCKET_TRANSPORT_HPP
 
 #include <bonefish/transport/wamp_transport.hpp>
 
@@ -8,24 +8,24 @@
 
 namespace bonefish {
 
-class tcp_connection;
+class rawsocket_connection;
 class wamp_message;
 class wamp_serializer;
 
-class tcp_transport : public wamp_transport
+class rawsocket_transport : public wamp_transport
 {
 public:
-    tcp_transport(
+    rawsocket_transport(
             const std::shared_ptr<wamp_serializer>& serializer,
-            const std::shared_ptr<tcp_connection>& connection);
+            const std::shared_ptr<rawsocket_connection>& connection);
 
     virtual bool send_message(const wamp_message* message) override;
 
 private:
     std::shared_ptr<wamp_serializer> m_serializer;
-    std::shared_ptr<tcp_connection> m_connection;
+    std::shared_ptr<rawsocket_connection> m_connection;
 };
 
 } // namespace bonefish
 
-#endif // BONEFISH_TCP_TRANSPORT_HPP
+#endif // BONEFISH_RAWSOCKET_TRANSPORT_HPP

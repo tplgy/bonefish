@@ -3,7 +3,8 @@
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/router/wamp_router.hpp>
 #include <bonefish/router/wamp_routers.hpp>
-#include <bonefish/tcp/tcp_server.hpp>
+#include <bonefish/rawsocket/rawsocket_server.hpp>
+#include <bonefish/rawsocket/tcp_listener.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
 #include <boost/asio/ip/address.hpp>
@@ -20,7 +21,7 @@ daemon::daemon()
     , m_termination_signals(m_io_service, SIGTERM, SIGINT, SIGQUIT)
     , m_routers(new wamp_routers)
     , m_serializers(new wamp_serializers)
-    , m_tcp_server()
+    , m_rawsocket_server()
     , m_websocket_server()
 {
     // TODO: This should all come from configuration that is passed in to the daemon.
@@ -30,10 +31,14 @@ daemon::daemon()
             std::make_shared<wamp_router>(m_io_service, "default");
     m_routers->add_router(router);
     m_serializers->add_serializer(std::make_shared<msgpack_serializer>());
-    m_tcp_server = std::make_shared<tcp_server>(
-            m_io_service, m_routers, m_serializers);
     m_websocket_server = std::make_shared<websocket_server>(
             m_io_service, m_routers, m_serializers);
+
+    m_rawsocket_server = std::make_shared<rawsocket_server>(
+            m_io_service, m_routers, m_serializers);
+    std::shared_ptr<tcp_listener> listener =
+            std::make_shared<tcp_listener>(m_io_service, boost::asio::ip::address(), 8888);
+    m_rawsocket_server->attach_listener(std::static_pointer_cast<rawsocket_listener>(listener));
 }
 
 daemon::~daemon()
@@ -47,7 +52,7 @@ void daemon::run()
     m_termination_signals.async_wait(
             boost::bind(&daemon::termination_signal_handler, this, _1, _2));
 
-    m_tcp_server->start(boost::asio::ip::address(), 8888);
+    m_rawsocket_server->start();
     m_websocket_server->start(boost::asio::ip::address(), 9999);
 
     m_io_service.run();
@@ -72,7 +77,7 @@ void daemon::shutdown_handler()
     {
         m_termination_signals.cancel();
         m_websocket_server->shutdown();
-        m_tcp_server->shutdown();
+        m_rawsocket_server->shutdown();
         m_work.reset();
     }
 }

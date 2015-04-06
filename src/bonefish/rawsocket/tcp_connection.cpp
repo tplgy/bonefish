@@ -1,6 +1,5 @@
-#include <bonefish/tcp/tcp_connection.hpp>
+#include <bonefish/rawsocket/tcp_connection.hpp>
 
-#include <boost/asio/placeholders.hpp>
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
 
@@ -9,9 +8,7 @@
 namespace bonefish {
 
 tcp_connection::tcp_connection(boost::asio::ip::tcp::socket&& socket)
-    : m_close_handler()
-    , m_fail_handler()
-    , m_message_handler()
+    : rawsocket_connection()
     , m_message_length(0)
     , m_message_buffer()
     , m_socket(std::move(socket))
@@ -67,8 +64,9 @@ void tcp_connection::async_receive_message_body(
         return handle_system_error(error_code);
     }
 
-    assert(m_message_handler);
-    m_message_handler(shared_from_this(), m_message_buffer.data(), bytes_transferred);
+    const auto& message_handler = get_message_handler();
+    assert(message_handler);
+    message_handler(shared_from_this(), m_message_buffer.data(), bytes_transferred);
 }
 
 void tcp_connection::handle_system_error(const boost::system::error_code& error_code)
@@ -77,13 +75,15 @@ void tcp_connection::handle_system_error(const boost::system::error_code& error_
     //       codes are that can occur for the async receive handlers. So it will be an
     //       ongoing exercise in trying to figure this out.
     if (error_code == boost::asio::error::eof) {
-        assert(m_close_handler);
         std::cerr << "connection is closed" << std::endl;
-        m_close_handler(shared_from_this());
+        const auto& close_handler = get_close_handler();
+        assert(close_handler);
+        close_handler(shared_from_this());
     } else if (error_code != boost::asio::error::operation_aborted) {
-        assert(m_fail_handler);
         std::cerr << "connection failed: " << error_code << std::endl;
-        m_fail_handler(shared_from_this(), error_code.message().c_str());
+        const auto& fail_handler = get_fail_handler();
+        assert(fail_handler);
+        fail_handler(shared_from_this(), error_code.message().c_str());
     }
 }
 

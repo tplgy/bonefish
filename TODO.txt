@@ -1,6 +1,4 @@
 Higher Priority
-- add api to allow for setting the tcp/websocket servers listening ip/port
-- bonefish router running inside tplgyd via tcp
 - bonefish component running inside tplgyd
     - this is a starting point for migrating from msgpack-rpc
 - service discovery working with bonefish

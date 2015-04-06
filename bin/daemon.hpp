@@ -13,7 +13,7 @@
 namespace bonefish
 {
 
-class tcp_server;
+class rawsocket_server;
 class wamp_routers;
 class wamp_serializers;
 class websocket_server;
@@ -40,7 +40,7 @@ private:
 
     std::shared_ptr<bonefish::wamp_routers> m_routers;
     std::shared_ptr<bonefish::wamp_serializers> m_serializers;
-    std::shared_ptr<bonefish::tcp_server> m_tcp_server;
+    std::shared_ptr<bonefish::rawsocket_server> m_rawsocket_server;
     std::shared_ptr<bonefish::websocket_server> m_websocket_server;
 };
 

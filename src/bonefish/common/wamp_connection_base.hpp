@@ -11,7 +11,7 @@ class wamp_connection_base
 {
 public:
     wamp_connection_base();
-    ~wamp_connection_base();
+    virtual ~wamp_connection_base();
 
     bool has_realm() const;
     void set_realm(const std::string& realm);
