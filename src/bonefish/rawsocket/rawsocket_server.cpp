@@ -6,10 +6,10 @@
 
 namespace bonefish {
 
-rawsocket_server::rawsocket_server(boost::asio::io_service& io_service,
+rawsocket_server::rawsocket_server(
         const std::shared_ptr<wamp_routers>& routers,
         const std::shared_ptr<wamp_serializers>& serializers)
-    : m_impl(new rawsocket_server_impl(io_service, routers, serializers))
+    : m_impl(new rawsocket_server_impl(routers, serializers))
 {
 }
 

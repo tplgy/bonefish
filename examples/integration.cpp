@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     serializers->add_serializer(std::make_shared<bonefish::msgpack_serializer>());
 
     std::shared_ptr<bonefish::rawsocket_server> rawsocket_server =
-            std::make_shared<bonefish::rawsocket_server>(io_service, routers, serializers);
+            std::make_shared<bonefish::rawsocket_server>(routers, serializers);
     std::shared_ptr<bonefish::tcp_listener> tcp_listener =
             std::make_shared<bonefish::tcp_listener>(io_service, boost::asio::ip::address(), 8888);
     rawsocket_server->attach_listener(std::static_pointer_cast<bonefish::rawsocket_listener>(tcp_listener));

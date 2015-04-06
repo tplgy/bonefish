@@ -34,8 +34,7 @@ daemon::daemon()
     m_websocket_server = std::make_shared<websocket_server>(
             m_io_service, m_routers, m_serializers);
 
-    m_rawsocket_server = std::make_shared<rawsocket_server>(
-            m_io_service, m_routers, m_serializers);
+    m_rawsocket_server = std::make_shared<rawsocket_server>(m_routers, m_serializers);
     std::shared_ptr<tcp_listener> listener =
             std::make_shared<tcp_listener>(m_io_service, boost::asio::ip::address(), 8888);
     m_rawsocket_server->attach_listener(std::static_pointer_cast<rawsocket_listener>(listener));
