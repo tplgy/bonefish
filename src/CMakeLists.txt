@@ -39,6 +39,7 @@ endif ()
 set(PUBLIC_HEADERS
     bonefish/rawsocket/rawsocket_listener.hpp
     bonefish/rawsocket/rawsocket_server.hpp
+    bonefish/rawsocket/tcp_listener.hpp
     bonefish/router/wamp_router.hpp
     bonefish/router/wamp_routers.hpp
     bonefish/serialization/json_serializer.hpp
@@ -46,7 +47,6 @@ set(PUBLIC_HEADERS
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
     bonefish/serialization/wamp_serializers.hpp
-    bonefish/rawsocket/rawsocket_server.hpp
     bonefish/websocket/websocket_server.hpp)
 
 set(PRIVATE_HEADERS
