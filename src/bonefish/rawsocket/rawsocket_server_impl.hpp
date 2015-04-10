@@ -29,10 +29,14 @@ public:
 
 private:
     void on_connect(const std::shared_ptr<rawsocket_connection>& connection);
-    void on_close(const std::shared_ptr<rawsocket_connection>& connection);
-    void on_fail(const std::shared_ptr<rawsocket_connection>& connection, const char* reason);
+    void on_handshake(const std::shared_ptr<rawsocket_connection>& connection,
+            uint32_t capabilities);
     void on_message(const std::shared_ptr<rawsocket_connection>& connection,
             const char* buffer, size_t length);
+    void on_close(const std::shared_ptr<rawsocket_connection>& connection);
+    void on_fail(const std::shared_ptr<rawsocket_connection>& connection, const char* reason);
+
+    void teardown_connection(const std::shared_ptr<rawsocket_connection>& connection);
 
 private:
     std::shared_ptr<wamp_routers> m_routers;

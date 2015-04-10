@@ -28,6 +28,7 @@ bool rawsocket_transport::send_message(const wamp_message* message)
 
     std::cerr << "sending message: " << message_type_to_string(message->get_type()) << std::endl;
     m_connection->send_message(buffer, length);
+
     return true;
 }
 

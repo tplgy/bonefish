@@ -11,6 +11,7 @@
 #include <bonefish/transport/wamp_transport.hpp>
 
 #include <boost/asio/ip/address.hpp>
+#include <ios>
 
 namespace bonefish {
 
@@ -60,32 +61,92 @@ void rawsocket_server_impl::on_connect(const std::shared_ptr<rawsocket_connectio
             shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     connection->set_message_handler(std::bind(&rawsocket_server_impl::on_message,
             shared_from_this(), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    connection->set_handshake_handler(std::bind(&rawsocket_server_impl::on_handshake,
+            shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 
+    // Prepare the connection to receive the asynchronous handshake that is
+    // initiated by the client. The handshake handler will be called when
+    // the handshake arrives.
+    connection->async_handshake();
     m_connections.insert(connection);
 }
 
 void rawsocket_server_impl::on_close(const std::shared_ptr<rawsocket_connection>& connection)
 {
     std::cerr << "connection closed" << std::endl;
-    if (connection->has_session_id()) {
-        std::shared_ptr<wamp_router> router =
-                m_routers->get_router(connection->get_realm());
-        if (router) {
-            router->detach_session(connection->get_session_id());
-        }
-    }
-
-    m_connections.erase(connection);
+    teardown_connection(connection);
 }
 
-void rawsocket_server_impl::on_fail(const std::shared_ptr<rawsocket_connection>& connection, const char* reason)
+void rawsocket_server_impl::on_fail(
+        const std::shared_ptr<rawsocket_connection>& connection, const char* reason)
 {
     std::cerr << "connection failed: " << reason << std::endl;
-    m_connections.erase(connection);
+    teardown_connection(connection);
 }
 
-void rawsocket_server_impl::on_message(const std::shared_ptr<rawsocket_connection>& connection,
-        const char* buffer, size_t length)
+// Capabilities Format
+//
+// L - length bits
+// S - serializer bits
+// R - reserved bits (must be zeros)
+//
+// MSB                                 LSB
+// 31                                    0
+// 0111 1111 LLLL SSSS RRRR RRRR RRRR RRRR
+void rawsocket_server_impl::on_handshake(
+        const std::shared_ptr<rawsocket_connection>& connection, uint32_t capabilities)
+{
+    // If the first octet is not the magic number 0x7F value then
+    // this is not a valid capabilities exchange and we should fail
+    // the connection. See the advanced specification for details on
+    // the choice of this magic number.
+    uint32_t magic = (capabilities & 0xFF000000) >> 24;
+    if (magic != 0x7F) {
+        std::cerr << "invalid capabilities: " << std::hex << capabilities << std::endl;
+        return teardown_connection(connection);
+    }
+
+    // TODO: Ignore the length for now. We will need to add this in at some point
+    //       but currently the autobahn client ignores it anyways. It will need
+    //       to get cached in the connection properties.
+    //uint32_t exponent = ((capabilities & 0x00F00000) >> 20) + 9;
+    //uint32_t max_message_length = 1 << exponent;
+
+    // Currently we only support msgpack serialization. If this changes we will
+    // need to make sure that the requested serialization protocol is cached in
+    // the connection properties so that the correct serializer can be associated
+    // with the connection for message processing.
+    uint32_t serializer = (capabilities & 0x000F0000) >> 16;
+    if (serializer != 0x2) {
+        std::cerr << "invalid serializer specified: " << std::hex << serializer << std::endl;
+        uint32_t capabilities_response = htonl(0x7F100000);
+        return connection->send_message(
+                reinterpret_cast<const char*>(&capabilities_response), sizeof(capabilities_response));
+    }
+
+    // Make sure that the reserved bits are all zeros as expected.
+    uint32_t reserved = capabilities & 0x0000FFFF;
+    if (reserved != 0) {
+        uint32_t capabilities_response = htonl(0x7F300000);
+        return connection->send_message(
+                reinterpret_cast<const char*>(&capabilities_response), sizeof(capabilities_response));
+    }
+
+    // TODO: For now just echo back the clients capabilities. Once we
+    //       decide to support a maximum message length we will have
+    //       to report that back to the client here.
+    uint32_t capabilities_response = htonl(capabilities);
+    connection->send_message(
+                reinterpret_cast<const char*>(&capabilities_response), sizeof(capabilities_response));
+
+    // Prepare the connection to start receiving wamp messages. We only have to
+    // initiate this once and it will then continue to re-arm itself after each
+    // message is received.
+    connection->async_receive();
+}
+
+void rawsocket_server_impl::on_message(
+        const std::shared_ptr<rawsocket_connection>& connection, const char* buffer, size_t length)
 {
     std::cerr << "received message" << std::endl;
     try {
@@ -104,6 +165,20 @@ void rawsocket_server_impl::on_message(const std::shared_ptr<rawsocket_connectio
     } catch (const std::exception& e) {
         std::cerr << "unhandled exception: " << e.what() << std::endl;
     }
+}
+
+void rawsocket_server_impl::teardown_connection(
+        const std::shared_ptr<rawsocket_connection>& connection)
+{
+    if (connection->has_session_id()) {
+        std::shared_ptr<wamp_router> router =
+                m_routers->get_router(connection->get_realm());
+        if (router) {
+            router->detach_session(connection->get_session_id());
+        }
+    }
+
+    m_connections.erase(connection);
 }
 
 } // namespace bonefish
