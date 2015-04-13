@@ -25,6 +25,8 @@ public:
 
     virtual void async_handshake() = 0;
     virtual void async_receive() = 0;
+
+    virtual void send_handshake(uint32_t capabilities) = 0;
     virtual void send_message(const char* message, size_t length) = 0;
 
     const close_handler& get_close_handler() const;

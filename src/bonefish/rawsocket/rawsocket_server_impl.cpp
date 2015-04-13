@@ -96,6 +96,8 @@ void rawsocket_server_impl::on_fail(
 void rawsocket_server_impl::on_handshake(
         const std::shared_ptr<rawsocket_connection>& connection, uint32_t capabilities)
 {
+    std::cerr << "received handshake" << std::endl;
+
     // If the first octet is not the magic number 0x7F value then
     // this is not a valid capabilities exchange and we should fail
     // the connection. See the advanced specification for details on
@@ -119,25 +121,19 @@ void rawsocket_server_impl::on_handshake(
     uint32_t serializer = (capabilities & 0x000F0000) >> 16;
     if (serializer != 0x2) {
         std::cerr << "invalid serializer specified: " << std::hex << serializer << std::endl;
-        uint32_t capabilities_response = htonl(0x7F100000);
-        return connection->send_message(
-                reinterpret_cast<const char*>(&capabilities_response), sizeof(capabilities_response));
+        return connection->send_handshake(htonl(0x7F100000));
     }
 
     // Make sure that the reserved bits are all zeros as expected.
     uint32_t reserved = capabilities & 0x0000FFFF;
     if (reserved != 0) {
-        uint32_t capabilities_response = htonl(0x7F300000);
-        return connection->send_message(
-                reinterpret_cast<const char*>(&capabilities_response), sizeof(capabilities_response));
+        return connection->send_handshake(htonl(0x7F300000));
     }
 
     // TODO: For now just echo back the clients capabilities. Once we
     //       decide to support a maximum message length we will have
     //       to report that back to the client here.
-    uint32_t capabilities_response = htonl(capabilities);
-    connection->send_message(
-                reinterpret_cast<const char*>(&capabilities_response), sizeof(capabilities_response));
+    connection->send_handshake(htonl(capabilities));
 
     // Prepare the connection to start receiving wamp messages. We only have to
     // initiate this once and it will then continue to re-arm itself after each

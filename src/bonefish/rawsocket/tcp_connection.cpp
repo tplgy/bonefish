@@ -44,6 +44,16 @@ void tcp_connection::async_receive()
     boost::asio::async_read(m_socket, buffer, handler);
 }
 
+void tcp_connection::send_handshake(uint32_t capabilities)
+{
+    boost::system::error_code error_code;
+    boost::asio::write(m_socket,
+            boost::asio::buffer(&capabilities, sizeof(capabilities)), error_code);
+    if (error_code) {
+        return handle_system_error(error_code);
+    }
+}
+
 void tcp_connection::send_message(const char* message, size_t length)
 {
     boost::system::error_code error_code;
