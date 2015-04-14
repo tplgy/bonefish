@@ -1,7 +1,7 @@
 Bonefish
 ========
 
-Bonefish is an open-source C++ WAMP application router that allows to build
+Bonefish is an open-source C++ WAMP application router that enables building
 applications from loosely-coupled components. It currently supports the WAMP
 Basic Profile and RawSocket Transport as part of the Advanced Profile.
 
