@@ -1,11 +1,11 @@
-Higher Priority
+## Higher Priority
 - bonefish component running inside tplgyd
     - this is a starting point for migrating from msgpack-rpc
 - service discovery working with bonefish
     - follow up with Tobias on the wamp meta-data api
     - might be best at this point to just enforce ordered startup of services similar to what we are doing now
 
-Lower Priority
+## Lower Priority
 - add approriate system/debug logging facilities
     - explore a non-boost based approach
         - the boost logging library is very bloated
@@ -24,7 +24,7 @@ Lower Priority
 - enumerate wampv2 subprotocol to eliminate string comparisons
 - split component and router roles into two different types
 
-Performance
+## Performance
 - revisit the data path that messages follow and eliminate any unnecessary copies
 - take a look at how we can use multiple cores more effectively
 - vertical scalability
