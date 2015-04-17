@@ -24,7 +24,7 @@
 #ifndef BONEFISH_SERIALIZATION_JSON_MSGPACK_SAX_HPP
 #define BONEFISH_SERIALIZATION_JSON_MSGPACK_SAX_HPP
 
-#include <msgpack_fwd.hpp>
+#include <msgpack.hpp>
 #include <stack>
 
 namespace bonefish {

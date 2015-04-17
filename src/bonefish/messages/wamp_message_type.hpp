@@ -2,7 +2,7 @@
 #define BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP
 
 #include <cstdint>
-#include <msgpack_fwd.hpp>
+#include <msgpack.hpp>
 #include <type_traits>
 
 namespace bonefish {

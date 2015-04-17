@@ -4,7 +4,7 @@
 #include <bonefish/roles/wamp_role.hpp>
 
 #include <cstddef>
-#include <msgpack_fwd.hpp>
+#include <msgpack.hpp>
 #include <stdexcept>
 #include <unordered_set>
 

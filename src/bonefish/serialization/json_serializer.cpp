@@ -5,7 +5,6 @@
 #include <bonefish/serialization/json_msgpack_sax.hpp>
 
 #include <iostream>
-#include <msgpack_fwd.hpp>
 #include <msgpack.hpp>
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/error/en.h>
