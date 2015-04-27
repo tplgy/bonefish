@@ -1,16 +1,11 @@
 ## Higher Priority
-- bonefish component running inside tplgyd
-    - this is a starting point for migrating from msgpack-rpc
-- service discovery working with bonefish
-    - follow up with Tobias on the wamp meta-data api
-    - might be best at this point to just enforce ordered startup of services similar to what we are doing now
-
-## Lower Priority
 - add approriate system/debug logging facilities
     - explore a non-boost based approach
         - the boost logging library is very bloated
         - just need something simple to just use for debugging
             - the debugging framework in libnl was nice and simple
+
+## Lower Priority
 - add appropriate json based daemon configuration
     - this would allow for specifying things like
         - realm configuration
