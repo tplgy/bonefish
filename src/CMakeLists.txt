@@ -21,6 +21,7 @@ set(SOURCES
     bonefish/serialization/json_serializer.cpp
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/session/wamp_session_state.cpp
+    bonefish/trace/trace.cpp
     bonefish/rawsocket/tcp_connection.cpp
     bonefish/rawsocket/tcp_listener.cpp
     bonefish/rawsocket/rawsocket_server.cpp
@@ -94,6 +95,11 @@ set(PRIVATE_HEADERS
     bonefish/messages/wamp_welcome_details.hpp
     bonefish/messages/wamp_welcome_message.hpp
     bonefish/messages/wamp_yield_message.hpp
+    bonefish/rawsocket/rawsocket_connection.hpp
+    bonefish/rawsocket/rawsocket_server_impl.hpp
+    bonefish/rawsocket/rawsocket_transport.hpp
+    bonefish/rawsocket/tcp_connection.hpp
+    bonefish/rawsocket/tcp_listener.hpp
     bonefish/roles/wamp_role.hpp
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp
@@ -101,11 +107,7 @@ set(PRIVATE_HEADERS
     bonefish/serialization/json_msgpack_sax.hpp
     bonefish/session/wamp_session.hpp
     bonefish/session/wamp_session_state.hpp
-    bonefish/rawsocket/rawsocket_connection.hpp
-    bonefish/rawsocket/rawsocket_server_impl.hpp
-    bonefish/rawsocket/rawsocket_transport.hpp
-    bonefish/rawsocket/tcp_connection.hpp
-    bonefish/rawsocket/tcp_listener.hpp
+    bonefish/trace/trace.hpp
     bonefish/transport/wamp_transport.hpp
     bonefish/utility/wamp_uri.hpp
     bonefish/websocket/websocket_config.hpp
