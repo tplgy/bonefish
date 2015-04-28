@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 #include <functional>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
 

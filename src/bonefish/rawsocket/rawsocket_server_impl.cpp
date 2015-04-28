@@ -3,12 +3,13 @@
 #include <bonefish/identifiers/wamp_session_id_generator.hpp>
 #include <bonefish/router/wamp_router.hpp>
 #include <bonefish/router/wamp_routers.hpp>
-#include <bonefish/serialization/wamp_serializer.hpp>
-#include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/rawsocket/rawsocket_listener.hpp>
 #include <bonefish/rawsocket/rawsocket_connection.hpp>
 #include <bonefish/rawsocket/rawsocket_transport.hpp>
+#include <bonefish/serialization/wamp_serializer.hpp>
+#include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/transport/wamp_transport.hpp>
+#include <bonefish/trace/trace.hpp>
 
 #include <boost/asio/ip/address.hpp>
 #include <ios>
@@ -39,6 +40,7 @@ void rawsocket_server_impl::attach_listener(const std::shared_ptr<rawsocket_list
 
 void rawsocket_server_impl::start()
 {
+    BONEFISH_TRACE("starting rawsocket server");
     assert(!m_listeners.empty());
     for (auto& listener : m_listeners) {
         listener->start_listening();
@@ -47,6 +49,7 @@ void rawsocket_server_impl::start()
 
 void rawsocket_server_impl::shutdown()
 {
+    BONEFISH_TRACE("stopping rawsocket server");
     for (auto& listener : m_listeners) {
         listener->stop_listening();
     }
@@ -54,7 +57,6 @@ void rawsocket_server_impl::shutdown()
 
 void rawsocket_server_impl::on_connect(const std::shared_ptr<rawsocket_connection>& connection)
 {
-    std::cerr << "created connection" << std::endl;
     connection->set_close_handler(std::bind(&rawsocket_server_impl::on_close,
             shared_from_this(), std::placeholders::_1));
     connection->set_fail_handler(std::bind(&rawsocket_server_impl::on_fail,
@@ -73,14 +75,12 @@ void rawsocket_server_impl::on_connect(const std::shared_ptr<rawsocket_connectio
 
 void rawsocket_server_impl::on_close(const std::shared_ptr<rawsocket_connection>& connection)
 {
-    std::cerr << "connection closed" << std::endl;
     teardown_connection(connection);
 }
 
 void rawsocket_server_impl::on_fail(
         const std::shared_ptr<rawsocket_connection>& connection, const char* reason)
 {
-    std::cerr << "connection failed: " << reason << std::endl;
     teardown_connection(connection);
 }
 
@@ -96,15 +96,13 @@ void rawsocket_server_impl::on_fail(
 void rawsocket_server_impl::on_handshake(
         const std::shared_ptr<rawsocket_connection>& connection, uint32_t capabilities)
 {
-    std::cerr << "received handshake" << std::endl;
-
     // If the first octet is not the magic number 0x7F value then
     // this is not a valid capabilities exchange and we should fail
     // the connection. See the advanced specification for details on
     // the choice of this magic number.
     uint32_t magic = (capabilities & 0xFF000000) >> 24;
     if (magic != 0x7F) {
-        std::cerr << "invalid capabilities: " << std::hex << capabilities << std::endl;
+        BONEFISH_TRACE("invalid capabilities: %1%", capabilities);
         return teardown_connection(connection);
     }
 
@@ -120,7 +118,7 @@ void rawsocket_server_impl::on_handshake(
     // with the connection for message processing.
     uint32_t serializer = (capabilities & 0x000F0000) >> 16;
     if (serializer != 0x2) {
-        std::cerr << "invalid serializer specified: " << std::hex << serializer << std::endl;
+        BONEFISH_TRACE("invalid serializer specified: %1%", serializer);
         return connection->send_handshake(htonl(0x7F100000));
     }
 
@@ -144,7 +142,6 @@ void rawsocket_server_impl::on_handshake(
 void rawsocket_server_impl::on_message(
         const std::shared_ptr<rawsocket_connection>& connection, const char* buffer, size_t length)
 {
-    std::cerr << "received message" << std::endl;
     try {
         std::shared_ptr<wamp_serializer> serializer =
                 m_serializers->get_serializer(wamp_serializer_type::MSGPACK);
@@ -155,11 +152,9 @@ void rawsocket_server_impl::on_message(
 
         if (message) {
             m_message_processor.process_message(message, std::move(transport), connection.get());
-        } else {
-            std::cerr << "error: unable to deserialize message" << std::endl;
         }
     } catch (const std::exception& e) {
-        std::cerr << "unhandled exception: " << e.what() << std::endl;
+        BONEFISH_TRACE("unhandled exception: %1%", e.what());
     }
 }
 

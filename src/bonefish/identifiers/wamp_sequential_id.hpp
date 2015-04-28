@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 #include <functional>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -57,6 +58,17 @@ inline uint64_t wamp_sequential_id::id() const
 inline bool wamp_sequential_id::operator==(const wamp_sequential_id& other) const
 {
     return m_id == other.m_id;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_sequential_id& sid)
+{
+    if (sid.is_valid()) {
+        os << sid.id();
+    } else {
+        os << "<<invalid>>";
+    }
+
+    return os;
 }
 
 } // namespace bonefish

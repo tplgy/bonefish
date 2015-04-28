@@ -1,5 +1,6 @@
 #include <bonefish/rawsocket/tcp_listener.hpp>
 #include <bonefish/rawsocket/tcp_connection.hpp>
+#include <bonefish/trace/trace.hpp>
 
 namespace bonefish {
 
@@ -20,6 +21,10 @@ tcp_listener::~tcp_listener()
 
 void tcp_listener::start_listening()
 {
+    auto endpoint = m_acceptor.local_endpoint();
+    BONEFISH_TRACE("starting tcp listener: %1%:%2%",
+            endpoint.address().to_string() % endpoint.port());
+
     assert(get_accept_handler());
     set_listening(true);
     async_accept();
@@ -27,6 +32,10 @@ void tcp_listener::start_listening()
 
 void tcp_listener::stop_listening()
 {
+    auto endpoint = m_acceptor.local_endpoint();
+    BONEFISH_TRACE("stopping tcp listener: %1%:%2%",
+            endpoint.address().to_string() % endpoint.port());
+
     m_acceptor.cancel();
     set_listening(false);
 }

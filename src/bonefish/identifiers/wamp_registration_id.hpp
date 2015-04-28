@@ -4,6 +4,7 @@
 #include <bonefish/identifiers/wamp_sequential_id.hpp>
 
 #include <functional>
+#include <ostream>
 
 namespace bonefish {
 
@@ -22,6 +23,17 @@ inline wamp_registration_id::wamp_registration_id()
 inline wamp_registration_id::wamp_registration_id(uint64_t id)
     : wamp_sequential_id(id)
 {
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_registration_id& rid)
+{
+    if (rid.is_valid()) {
+        os << rid.id();
+    } else {
+        os << "<<invalid>>";
+    }
+
+    return os;
 }
 
 } // namespace bonefish

@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <memory>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -161,6 +162,15 @@ inline void wamp_yield_message::set_arguments_kw(const msgpack::object& argument
     } else {
         throw std::invalid_argument("invalid arguments_kw");
     }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_yield_message& message)
+{
+    os << "yield [" << message.get_request_id() << ", "
+            << message.get_options() << ", "
+            << message.get_arguments() << ", "
+            << message.get_arguments_kw() << "]";
+    return os;
 }
 
 } // namespace bonefish

@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -97,6 +98,13 @@ inline void wamp_subscribed_message::set_request_id(const wamp_request_id& reque
 inline void wamp_subscribed_message::set_subscription_id(const wamp_subscription_id& subscription_id)
 {
     m_subscription_id = msgpack::object(subscription_id.id());
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_subscribed_message& message)
+{
+    os << "subscribed [" << message.get_request_id() << ", "
+            << message.get_subscription_id() << "]";
+    return os;
 }
 
 } // namespace bonefish

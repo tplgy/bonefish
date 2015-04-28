@@ -16,6 +16,7 @@
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/session/wamp_session.hpp>
+#include <bonefish/trace/trace.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -26,7 +27,7 @@ namespace bonefish {
 
 wamp_router_impl::wamp_router_impl(boost::asio::io_service& io_service, const std::string& realm)
     : m_realm(realm)
-    , m_broker()
+    , m_broker(realm)
     , m_dealer(io_service)
     , m_welcome_details()
     , m_session_id_generator(wamp_session_id_factory::create(realm))
@@ -57,7 +58,6 @@ bool wamp_router_impl::has_session(const wamp_session_id& session_id)
 
 bool wamp_router_impl::attach_session(const std::shared_ptr<wamp_session>& session)
 {
-    std::cerr << "attach session: " << session->get_session_id() << std::endl;
     auto result = m_sessions.insert(
             std::make_pair(session->get_session_id(), session));
 
@@ -69,24 +69,26 @@ bool wamp_router_impl::attach_session(const std::shared_ptr<wamp_session>& sessi
 
 void wamp_router_impl::close_session(const wamp_session_id& session_id, const std::string& reason)
 {
-    std::cerr << "close session: " << session_id << std::endl;
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
         throw std::logic_error("session does not exist");
     }
 
+    BONEFISH_TRACE("closing session: %1%", *session_itr->second);
     auto& session = session_itr->second;
     if (session->get_state() == wamp_session_state::OPEN) {
-        std::unique_ptr<wamp_goodbye_message> message(new wamp_goodbye_message);
-        message->set_reason(reason);
+        std::unique_ptr<wamp_goodbye_message> goodbye_message(new wamp_goodbye_message);
+        goodbye_message->set_reason(reason);
         session->set_state(wamp_session_state::CLOSING);
+
+        BONEFISH_TRACE("%1%, %2%", *session % *goodbye_message);
+        session->get_transport()->send_message(goodbye_message.get());
         return;
     }
 }
 
 bool wamp_router_impl::detach_session(const wamp_session_id& session_id)
 {
-    std::cerr << "detach session: " << session_id << std::endl;
     m_dealer.detach_session(session_id);
     m_broker.detach_session(session_id);
 
@@ -102,9 +104,12 @@ void wamp_router_impl::process_hello_message(const wamp_session_id& session_id,
     }
 
     auto& session = session_itr->second;
+    BONEFISH_TRACE("%1%, %2%", *session % *hello_message);
     if (session->get_state() != wamp_session_state::NONE) {
         std::unique_ptr<wamp_abort_message> abort_message(new wamp_abort_message);
         abort_message->set_reason("wamp.error.session_already_open");
+
+        BONEFISH_TRACE("%1%, %2%", *session % *abort_message);
         session->get_transport()->send_message(abort_message.get());
         return;
     }
@@ -123,6 +128,8 @@ void wamp_router_impl::process_hello_message(const wamp_session_id& session_id,
     std::unique_ptr<wamp_welcome_message> welcome_message(new wamp_welcome_message);
     welcome_message->set_session_id(session_id);
     welcome_message->set_details(m_welcome_details.marshal());
+
+    BONEFISH_TRACE("%1%, %2%", *session % *welcome_message);
     session->get_transport()->send_message(welcome_message.get());
 }
 
@@ -139,6 +146,8 @@ void wamp_router_impl::process_goodbye_message(const wamp_session_id& session_id
         std::unique_ptr<wamp_goodbye_message> message(new wamp_goodbye_message);
         message->set_reason("wamp.error.goodbye_and_out");
         session->set_state(wamp_session_state::CLOSED);
+
+        BONEFISH_TRACE("%1%, %2%", *session % *goodbye_message);
         session->get_transport()->send_message(message.get());
     } else if (session->get_state() == wamp_session_state::CLOSING) {
         session->set_state(wamp_session_state::CLOSED);

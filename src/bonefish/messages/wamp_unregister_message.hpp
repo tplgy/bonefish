@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -97,6 +98,13 @@ inline void wamp_unregister_message::set_request_id(const wamp_request_id& reque
 inline void wamp_unregister_message::set_registration_id(const wamp_registration_id& registration_id)
 {
     m_registration_id = msgpack::object(registration_id.id());
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_unregister_message& message)
+{
+    os << "unregister [" << message.get_request_id() << ", "
+            << message.get_registration_id() << "]";
+    return os;
 }
 
 } // namespace bonefish

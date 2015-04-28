@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cstddef>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -115,6 +116,14 @@ inline void wamp_subscribe_message::set_options(const msgpack::object& options)
 inline void wamp_subscribe_message::set_topic(const std::string& topic)
 {
     m_topic = msgpack::object(topic, &m_zone);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_subscribe_message& message)
+{
+    os << "subscribe [" << message.get_request_id() << ", "
+            << message.get_options() << ", "
+            << message.get_topic() << "]";
+    return os;
 }
 
 } // namespace bonefish

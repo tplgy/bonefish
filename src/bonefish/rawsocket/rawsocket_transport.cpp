@@ -1,8 +1,9 @@
 #include <bonefish/rawsocket/rawsocket_transport.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
-#include <bonefish/serialization/wamp_serializer.hpp>
 #include <bonefish/rawsocket/rawsocket_connection.hpp>
+#include <bonefish/serialization/wamp_serializer.hpp>
+#include <bonefish/trace/trace.hpp>
 
 #include <iostream>
 
@@ -22,11 +23,11 @@ bool rawsocket_transport::send_message(const wamp_message* message)
     char buffer[10*1024];
     size_t length = m_serializer->serialize(message, buffer, sizeof(buffer));
     if (length == 0) {
-        std::cerr << "failed sending message: " << message_type_to_string(message->get_type()) << std::endl;
+        BONEFISH_TRACE("failed sending message: %1%", message_type_to_string(message->get_type()));
         return false;
     }
 
-    std::cerr << "sending message: " << message_type_to_string(message->get_type()) << std::endl;
+    BONEFISH_TRACE("sending message: %1%", message_type_to_string(message->get_type()));
     m_connection->send_message(buffer, length);
 
     return true;

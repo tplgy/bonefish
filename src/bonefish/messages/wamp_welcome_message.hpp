@@ -11,9 +11,9 @@
 #include <cstddef>
 #include <memory>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
-#include <unordered_set>
 
 namespace bonefish {
 
@@ -102,6 +102,13 @@ inline void wamp_welcome_message::set_details(const msgpack::object& details)
 {
     assert(details.type == msgpack::type::MAP);
     m_details = msgpack::object(details, &m_zone);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_welcome_message& message)
+{
+    os << "welcome [" << message.get_session_id() << ", "
+            << message.get_details() << "]";
+    return os;
 }
 
 } // namespace bonefish

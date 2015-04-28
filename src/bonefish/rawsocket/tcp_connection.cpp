@@ -1,4 +1,5 @@
 #include <bonefish/rawsocket/tcp_connection.hpp>
+#include <bonefish/trace/trace.hpp>
 
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
@@ -96,7 +97,7 @@ void tcp_connection::receive_message_header_handler(
     // a message that reports a zero length we fail that connection gracefully.
     assert(m_message_length != 0);
     if (m_message_length == 0) {
-        std::cerr << "invalid message length: " << m_message_length << std::endl;
+        BONEFISH_TRACE("invalid message length: %1%", m_message_length);
         const auto& fail_handler = get_fail_handler();
         fail_handler(shared_from_this(), "invalid message length");
     }
@@ -130,11 +131,10 @@ void tcp_connection::handle_system_error(const boost::system::error_code& error_
     //       codes are that can occur for the async receive handlers. So it will be an
     //       ongoing exercise in trying to figure this out.
     if (error_code == boost::asio::error::eof) {
-        std::cerr << "connection is closed" << std::endl;
         const auto& close_handler = get_close_handler();
         close_handler(shared_from_this());
     } else if (error_code != boost::asio::error::operation_aborted) {
-        std::cerr << "connection failed: " << error_code << std::endl;
+        BONEFISH_TRACE("connection failed: %1%", error_code);
         const auto& fail_handler = get_fail_handler();
         fail_handler(shared_from_this(), error_code.message().c_str());
     }

@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstddef>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -99,6 +100,13 @@ inline void wamp_abort_message::set_details(const msgpack::object& details)
 inline void wamp_abort_message::set_reason(const std::string& reason)
 {
     m_reason = msgpack::object(reason, &m_zone);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_abort_message& message)
+{
+    os << "abort [" << message.get_details() << ", "
+            << message.get_reason() << "]";
+    return os;
 }
 
 } // namespace bonefish

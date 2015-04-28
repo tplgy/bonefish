@@ -6,8 +6,10 @@
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_defaults.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
+
 #include <cstddef>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -176,6 +178,16 @@ inline void wamp_event_message::set_arguments_kw(const msgpack::object& argument
     } else {
         throw std::invalid_argument("invalid arguments_kw");
     }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_event_message& message)
+{
+    os << "event [" << message.get_subscription_id() << ", "
+            << message.get_publication_id() << ", "
+            << message.get_details() << ", "
+            << message.get_arguments() << ", "
+            << message.get_arguments_kw() << "]";
+    return os;
 }
 
 } // namespace bonefish

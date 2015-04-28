@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <msgpack.hpp>
+#include <ostream>
 #include <type_traits>
 
 namespace bonefish {
@@ -37,6 +38,12 @@ enum class wamp_message_type : int
 };
 
 const char* message_type_to_string(wamp_message_type type);
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_message_type& type)
+{
+    os << bonefish::message_type_to_string(type);
+    return os;
+}
 
 } // namespace bonefish
 

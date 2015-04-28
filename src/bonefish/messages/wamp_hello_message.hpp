@@ -9,8 +9,8 @@
 #include <cstddef>
 #include <iostream>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
-#include <unordered_set>
 #include <vector>
 
 namespace bonefish {
@@ -79,8 +79,6 @@ inline void wamp_hello_message::unmarshal(const std::vector<msgpack::object>& fi
 
     m_realm = msgpack::object(fields[1], &m_zone);
     m_details = msgpack::object(fields[2], &m_zone);
-
-    std::cerr << "hello message details: " << m_details << std::endl;
 }
 
 inline std::string wamp_hello_message::get_realm() const
@@ -102,6 +100,13 @@ inline void wamp_hello_message::set_details(const msgpack::object& details)
 {
     assert(details.type == msgpack::type::MAP);
     m_details = msgpack::object(details, &m_zone);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_hello_message& message)
+{
+    os << "hello [" << message.get_realm() << ", "
+            << message.get_details() << "]";
+    return os;
 }
 
 } // namespace bonefish

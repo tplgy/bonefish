@@ -16,6 +16,7 @@
 #include <bonefish/router/wamp_router.hpp>
 #include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/session/wamp_session.hpp>
+#include <bonefish/trace/trace.hpp>
 #include <bonefish/transport/wamp_transport.hpp>
 
 namespace bonefish {
@@ -25,7 +26,7 @@ void wamp_message_processor::process_message(
         std::unique_ptr<wamp_transport>&& transport,
         wamp_connection_base* connection)
 {
-    std::cerr << "processing message: " << message_type_to_string(message->get_type()) << std::endl;
+    BONEFISH_TRACE("processing message: %1%", message_type_to_string(message->get_type()));
     switch (message->get_type())
     {
         case wamp_message_type::AUTHENTICATE:
@@ -79,7 +80,8 @@ void wamp_message_processor::process_message(
                 connection->set_session_id(id);
                 connection->set_realm(hello_message->get_realm());
 
-                router->attach_session(std::make_shared<wamp_session>(id, std::move(transport)));
+                router->attach_session(std::make_shared<wamp_session>(
+                        id, hello_message->get_realm(), std::move(transport)));
                 router->process_hello_message(id, hello_message);
             }
             break;

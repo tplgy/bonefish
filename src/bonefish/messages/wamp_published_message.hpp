@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -96,6 +97,13 @@ inline void wamp_published_message::set_request_id(const wamp_request_id& reques
 inline void wamp_published_message::set_publication_id(const wamp_publication_id& publication_id)
 {
     m_publication_id = msgpack::object(publication_id.id(), &m_zone);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_published_message& message)
+{
+    os << "published [" << message.get_request_id() << ", "
+            << message.get_publication_id() << "]";
+    return os;
 }
 
 } // namespace bonefish

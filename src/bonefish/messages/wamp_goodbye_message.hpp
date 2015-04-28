@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <memory>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -100,6 +101,13 @@ inline void wamp_goodbye_message::set_details(const msgpack::object& details)
 inline void wamp_goodbye_message::set_reason(const std::string& reason)
 {
     m_reason = msgpack::object(reason, &m_zone);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_goodbye_message& message)
+{
+    os << "goodbye [" << message.get_details() << ", "
+            << message.get_reason() << "]";
+    return os;
 }
 
 } // namespace bonefish

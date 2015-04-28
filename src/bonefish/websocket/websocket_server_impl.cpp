@@ -6,6 +6,7 @@
 #include <bonefish/serialization/wamp_serializer.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/transport/wamp_transport.hpp>
+#include <bonefish/trace/trace.hpp>
 #include <bonefish/websocket/websocket_protocol.hpp>
 #include <bonefish/websocket/websocket_transport.hpp>
 
@@ -33,6 +34,8 @@ websocket_server_impl::~websocket_server_impl()
 
 void websocket_server_impl::start(const boost::asio::ip::address& ip_address, uint16_t port)
 {
+    BONEFISH_TRACE("starting websocket server: %1%:%2%", ip_address.to_string() % port);
+
     boost::asio::ip::tcp::endpoint endpoint(ip_address, port);
 
     m_server->set_open_handler(
@@ -57,8 +60,7 @@ void websocket_server_impl::start(const boost::asio::ip::address& ip_address, ui
                     websocketpp::lib::placeholders::_2));
 
     // Set log settings
-    m_server->set_access_channels(websocketpp::log::alevel::all);
-    m_server->clear_access_channels(websocketpp::log::alevel::frame_payload);
+    m_server->set_access_channels(websocketpp::log::alevel::none);
 
     m_server->init_asio(&m_io_service);
     m_server->set_reuse_addr(true);
@@ -71,17 +73,16 @@ void websocket_server_impl::start(const boost::asio::ip::address& ip_address, ui
 
 void websocket_server_impl::shutdown()
 {
+    BONEFISH_TRACE("stopping websocket server");
     m_server->stop();
 }
 
 void websocket_server_impl::on_open(websocketpp::connection_hdl handle)
 {
-    std::cerr << "open handler called: " << handle.lock().get() << std::endl;
 }
 
 void websocket_server_impl::on_close(websocketpp::connection_hdl handle)
 {
-    std::cerr << "close handler called: " << handle.lock().get() << std::endl;
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
 
@@ -96,7 +97,6 @@ void websocket_server_impl::on_close(websocketpp::connection_hdl handle)
 
 void websocket_server_impl::on_fail(websocketpp::connection_hdl handle)
 {
-    std::cerr << "fail handler called: " << handle.lock().get() << std::endl;
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
 
@@ -114,35 +114,30 @@ bool websocket_server_impl::on_validate(websocketpp::connection_hdl handle)
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
 
-    std::cerr << "Cache-Control: " << connection->get_request_header("Cache-Control") << std::endl;
-
     const auto& subprotocols = connection->get_requested_subprotocols();
     for (const auto& subprotocol : subprotocols) {
         if (subprotocol == WAMPV2_MSGPACK_SUBPROTOCOL) {
             if (m_serializers->has_serializer(wamp_serializer_type::MSGPACK)) {
-                std::cerr << "negotiated subprotocol " << subprotocol << std::endl;
                 connection->select_subprotocol(subprotocol);
                 return true;
             }
-        } else if (subprotocol == WAMPV2_JSON_SUBPROTOCOL) {
+        }
+
+        if (subprotocol == WAMPV2_JSON_SUBPROTOCOL) {
             if (m_serializers->has_serializer(wamp_serializer_type::JSON)) {
-                std::cerr << "negotiated subprotocol " << subprotocol << std::endl;
                 connection->select_subprotocol(subprotocol);
                 return true;
             }
-        } else {
-            std::cerr << "requested subprotocol " << subprotocol << " is unsupported" << std::endl;
         }
     }
 
-    std::cerr << "no supported subprotocol found" << std::endl;
+    BONEFISH_TRACE("no supported subprotocol found ... rejecting connection");
     return false;
 }
 
 void websocket_server_impl::on_message(websocketpp::connection_hdl handle,
         websocketpp::server<websocket_config>::message_ptr buffer)
 {
-    std::cerr << "received message" << std::endl;
     websocketpp::server<websocket_config>::connection_ptr connection =
             m_server->get_con_from_hdl(handle);
     std::shared_ptr<wamp_serializer> serializer;
@@ -161,11 +156,9 @@ void websocket_server_impl::on_message(websocketpp::connection_hdl handle,
 
         if (message) {
             m_message_processor.process_message(message, std::move(transport), connection.get());
-        } else {
-            std::cerr << "error: unable to deserialize message" << std::endl;
         }
     } catch (const std::exception& e) {
-        std::cerr << "unhandled exception: " << e.what() << std::endl;
+        BONEFISH_TRACE("unhandled exception: %1%", e.what());
     }
 }
 

@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <msgpack.hpp>
 #include <stdexcept>
+#include <ostream>
 #include <vector>
 
 namespace bonefish {
@@ -159,6 +160,15 @@ inline void wamp_result_message::set_arguments_kw(const msgpack::object& argumen
     } else {
         throw std::invalid_argument("invalid arguments_kw");
     }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_result_message& message)
+{
+    os << "result [" << message.get_request_id() << ", "
+            << message.get_details() << ", "
+            << message.get_arguments() << ", "
+            << message.get_arguments_kw() << "]";
+    return os;
 }
 
 } // namespace bonefish

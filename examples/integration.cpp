@@ -3,10 +3,12 @@
 #include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
+#include <bonefish/trace/trace.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
 #include <boost/asio/ip/address.hpp>
 #include <memory>
+#include <stdlib.h>
 
 // In some cases you may need to integrate bonefish with your application
 // such that it is running in the same process space. This serves as a simple
@@ -15,6 +17,10 @@
 
 int main(int argc, char** argv)
 {
+    if (getenv("BONEFISH_DEBUG")) {
+        bonefish::trace::set_enabled(true);        
+    }
+
     boost::asio::io_service io_service;
 
     std::shared_ptr<bonefish::wamp_routers> routers =

@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cstddef>
 #include <msgpack.hpp>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -115,6 +116,14 @@ inline void wamp_register_message::set_options(const msgpack::object& options)
 inline void wamp_register_message::set_procedure(const std::string& procedure)
 {
     m_procedure = msgpack::object(procedure, &m_zone);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_register_message& message)
+{
+    os << "register [" << message.get_request_id() << ", "
+            << message.get_options() << ", "
+            << message.get_procedure() << "]";
+    return os;
 }
 
 } // namespace bonefish

@@ -51,7 +51,7 @@ bool wamp_router::has_session(const wamp_session_id& session_id)
 
 bool wamp_router::attach_session(const std::shared_ptr<wamp_session>& session)
 {
-    return m_impl->attach_session(session);;
+    return m_impl->attach_session(session);
 }
 
 void wamp_router::close_session(const wamp_session_id& session_id, const std::string& reason)

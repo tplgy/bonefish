@@ -4,6 +4,7 @@
 #include <bonefish/identifiers/wamp_random_id.hpp>
 
 #include <functional>
+#include <ostream>
 
 namespace bonefish {
 
@@ -22,6 +23,17 @@ inline wamp_publication_id::wamp_publication_id()
 inline wamp_publication_id::wamp_publication_id(uint64_t id)
     : wamp_random_id(id)
 {
+}
+
+inline std::ostream& operator<<(std::ostream& os, const wamp_publication_id& pid)
+{
+    if (pid.is_valid()) {
+        os << pid.id();
+    } else {
+        os << "<<invalid>>";
+    }
+
+    return os;
 }
 
 } // namespace bonefish

@@ -26,7 +26,7 @@ class wamp_unsubscribe_message;
 class wamp_broker
 {
 public:
-    wamp_broker();
+    wamp_broker(const std::string& realm);
     ~wamp_broker();
 
     void attach_session(const std::shared_ptr<wamp_session>& session);
@@ -45,6 +45,7 @@ private:
             const std::string& error) const;
 
 private:
+    const std::string m_realm;
     wamp_publication_id_generator m_publication_id_generator;
     wamp_subscription_id_generator m_subscription_id_generator;
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
