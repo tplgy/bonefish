@@ -37,11 +37,15 @@ inline const char* base_file_name(const char* file_path)
     BOOST_PP_IF(BOOST_PP_SUB(BOOST_PP_VARIADIC_SIZE("dummy", ##__VA_ARGS__), 1), BONFISH_TRACE_ARGS(fmt, __VA_ARGS__), BONFISH_TRACE_NOARGS(fmt, __VA_ARGS__))
 
 #define BONFISH_TRACE_NOARGS(fmt, ...) \
-    std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
-            << boost::format(fmt) << std::endl;
+    if (bonefish::trace::is_enabled()) { \
+        std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
+                << boost::format(fmt) << std::endl; \
+    }
 
 #define BONFISH_TRACE_ARGS(fmt, ...) \
-    std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
-            << (boost::format(fmt) % __VA_ARGS__) << std::endl;
+    if (bonefish::trace::is_enabled()) { \
+        std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
+                << (boost::format(fmt) % __VA_ARGS__) << std::endl; \
+    }
 
 #endif // BONEFISH_WAMP_TRACE_HPP
