@@ -36,7 +36,7 @@ void tcp_listener::stop_listening()
     BONEFISH_TRACE("stopping tcp listener: %1%:%2%",
             endpoint.address().to_string() % endpoint.port());
 
-    m_acceptor.cancel();
+    m_acceptor.close();
     set_listening(false);
 }
 
