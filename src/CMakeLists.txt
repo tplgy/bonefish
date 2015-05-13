@@ -48,6 +48,7 @@ set(PUBLIC_HEADERS
     bonefish/serialization/wamp_serializer_type.hpp
     bonefish/serialization/wamp_serializer.hpp
     bonefish/serialization/wamp_serializers.hpp
+    bonefish/trace/trace.hpp
     bonefish/websocket/websocket_server.hpp)
 
 set(PRIVATE_HEADERS
@@ -108,7 +109,6 @@ set(PRIVATE_HEADERS
     bonefish/serialization/json_msgpack_sax.hpp
     bonefish/session/wamp_session.hpp
     bonefish/session/wamp_session_state.hpp
-    bonefish/trace/trace.hpp
     bonefish/transport/wamp_transport.hpp
     bonefish/utility/wamp_uri.hpp
     bonefish/websocket/websocket_config.hpp
