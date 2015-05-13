@@ -8,13 +8,17 @@
 namespace bonefish {
 namespace base64 {
 
-inline size_t decode_size(const char* base64_data, size_t length)
+inline size_t decode_size(const char* base64_data, size_t length, size_t* src_padding_size = 0)
 {
     if (length >= 1 && *(base64_data + length - 1) == '=') {
-        return (length >= 2 && *(base64_data + length - 2) == '=')
-                ? (length * 3 / 4 - 2)
-                : (length * 3 / 4 - 1);
+        if (length >= 2 && *(base64_data + length - 2) == '=') {
+            if (src_padding_size) { *src_padding_size = 2; }
+            return (length * 3 / 4 - 2);
+        }
+        if (src_padding_size) { *src_padding_size = 1; }
+        return (length * 3 / 4 - 1);
     }
+    if (src_padding_size) { *src_padding_size = 0; }
     return length * 3 / 4;
 }
 
@@ -31,13 +35,14 @@ inline void decode(
     using namespace boost::archive::iterators;
     using iterator = transform_width<binary_from_base64<const char*>, 8, 6>;
 
-    size_t calc_length = decode_size(base64_data, base64_length);
+    size_t padding_size = 0;
+    size_t calc_length = decode_size(base64_data, base64_length, &padding_size);
     if (binary_length < calc_length) {
         boost::serialization::throw_exception(
             boost::archive::iterators::dataflow_exception(dataflow_exception::invalid_conversion));
     }
 
-    iterator end(base64_data + base64_length);
+    iterator end(base64_data + base64_length - padding_size);
     for (iterator it(base64_data); it != end; ++it) {
         *(binary_result++) = *it;
     }
