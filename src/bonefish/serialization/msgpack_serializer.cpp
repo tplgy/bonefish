@@ -21,49 +21,6 @@ bool reference_func(type::object_type type, std::size_t length, void* user_data)
 
 namespace bonefish {
 
-namespace {
-
-struct raw_buffer_writer
-{
-    raw_buffer_writer(char* buffer, std::size_t length)
-        : m_start(buffer)
-        , m_current(buffer)
-        , m_end(buffer + length)
-        , m_buffer_too_small(false)
-    {
-    }
-
-    std::size_t bytes_written() const { return m_current - m_start; }
-    bool buffer_too_small() const { return m_buffer_too_small; }
-
-    void write(const char* src, std::size_t srclen)
-    {
-        if (m_current >= m_end) {
-            if (srclen) {
-                m_buffer_too_small = true;
-            }
-            return; // EOF
-        }
-
-        if (m_current + srclen <= m_end) {
-            std::memcpy(m_current, src, srclen);
-            m_current += srclen;
-        } else {
-            std::memcpy(m_current, src, m_end - m_current);
-            m_current = m_end;
-            m_buffer_too_small = true;
-        }
-    }
-
-private:
-    char* m_start;
-    char* m_current;
-    char* m_end;
-    bool m_buffer_too_small;
-};
-
-} // anonymous namespace
-
 wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length) const
 {
     msgpack::unpacked item = msgpack::unpack(buffer, length, msgpack::reference_func);
@@ -82,17 +39,13 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
     return message.release();
 }
 
-size_t msgpack_serializer::serialize(const wamp_message* message, char* buffer, size_t length) const
+expandable_buffer msgpack_serializer::serialize(const wamp_message* message) const
 {
-    raw_buffer_writer writer(buffer, length);
-    msgpack::packer<raw_buffer_writer> packer(&writer);
+    expandable_buffer buffer(10*1024);
+    msgpack::packer<expandable_buffer> packer(buffer);
     packer.pack(message->marshal());
 
-    if (writer.buffer_too_small()) {
-        throw std::overflow_error("serialization buffer too small");
-    }
-
-    return writer.bytes_written();
+    return buffer;
 }
 
 } // namespace bonefish

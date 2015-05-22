@@ -43,6 +43,7 @@ set(PUBLIC_HEADERS
     bonefish/rawsocket/tcp_listener.hpp
     bonefish/router/wamp_router.hpp
     bonefish/router/wamp_routers.hpp
+    bonefish/serialization/expandable_buffer.hpp
     bonefish/serialization/json_serializer.hpp
     bonefish/serialization/msgpack_serializer.hpp
     bonefish/serialization/wamp_serializer_type.hpp

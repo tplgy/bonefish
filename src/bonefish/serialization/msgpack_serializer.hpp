@@ -18,7 +18,7 @@ public:
 
     virtual wamp_serializer_type get_type() const override;
     virtual wamp_message* deserialize(const char* buffer, size_t length) const override;
-    virtual size_t serialize(const wamp_message* message, char* buffer, size_t length) const override;
+    virtual expandable_buffer serialize(const wamp_message* message) const override;
 };
 
 inline msgpack_serializer::msgpack_serializer()

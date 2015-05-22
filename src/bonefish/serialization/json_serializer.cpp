@@ -63,40 +63,29 @@ class omemstream
 {
 public:
     typedef char Ch;
-    omemstream(Ch* buffer, size_t size)
+    omemstream(expandable_buffer& buffer)
         : m_buffer(buffer)
-        , m_current(buffer)
-        , m_end(buffer + size)
-        , m_buffer_too_small(false)
     {
     }
+
     omemstream(const omemstream&) = delete;
     omemstream& operator=(const omemstream&) = delete;
 
     Ch Peek() const { assert(false); return '\0'; }
     Ch Take() { assert(false); return '\0'; }
-    size_t Tell() const { return static_cast<size_t>(m_current - m_buffer); }
+    size_t Tell() const { return m_buffer.size(); }
 
     void Put(Ch ch)
     {
-        if (m_current >= m_end) {
-            m_buffer_too_small = true;
-            return;
-        }
-        *(m_current++) = ch;
+        m_buffer.write(ch);
     }
     void Flush() { } // nothing to do, Put() writes immediately
 
     Ch* PutBegin() { assert(false); return 0; }
     size_t PutEnd(Ch*) { assert(false); return 0; }
 
-    bool BufferTooSmall() const { return m_buffer_too_small; }
-
 private:
-    Ch* m_buffer;
-    Ch* m_current;
-    Ch* m_end;
-    bool m_buffer_too_small;
+    expandable_buffer& m_buffer;
 };
 
 struct wamp_bin_string_conversion
@@ -190,9 +179,10 @@ wamp_message* json_serializer::deserialize(const char* buffer, size_t length) co
     return message.release();
 }
 
-size_t json_serializer::serialize(const wamp_message* message, char* buffer, size_t length) const
+expandable_buffer json_serializer::serialize(const wamp_message* message) const
 {
-    omemstream bufferstream(buffer, length);
+    expandable_buffer buffer(10*1024);
+    omemstream bufferstream(buffer);
     rapidjson::Writer<omemstream> writer(bufferstream);
 
     const std::vector<msgpack::object>& fields = message->marshal();
@@ -220,13 +210,11 @@ size_t json_serializer::serialize(const wamp_message* message, char* buffer, siz
         }
     } while (false);
 
-    if (bufferstream.BufferTooSmall()) {
-        throw std::overflow_error("serialization buffer too small");
-    } else if (write_failed || !writer.IsComplete()) {
+    if (write_failed || !writer.IsComplete()) {
         throw std::overflow_error("failed or incomplete serialization");
     }
 
-    return bufferstream.Tell();
+    return buffer;
 }
 
 } // namespace bonefish
