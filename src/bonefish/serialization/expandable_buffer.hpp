@@ -83,6 +83,8 @@ inline expandable_buffer& expandable_buffer::operator=(expandable_buffer&& other
     other.m_size = 0;
     other.m_data = nullptr;
     other.m_capacity = 0;
+
+    return *this;
 }
 
 inline void expandable_buffer::write(const char c)
