@@ -1,9 +1,11 @@
 #ifndef BONEFISH_SERIALIZATION_EXPANDABLE_BUFFER_HPP
 #define BONEFISH_SERIALIZATION_EXPANDABLE_BUFFER_HPP
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
+#include <new>
 #include <stdexcept>
 
 namespace bonefish
