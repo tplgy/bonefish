@@ -12,7 +12,6 @@
         - transport configuration
         - router configuration
         - hardware concurreny
-- add proper uri validation according to the spec
 - move uri checking out of the serialization
     - allow each broker/dealer/router to perform uri validation so that the appropriate error messages can be generated where applicable.
 - add support for publish options so that publish acknowledgements can be used

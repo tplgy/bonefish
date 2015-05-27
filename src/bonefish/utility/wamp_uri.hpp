@@ -33,7 +33,22 @@
 
 namespace bonefish {
 
-bool is_valid_uri(const std::string& uri);
+/**
+ * Pass one or more flags (combined with the bitwise OR operator, "|") to change
+ * the behaviour of URI checking in is_valid_uri().
+ */
+namespace uri_flags {
+
+/** is_valid_uri() does not allow empty URI components by default, add this flag to allow them. */
+extern unsigned int allow_empty_components;
+
+/** is_valid_uri() checks for relaxed rules by default, add this flag for a strict check. */
+extern unsigned int strict;
+
+} // namespace uri_flags
+
+
+bool is_valid_uri(const std::string& uri, int flags = 0);
 
 } // namespace bonefish
 
