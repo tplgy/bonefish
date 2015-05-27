@@ -136,6 +136,7 @@ inline void expandable_buffer::reset()
         m_size = 0;
         m_capacity = 0;
         std::free(m_data);
+        m_data = nullptr;
     }
 }
 
