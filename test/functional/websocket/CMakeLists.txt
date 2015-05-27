@@ -1,3 +1,4 @@
+find_package(Threads)
 find_package(Boost REQUIRED COMPONENTS random system thread)
 
 include_directories(
