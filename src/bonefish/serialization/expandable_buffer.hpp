@@ -92,7 +92,7 @@ inline expandable_buffer& expandable_buffer::operator=(expandable_buffer&& other
 inline void expandable_buffer::write(const char c)
 {
     if (m_capacity - m_size == 0) {
-        expand(m_capacity * 2);
+        expand(m_capacity);
     }
     m_data[m_size++] = c;
 }
@@ -141,7 +141,7 @@ inline void expandable_buffer::reset()
 
 inline void expandable_buffer::expand(size_t length)
 {
-    size_t new_capacity = std::max(length, m_capacity * 2);
+    size_t new_capacity = std::max(m_size + length, m_capacity * 2);
     char* new_data = static_cast<char*>(std::realloc(m_data, new_capacity));
     if (!new_data) {
         throw std::bad_alloc();
