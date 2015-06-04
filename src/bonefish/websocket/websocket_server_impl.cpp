@@ -38,6 +38,11 @@ void websocket_server_impl::start(const boost::asio::ip::address& ip_address, ui
 
     boost::asio::ip::tcp::endpoint endpoint(ip_address, port);
 
+    m_server->set_socket_init_handler(
+            websocketpp::lib::bind(&websocket_server_impl::on_socket_init, this,
+                    websocketpp::lib::placeholders::_1,
+                    websocketpp::lib::placeholders::_2));
+
     m_server->set_open_handler(
             websocketpp::lib::bind(&websocket_server_impl::on_open, this,
                     websocketpp::lib::placeholders::_1));
@@ -75,6 +80,12 @@ void websocket_server_impl::shutdown()
 {
     BONEFISH_TRACE("stopping websocket server");
     m_server->stop();
+}
+
+void websocket_server_impl::on_socket_init(websocketpp::connection_hdl hdl,
+        boost::asio::ip::tcp::socket& s)
+{
+    s.set_option(boost::asio::ip::tcp::no_delay(true));
 }
 
 void websocket_server_impl::on_open(websocketpp::connection_hdl handle)

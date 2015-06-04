@@ -14,6 +14,8 @@ tcp_connection::tcp_connection(boost::asio::ip::tcp::socket&& socket)
     , m_message_buffer()
     , m_socket(std::move(socket))
 {
+    // Disable Nagle algorithm to get lower latency (and lower throughput).
+    m_socket.set_option(boost::asio::ip::tcp::no_delay(true));
 }
 
 tcp_connection::~tcp_connection()

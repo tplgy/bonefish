@@ -6,6 +6,7 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
@@ -28,6 +29,8 @@ public:
     void shutdown();
 
 private:
+    void on_socket_init(websocketpp::connection_hdl hdl,
+            boost::asio::ip::tcp::socket& s);
     void on_open(websocketpp::connection_hdl handle);
     void on_close(websocketpp::connection_hdl handle);
     void on_fail(websocketpp::connection_hdl handle);
