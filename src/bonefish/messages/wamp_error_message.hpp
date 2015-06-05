@@ -197,7 +197,7 @@ inline void wamp_error_message::set_arguments_kw(const msgpack::object& argument
 
 inline std::ostream& operator<<(std::ostream& os, const wamp_error_message& message)
 {
-    os << "publish [" << message.get_request_type() << ", "
+    os << "error [" << message.get_request_type() << ", "
             << message.get_request_id() << ", "
             << message.get_details() << ", "
             << message.get_error() << ", "
