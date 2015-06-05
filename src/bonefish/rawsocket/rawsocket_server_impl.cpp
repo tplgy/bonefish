@@ -33,8 +33,14 @@ rawsocket_server_impl::~rawsocket_server_impl()
 
 void rawsocket_server_impl::attach_listener(const std::shared_ptr<rawsocket_listener>& listener)
 {
-    listener->set_accept_handler(
-            std::bind(&rawsocket_server_impl::on_connect, shared_from_this(), std::placeholders::_1));
+    std::weak_ptr<rawsocket_server_impl> weak_self = shared_from_this();
+    listener->set_accept_handler([weak_self](const std::shared_ptr<rawsocket_connection>& connection) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_connect(connection);
+        }
+    });
+
     m_listeners.insert(listener);
 }
 
