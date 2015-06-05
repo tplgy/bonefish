@@ -31,7 +31,7 @@ class Component(wamp.ApplicationSession):
 
     def publishRandomDataEvent(self):
         chars = string.ascii_uppercase + string.digits
-        upper_bound = random.randint(1,15360) % 15360
+        upper_bound = random.randint(1,131072) % 131072
         random_data = ''.join(random.choice(chars) for _ in range(upper_bound))
         self.publish(u'io.bonefish.test.random_data', random_data)
         reactor.callLater(0, self.publishRandomDataEvent)

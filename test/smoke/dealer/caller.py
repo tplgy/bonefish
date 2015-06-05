@@ -21,12 +21,13 @@ class Component(wamp.ApplicationSession):
 
     @inlineCallbacks
     def onJoin(self, details):
-        yield reactor.callLater(1, self.getRandomData)
+        yield reactor.callLater(0, self.getRandomData)
 
     @inlineCallbacks
     def onDisconnect(self):
         reactor.stop()
 
+    @inlineCallbacks
     def getRandomData(self):
         try:
             data = yield self.call(u'io.bonefish.test.get_random_data')
@@ -54,7 +55,7 @@ if __name__ == '__main__':
 
     # Create a websocket transport factory
     transport_factory = websocket.WampWebSocketClientFactory(session_factory,
-        serializers = serializers, debug = True, debug_wamp = True)
+        serializers = serializers, debug = False, debug_wamp = True)
 
     # Start the client and connect
     client = clientFromString(reactor, "tcp:127.0.0.1:9999")

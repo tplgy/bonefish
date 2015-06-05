@@ -20,23 +20,23 @@ class Component(wamp.ApplicationSession):
     that returns large amounts of random length data to the
     caller:
 
-          io.bonefish.test.get_random_data
+          io.bonefish.test.get_getRandomData
 
     See README.md
     """
 
     @inlineCallbacks
     def onJoin(self, details):
-        reg = yield self.register(random_data, u'com.random.data')
+        reg = yield self.register(self.getRandomData, u'io.bonefish.test.get_random_data')
         print("Registered procedure with ID {}".format(reg.id))
 
     @inlineCallbacks
     def onDisconnect(self):
         reactor.stop()
 
-    def randomData():
+    def getRandomData(self):
         chars = string.ascii_uppercase + string.digits
-        upper_bound = random.randint(1,15360) % 15360
+        upper_bound = random.randint(1,131072) % 131072
         return ''.join(random.choice(chars) for _ in range(upper_bound))
 
 if __name__ == '__main__':
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # Create a websocket transport factory
     transport_factory = websocket.WampWebSocketClientFactory(session_factory,
-        serializers = serializers, debug = False, debug_wamp = True)
+        serializers = serializers, debug = True, debug_wamp = True)
 
     ## Start the client and connect
     client = clientFromString(reactor, "tcp:127.0.0.1:9999")
