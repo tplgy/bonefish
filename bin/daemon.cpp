@@ -5,6 +5,7 @@
 #include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/rawsocket/rawsocket_server.hpp>
 #include <bonefish/rawsocket/tcp_listener.hpp>
+#include <bonefish/trace/trace.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
 #include <boost/asio/ip/address.hpp>
@@ -24,6 +25,10 @@ daemon::daemon()
     , m_rawsocket_server()
     , m_websocket_server()
 {
+    if (getenv("BONEFISH_TRACE")) {
+        bonefish::trace::set_enabled(true);
+    }
+
     // TODO: This should all come from configuration that is passed in to the daemon.
     //       For now we just hard code the necessary bits and pieces to give us
     //       somthing functinal to work with.
