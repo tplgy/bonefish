@@ -71,15 +71,12 @@ void websocket_server_impl::start(const boost::asio::ip::address& ip_address, ui
     m_server->set_reuse_addr(true);
     m_server->listen(endpoint);
     m_server->start_accept();
-
-    // The io_service is run from owning context.
-    //m_server->run();
 }
 
 void websocket_server_impl::shutdown()
 {
     BONEFISH_TRACE("stopping websocket server");
-    m_server->stop();
+    m_server->stop_listening();
 }
 
 void websocket_server_impl::on_socket_init(websocketpp::connection_hdl hdl,
