@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS system thread)
+find_package(Boost REQUIRED COMPONENTS system thread program_options)
 find_package(Threads)
 
 include_directories(
@@ -6,7 +6,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${Boost_INCLUDE_DIRS})
 
-set(SOURCES bonefish.cpp daemon.cpp)
+set(SOURCES bonefish.cpp daemon.cpp daemon_options.cpp)
 
 add_executable(bonefish_bin ${SOURCES})
 

@@ -8,11 +8,13 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/signal_set.hpp>
+#include <cstdint>
 #include <memory>
 
 namespace bonefish
 {
 
+class daemon_options;
 class rawsocket_server;
 class wamp_routers;
 class wamp_serializers;
@@ -21,7 +23,7 @@ class websocket_server;
 class daemon
 {
 public:
-    daemon();
+    daemon(const daemon_options&);
     ~daemon();
 
     void run();
@@ -42,6 +44,8 @@ private:
     std::shared_ptr<bonefish::wamp_serializers> m_serializers;
     std::shared_ptr<bonefish::rawsocket_server> m_rawsocket_server;
     std::shared_ptr<bonefish::websocket_server> m_websocket_server;
+
+    std::uint16_t m_websocket_port;
 };
 
 } // namespace bonefish

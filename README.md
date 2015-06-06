@@ -34,6 +34,14 @@ $ make
 $ make install
 ```
 
+### Running
+
+Apart from using it as an embedded library, you can also run bonefish as a standalone WAMP server:
+
+```
+bin/bonefish --realm "default" --websocket-port 9999 --rawsocket-port 8888
+```
+
 ### Options
 
 - **shared** - if ON, bonefish will be built as a shared library. OFF implies it will be built as a static library.
