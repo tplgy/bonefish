@@ -59,9 +59,12 @@ set(PRIVATE_HEADERS
     bonefish/common/wamp_connection_base.hpp
     bonefish/common/wamp_message_processor.hpp
     bonefish/dealer/wamp_dealer.hpp
+    bonefish/dealer/wamp_dealer_invocation.hpp
     bonefish/dealer/wamp_dealer_registration.hpp
     bonefish/identifiers/wamp_publication_id.hpp
     bonefish/identifiers/wamp_publication_id_generator.hpp
+    bonefish/identifiers/wamp_random_id_generator.hpp
+    bonefish/identifiers/wamp_random_id.hpp
     bonefish/identifiers/wamp_registration_id.hpp
     bonefish/identifiers/wamp_registration_id_generator.hpp
     bonefish/identifiers/wamp_request_id.hpp
@@ -73,7 +76,9 @@ set(PRIVATE_HEADERS
     bonefish/identifiers/wamp_session_id_generator.hpp
     bonefish/identifiers/wamp_subscription_id.hpp
     bonefish/identifiers/wamp_subscription_id_generator.hpp
+    bonefish/logging/logging.hpp
     bonefish/messages/wamp_abort_message.hpp
+    bonefish/messages/wamp_call_message.hpp
     bonefish/messages/wamp_error_message.hpp
     bonefish/messages/wamp_event_message.hpp
     bonefish/messages/wamp_goodbye_message.hpp
@@ -88,6 +93,7 @@ set(PRIVATE_HEADERS
     bonefish/messages/wamp_published_message.hpp
     bonefish/messages/wamp_registered_message.hpp
     bonefish/messages/wamp_register_message.hpp
+    bonefish/messages/wamp_result_message.hpp
     bonefish/messages/wamp_subscribed_message.hpp
     bonefish/messages/wamp_subscribe_message.hpp
     bonefish/messages/wamp_unregistered_message.hpp
