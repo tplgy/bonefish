@@ -77,7 +77,13 @@ void websocket_server_impl::start(const boost::asio::ip::address& ip_address, ui
                     websocketpp::lib::placeholders::_2));
 
     // Set log settings
-    m_server->set_access_channels(websocketpp::log::alevel::none);
+    if (bonefish::trace::is_enabled()) {
+        m_server->set_access_channels(websocketpp::log::alevel::all);
+        m_server->set_error_channels(websocketpp::log::elevel::all);
+    } else {
+        m_server->set_access_channels(websocketpp::log::alevel::none);
+        m_server->set_error_channels(websocketpp::log::elevel::none);
+    }
 
     m_server->init_asio(&m_io_service);
     m_server->set_reuse_addr(true);
