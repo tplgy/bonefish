@@ -15,6 +15,11 @@ set(SOURCES
     bonefish/messages/wamp_message_factory.cpp
     bonefish/messages/wamp_message_type.cpp
     bonefish/messages/wamp_welcome_details.cpp
+    bonefish/rawsocket/tcp_connection.cpp
+    bonefish/rawsocket/tcp_listener.cpp
+    bonefish/rawsocket/rawsocket_server.cpp
+    bonefish/rawsocket/rawsocket_server_impl.cpp
+    bonefish/rawsocket/rawsocket_transport.cpp
     bonefish/roles/wamp_role_type.cpp
     bonefish/router/wamp_router.cpp
     bonefish/router/wamp_router_impl.cpp
@@ -22,11 +27,6 @@ set(SOURCES
     bonefish/serialization/msgpack_serializer.cpp
     bonefish/session/wamp_session_state.cpp
     bonefish/trace/trace.cpp
-    bonefish/rawsocket/tcp_connection.cpp
-    bonefish/rawsocket/tcp_listener.cpp
-    bonefish/rawsocket/rawsocket_server.cpp
-    bonefish/rawsocket/rawsocket_server_impl.cpp
-    bonefish/rawsocket/rawsocket_transport.cpp
     bonefish/utility/wamp_uri.cpp
     bonefish/websocket/websocket_protocol.cpp
     bonefish/websocket/websocket_server.cpp
