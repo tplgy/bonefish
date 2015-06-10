@@ -10,7 +10,7 @@ websocket_server::websocket_server(
         boost::asio::io_service& io_service,
         const std::shared_ptr<wamp_routers>& routers,
         const std::shared_ptr<wamp_serializers>& serializers)
-    : m_impl(new websocket_server_impl(io_service, routers, serializers))
+    : m_impl(std::make_shared<websocket_server_impl>(io_service, routers, serializers))
 {
 }
 

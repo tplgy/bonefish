@@ -24,7 +24,7 @@ public:
     void shutdown();
 
 private:
-    std::unique_ptr<websocket_server_impl> m_impl;
+    std::shared_ptr<websocket_server_impl> m_impl;
 };
 
 } // namespace bonefish

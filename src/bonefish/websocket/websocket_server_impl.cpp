@@ -39,28 +39,40 @@ void websocket_server_impl::start(const boost::asio::ip::address& ip_address, ui
     boost::asio::ip::tcp::endpoint endpoint(ip_address, port);
 
     m_server->set_socket_init_handler(
-            websocketpp::lib::bind(&websocket_server_impl::on_socket_init, this,
+            websocketpp::lib::bind(
+                    &websocket_server_impl::on_socket_init,
+                    shared_from_this(),
                     websocketpp::lib::placeholders::_1,
                     websocketpp::lib::placeholders::_2));
 
     m_server->set_open_handler(
-            websocketpp::lib::bind(&websocket_server_impl::on_open, this,
+            websocketpp::lib::bind(
+                    &websocket_server_impl::on_open,
+                    shared_from_this(),
                     websocketpp::lib::placeholders::_1));
 
     m_server->set_close_handler(
-            websocketpp::lib::bind(&websocket_server_impl::on_close, this,
+            websocketpp::lib::bind(
+                    &websocket_server_impl::on_close,
+                    shared_from_this(),
                     websocketpp::lib::placeholders::_1));
 
     m_server->set_fail_handler(
-            websocketpp::lib::bind(&websocket_server_impl::on_fail, this,
+            websocketpp::lib::bind(
+                    &websocket_server_impl::on_fail,
+                    shared_from_this(),
                     websocketpp::lib::placeholders::_1));
 
     m_server->set_validate_handler(
-            websocketpp::lib::bind(&websocket_server_impl::on_validate, this,
+            websocketpp::lib::bind(
+                    &websocket_server_impl::on_validate,
+                    shared_from_this(),
                     websocketpp::lib::placeholders::_1));
 
     m_server->set_message_handler(
-            websocketpp::lib::bind(&websocket_server_impl::on_message, this,
+            websocketpp::lib::bind(
+                    &websocket_server_impl::on_message,
+                    shared_from_this(),
                     websocketpp::lib::placeholders::_1,
                     websocketpp::lib::placeholders::_2));
 

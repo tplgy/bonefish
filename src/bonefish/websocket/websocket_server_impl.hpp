@@ -17,7 +17,7 @@ namespace bonefish {
 class wamp_routers;
 class wamp_serializers;
 
-class websocket_server_impl
+class websocket_server_impl : public std::enable_shared_from_this<websocket_server_impl>
 {
 public:
     websocket_server_impl(boost::asio::io_service& io_service,
