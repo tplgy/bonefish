@@ -1,5 +1,4 @@
 #include "daemon.hpp"
-
 #include "daemon_options.hpp"
 
 #include <bonefish/serialization/wamp_serializers.hpp>
@@ -24,8 +23,8 @@ daemon::daemon(const daemon_options& options)
     : m_io_service()
     , m_work()
     , m_termination_signals(m_io_service, SIGTERM, SIGINT, SIGQUIT)
-    , m_routers(new wamp_routers)
-    , m_serializers(new wamp_serializers)
+    , m_routers(std::make_shared<wamp_routers>())
+    , m_serializers(std::make_shared<wamp_serializers>())
     , m_rawsocket_server()
     , m_websocket_server()
     , m_websocket_port(0)
@@ -40,9 +39,10 @@ daemon::daemon(const daemon_options& options)
         exit(1);
     }
 
-    if (getenv("BONEFISH_TRACE")) {
-        bonefish::trace::set_enabled(true);
-    }
+    // Turn on bonefish tracing if requested. This may also turn on
+    // lower level logging in third-party dependencies of bonefish
+    // such as websocketpp.
+    bonefish::trace::set_enabled(options.is_debug_enabled());
 
     auto router = std::make_shared<wamp_router>(m_io_service, options.realm());
     m_routers->add_router(router);
@@ -82,6 +82,7 @@ void daemon::run()
     if (m_rawsocket_server) {
         m_rawsocket_server->start();
     }
+
     if (m_websocket_server) {
         m_websocket_server->start(boost::asio::ip::address(), m_websocket_port);
     }
@@ -112,7 +113,15 @@ void daemon::shutdown_handler()
         if (m_rawsocket_server) {
             m_rawsocket_server->shutdown();
         }
+
+        // Allow the io service to stop when it runs out of work. Then
+        // poll the io_service to finish processing all of the remaining
+        // completion handlers that may need to still be executed as a
+        // result of shutting down. It is then safe to stop the io service
+        // without leaving any potentially unexecuted handlers.
         m_work.reset();
+        m_io_service.poll();
+        m_io_service.stop();
     }
 }
 

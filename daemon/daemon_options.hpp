@@ -19,6 +19,10 @@ public:
     void set_realm(const std::string& realm) { m_realm = realm; }
     std::string realm() const { return m_realm; }
 
+    /// Enable or disable debugging. Default value is disabled.
+    void set_debug_enabled(bool enabled) { m_debug_enabled = enabled; }
+    bool is_debug_enabled() const { return m_debug_enabled; }
+
     /// Enable or disable websocket support. Default value is disabled.
     /// At least one transport has to be enabled for the router to start.
     void set_websocket_enabled(bool enabled) { m_websocket_enabled = enabled; }
@@ -51,6 +55,7 @@ public:
 
 private:
     std::string m_realm;
+    bool m_debug_enabled;
     std::uint16_t m_websocket_port;
     std::uint16_t m_rawsocket_port;
     bool m_websocket_enabled;

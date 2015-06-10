@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS system thread program_options)
+find_package(Boost REQUIRED COMPONENTS program_options system thread)
 find_package(Threads)
 
 include_directories(
@@ -19,5 +19,3 @@ target_link_libraries(bonefish_bin
     ${Boost_LIBRARIES}
     ${CMAKE_DL_LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
-
-

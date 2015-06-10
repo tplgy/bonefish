@@ -37,5 +37,5 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_subdirectory(examples)
 add_subdirectory(src)
-add_subdirectory(bin)
+add_subdirectory(daemon)
 add_subdirectory(test)

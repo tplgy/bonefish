@@ -4,6 +4,7 @@ namespace bonefish {
 
 daemon_options::daemon_options()
     : m_realm()
+    , m_debug_enabled(false)
     , m_websocket_port(0)
     , m_rawsocket_port(0)
     , m_websocket_enabled(false)

@@ -3,7 +3,6 @@
 
 #include <bonefish/serialization/wamp_serializers.hpp>
 #include <bonefish/serialization/msgpack_serializer.hpp>
-#include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
 #include <boost/asio/io_service.hpp>
@@ -11,8 +10,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace bonefish
-{
+namespace bonefish {
 
 class daemon_options;
 class rawsocket_server;
@@ -23,7 +21,7 @@ class websocket_server;
 class daemon
 {
 public:
-    daemon(const daemon_options&);
+    daemon(const daemon_options& options);
     ~daemon();
 
     void run();
