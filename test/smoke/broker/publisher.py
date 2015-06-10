@@ -57,7 +57,7 @@ if __name__ == '__main__':
         serializers = serializers, debug = False, debug_wamp = True)
 
     # Start the client and connect
-    client = clientFromString(reactor, "tcp:127.0.0.1:9999")
+    client = clientFromString(reactor, "tcp:127.0.0.1:8001")
     client.connect(transport_factory)
 
     ## Run the reactor loop
