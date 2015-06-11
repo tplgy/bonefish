@@ -38,43 +38,60 @@ void websocket_server_impl::start(const boost::asio::ip::address& ip_address, ui
 
     boost::asio::ip::tcp::endpoint endpoint(ip_address, port);
 
-    m_server->set_socket_init_handler(
-            websocketpp::lib::bind(
-                    &websocket_server_impl::on_socket_init,
-                    shared_from_this(),
-                    websocketpp::lib::placeholders::_1,
-                    websocketpp::lib::placeholders::_2));
+    std::weak_ptr<websocket_server_impl> weak_self = shared_from_this();
 
-    m_server->set_open_handler(
-            websocketpp::lib::bind(
-                    &websocket_server_impl::on_open,
-                    shared_from_this(),
-                    websocketpp::lib::placeholders::_1));
+    auto init_handler = [weak_self](
+            websocketpp::connection_hdl handle,
+            boost::asio::ip::tcp::socket& socket) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_socket_init(handle, socket);
+        }
+    };
+    m_server->set_socket_init_handler(init_handler);
 
-    m_server->set_close_handler(
-            websocketpp::lib::bind(
-                    &websocket_server_impl::on_close,
-                    shared_from_this(),
-                    websocketpp::lib::placeholders::_1));
+    auto open_handler = [weak_self](websocketpp::connection_hdl handle) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_open(handle);
+        }
+    };
+    m_server->set_open_handler(open_handler);
 
-    m_server->set_fail_handler(
-            websocketpp::lib::bind(
-                    &websocket_server_impl::on_fail,
-                    shared_from_this(),
-                    websocketpp::lib::placeholders::_1));
+    auto close_handler = [weak_self](websocketpp::connection_hdl handle) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_close(handle);
+        }
+    };
+    m_server->set_close_handler(close_handler);
 
-    m_server->set_validate_handler(
-            websocketpp::lib::bind(
-                    &websocket_server_impl::on_validate,
-                    shared_from_this(),
-                    websocketpp::lib::placeholders::_1));
+    auto fail_handler = [weak_self](websocketpp::connection_hdl handle) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_fail(handle);
+        }
+    };
+    m_server->set_fail_handler(fail_handler);
 
-    m_server->set_message_handler(
-            websocketpp::lib::bind(
-                    &websocket_server_impl::on_message,
-                    shared_from_this(),
-                    websocketpp::lib::placeholders::_1,
-                    websocketpp::lib::placeholders::_2));
+    auto validate_handler = [weak_self](websocketpp::connection_hdl handle) -> bool {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            return shared_self->on_validate(handle);
+        }
+        return false;
+    };
+    m_server->set_validate_handler(validate_handler);
+
+    auto message_handler = [weak_self](
+            websocketpp::connection_hdl handle,
+            websocketpp::server<websocket_config>::message_ptr message) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_message(handle, message);
+        }
+    };
+    m_server->set_message_handler(message_handler);
 
     // Set log settings
     if (bonefish::trace::is_enabled()) {
@@ -97,7 +114,7 @@ void websocket_server_impl::shutdown()
     m_server->stop_listening();
 }
 
-void websocket_server_impl::on_socket_init(websocketpp::connection_hdl hdl,
+void websocket_server_impl::on_socket_init(websocketpp::connection_hdl handle,
         boost::asio::ip::tcp::socket& s)
 {
     s.set_option(boost::asio::ip::tcp::no_delay(true));

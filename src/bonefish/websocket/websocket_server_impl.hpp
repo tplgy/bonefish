@@ -29,8 +29,8 @@ public:
     void shutdown();
 
 private:
-    void on_socket_init(websocketpp::connection_hdl hdl,
-            boost::asio::ip::tcp::socket& s);
+    void on_socket_init(websocketpp::connection_hdl handle,
+            boost::asio::ip::tcp::socket& socket);
     void on_open(websocketpp::connection_hdl handle);
     void on_close(websocketpp::connection_hdl handle);
     void on_fail(websocketpp::connection_hdl handle);
