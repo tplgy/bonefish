@@ -14,6 +14,7 @@ int main(int argc, char** argv)
     desc.add_options()
         ("help,h", "produce help message")
         ("realm,r", po::value<std::string>(), "set the WAMP realm for this router")
+        ("debug,d", po::bool_switch()->default_value(false), "enable debugging")
         ("websocket-port,w", po::value<std::uint16_t>()->value_name("<port>"), "enable websocket transport on the given port")
         ("rawsocket-port,t", po::value<std::uint16_t>()->value_name("<port>"), "enable rawsocket transport on the given port")
         ("no-json", "disable JSON serialization")
@@ -41,17 +42,23 @@ int main(int argc, char** argv)
     if (variables.count("realm")) {
         options.set_realm(variables["realm"].as<std::string>());
     }
+
+    options.set_debug_enabled(variables["debug"].as<bool>());
+
     if (variables.count("websocket-port")) {
         options.set_websocket_enabled(true);
         options.set_websocket_port(variables["websocket-port"].as<std::uint16_t>());
     }
+
     if (variables.count("rawsocket-port")) {
         options.set_rawsocket_enabled(true);
         options.set_rawsocket_port(variables["rawsocket-port"].as<std::uint16_t>());
     }
+
     if (variables.count("no-json")) {
         options.set_json_serialization_enabled(false);
     }
+
     if (variables.count("no-msgpack")) {
         options.set_msgpack_serialization_enabled(false);
     }
