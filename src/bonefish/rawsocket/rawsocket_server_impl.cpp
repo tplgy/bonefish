@@ -63,14 +63,46 @@ void rawsocket_server_impl::shutdown()
 
 void rawsocket_server_impl::on_connect(const std::shared_ptr<rawsocket_connection>& connection)
 {
-    connection->set_close_handler(std::bind(&rawsocket_server_impl::on_close,
-            shared_from_this(), std::placeholders::_1));
-    connection->set_fail_handler(std::bind(&rawsocket_server_impl::on_fail,
-            shared_from_this(), std::placeholders::_1, std::placeholders::_2));
-    connection->set_message_handler(std::bind(&rawsocket_server_impl::on_message,
-            shared_from_this(), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-    connection->set_handshake_handler(std::bind(&rawsocket_server_impl::on_handshake,
-            shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+    std::weak_ptr<rawsocket_server_impl> weak_self = shared_from_this();
+
+    auto handshake_handler = [weak_self](
+            const std::shared_ptr<rawsocket_connection>& connection,
+            uint32_t capabilities) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_handshake(connection, capabilities);
+        }
+    };
+    connection->set_handshake_handler(handshake_handler);
+
+    auto message_handler = [weak_self](
+            const std::shared_ptr<rawsocket_connection>& connection,
+            const char* buffer,
+            size_t length) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_message(connection, buffer, length);
+        }
+    };
+    connection->set_message_handler(message_handler);
+
+    auto close_handler = [weak_self](const std::shared_ptr<rawsocket_connection>& connection) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_close(connection);
+        }
+    };
+    connection->set_close_handler(close_handler);
+
+    auto fail_handler = [weak_self](
+            const std::shared_ptr<rawsocket_connection>& connection,
+            const char* reason) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->on_fail(connection, reason);
+        }
+    };
+    connection->set_fail_handler(fail_handler);
 
     // Prepare the connection to receive the asynchronous handshake that is
     // initiated by the client. The handshake handler will be called when
