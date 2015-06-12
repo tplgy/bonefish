@@ -15,8 +15,7 @@ namespace bonefish {
 //       class based on the socket type which would allow
 //       us to reuse it for unix domain sockets.
 class tcp_connection :
-        public rawsocket_connection,
-        public std::enable_shared_from_this<tcp_connection>
+        public rawsocket_connection
 {
 public:
     tcp_connection(boost::asio::ip::tcp::socket&& socket);

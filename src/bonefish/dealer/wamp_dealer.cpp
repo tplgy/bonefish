@@ -47,7 +47,7 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
-        throw std::logic_error("broker session does not exist");
+        throw std::logic_error("dealer session does not exist");
     }
 
     BONEFISH_TRACE("detach session: %1%", *session_itr->second);
@@ -94,9 +94,6 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
                 call_message->get_request_id(), "wamp.error.no_such_procedure");
     }
 
-    // TODO: Check for invalid call arguments. If they are invalid then send an
-    //       error back to the caller.
-
     const wamp_request_id request_id = m_request_id_generator.generate();
     std::unique_ptr<wamp_dealer_invocation> dealer_invocation(
             new wamp_dealer_invocation(m_io_service));
@@ -108,20 +105,26 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
 
     m_pending_invocations.insert(std::make_pair(request_id, std::move(dealer_invocation)));
 
-    const std::shared_ptr<wamp_session>& session =
-            procedure_registrations_itr->second->get_session();
+    std::shared_ptr<wamp_session> session =
+            procedure_registrations_itr->second->get_session().lock();
 
-    const wamp_registration_id& registration_id =
-            procedure_registrations_itr->second->get_registration_id();
+    if (session) {
+        const wamp_registration_id& registration_id =
+                procedure_registrations_itr->second->get_registration_id();
 
-    std::unique_ptr<wamp_invocation_message> invocation_message(new wamp_invocation_message);
-    invocation_message->set_request_id(request_id);
-    invocation_message->set_registration_id(registration_id);
-    invocation_message->set_arguments(call_message->get_arguments());
-    invocation_message->set_arguments_kw(call_message->get_arguments_kw());
+        std::unique_ptr<wamp_invocation_message> invocation_message(new wamp_invocation_message);
+        invocation_message->set_request_id(request_id);
+        invocation_message->set_registration_id(registration_id);
+        invocation_message->set_arguments(call_message->get_arguments());
+        invocation_message->set_arguments_kw(call_message->get_arguments_kw());
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *invocation_message);
-    session->get_transport()->send_message(invocation_message.get());
+        BONEFISH_TRACE("%1%, %2%", *session_itr->second % *invocation_message);
+        session->get_transport()->send_message(invocation_message.get());
+    } else {
+        BONEFISH_TRACE("call failed (callee session closed)");
+        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+                call_message->get_request_id(), "wamp.error.no_such_session");
+    }
 }
 
 void wamp_dealer::process_error_message(const wamp_session_id& session_id,
@@ -136,22 +139,35 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
     const auto request_id = error_message->get_request_id();
     auto pending_invocations_itr = m_pending_invocations.find(request_id);
     if (pending_invocations_itr == m_pending_invocations.end()) {
-        BONEFISH_TRACE("error: unable to find invocation ... ignoring error");
+        // This is a mormal condition. It means that the caller has ended its
+        // session after issuing a call. There is nothing to report to the
+        // callee in this case so we just silently drop the message.
+        BONEFISH_TRACE("unable to find invocation ... dropping error message");
         return;
     }
 
     const auto& dealer_invocation = pending_invocations_itr->second;
-    const auto& session = dealer_invocation->get_session();
+    std::shared_ptr<wamp_session> session = dealer_invocation->get_session().lock();
 
-    std::unique_ptr<wamp_error_message> caller_error_message(new wamp_error_message);
-    caller_error_message->set_request_type(wamp_message_type::CALL);
-    caller_error_message->set_request_id(dealer_invocation->get_request_id());
-    caller_error_message->set_details(error_message->get_details());
-    caller_error_message->set_error(error_message->get_error());
-    caller_error_message->set_arguments(error_message->get_arguments());
-    caller_error_message->set_arguments_kw(error_message->get_arguments_kw());
+    if (session) {
+        std::unique_ptr<wamp_error_message> caller_error_message(new wamp_error_message);
+        caller_error_message->set_request_type(wamp_message_type::CALL);
+        caller_error_message->set_request_id(dealer_invocation->get_request_id());
+        caller_error_message->set_details(error_message->get_details());
+        caller_error_message->set_error(error_message->get_error());
+        caller_error_message->set_arguments(error_message->get_arguments());
+        caller_error_message->set_arguments_kw(error_message->get_arguments_kw());
 
-    session->get_transport()->send_message(caller_error_message.get());
+        BONEFISH_TRACE("%1%, %2%", *session_itr->second % *caller_error_message);
+        session->get_transport()->send_message(caller_error_message.get());
+    } else {
+        // There is no error message to propogate in this case as this error
+        // message was initiated by the callee and sending the callee and error
+        // message in response to an error message would not make any sense.
+        // Besides, the callers session has ended.
+        BONEFISH_TRACE("dropping a stale call error message (caller session closed)");
+    }
+
     m_pending_invocations.erase(pending_invocations_itr);
 }
 
@@ -249,14 +265,29 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
     }
 
     const auto& dealer_invocation = pending_invocations_itr->second;
-    const auto& session = dealer_invocation->get_session();
-    std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
-    result_message->set_request_id(dealer_invocation->get_request_id());
-    result_message->set_arguments(yield_message->get_arguments());
-    result_message->set_arguments_kw(yield_message->get_arguments_kw());
+    std::shared_ptr<wamp_session> session = dealer_invocation->get_session().lock();
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *result_message);
-    session->get_transport()->send_message(result_message.get());
+    if (session) {
+        std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
+        result_message->set_request_id(dealer_invocation->get_request_id());
+        result_message->set_arguments(yield_message->get_arguments());
+        result_message->set_arguments_kw(yield_message->get_arguments_kw());
+
+        BONEFISH_TRACE("%1%, %2%", *session_itr->second % *result_message);
+        session->get_transport()->send_message(result_message.get());
+    } else {
+        // The caller has closed its session. In this case there is no
+        // reason to send an error to the callee so we just silently
+        // drop the yield message.
+        BONEFISH_TRACE("dropping a stale call yield (caller session closed)");
+
+        // NOTE: When we implement progressive call results from the
+        //       advanced wamp specification it might be possible or
+        //       even necessary to provide some feedback to the callee.
+        //       Especially if there is a significant amount of data
+        //       to be returned as we may want to have the callee stop
+        //       if the caller bails.
+    }
 
     m_pending_invocations.erase(pending_invocations_itr);
 }
@@ -289,9 +320,17 @@ void wamp_dealer::invocation_timeout_handler(const wamp_request_id& request_id,
 
     BONEFISH_TRACE("timing out a pending invocation");
     const auto& call_request_id = pending_invocations_itr->second->get_request_id();
-    const std::shared_ptr<wamp_session>& session = pending_invocations_itr->second->get_session();
-    send_error(session->get_transport(), wamp_message_type::CALL,
-            call_request_id, "wamp.error.call_timed_out");
+    std::shared_ptr<wamp_session> session = pending_invocations_itr->second->get_session().lock();
+    if (session) {
+        send_error(session->get_transport(), wamp_message_type::CALL,
+                call_request_id, "wamp.error.call_timed_out");
+    } else {
+        // This is normal and can happen when a caller places a call and
+        // the callee then closes its session after the router has sent
+        // the invocation and before the callee processed the invocation
+        // and generated a yield.
+        BONEFISH_TRACE("invocation timeout (caller session closed)");
+    }
 
     m_pending_invocations.erase(pending_invocations_itr);
 }

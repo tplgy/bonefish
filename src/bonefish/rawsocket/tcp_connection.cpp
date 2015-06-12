@@ -28,8 +28,17 @@ tcp_connection::~tcp_connection()
 void tcp_connection::async_handshake()
 {
     auto buffer = boost::asio::buffer(&m_capabilities, sizeof(m_capabilities));
-    auto handler = std::bind(&tcp_connection::receive_handshake_handler,
-            shared_from_this(), std::placeholders::_1, std::placeholders::_2);
+
+    std::weak_ptr<tcp_connection> weak_self =
+            std::static_pointer_cast<tcp_connection>(shared_from_this());
+
+    auto handler = [weak_self](
+            const boost::system::error_code& error_code, size_t bytes_transferred) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->receive_handshake_handler(error_code, bytes_transferred);
+        }
+    };
 
     boost::asio::async_read(m_socket, buffer, handler);
 }
@@ -37,8 +46,17 @@ void tcp_connection::async_handshake()
 void tcp_connection::async_receive()
 {
     auto buffer = boost::asio::buffer(&m_message_length, sizeof(m_message_length));
-    auto handler = std::bind(&tcp_connection::receive_message_header_handler,
-            shared_from_this(), std::placeholders::_1, std::placeholders::_2);
+
+    std::weak_ptr<tcp_connection> weak_self =
+            std::static_pointer_cast<tcp_connection>(shared_from_this());
+
+    auto handler = [weak_self](
+            const boost::system::error_code& error_code, size_t bytes_transferred) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->receive_message_header_handler(error_code, bytes_transferred);
+        }
+    };
 
     // We cannot start receiving messages until the initial
     // handshake has allowed us to exchange capabilities.
@@ -107,8 +125,17 @@ void tcp_connection::receive_message_header_handler(
     m_message_buffer.reserve(ntohl(m_message_length));
 
     auto buffer = boost::asio::buffer(m_message_buffer.data(), ntohl(m_message_length));
-    auto handler = std::bind(&tcp_connection::receive_message_body_handler,
-            shared_from_this(), std::placeholders::_1, std::placeholders::_2);
+
+    std::weak_ptr<tcp_connection> weak_self =
+            std::static_pointer_cast<tcp_connection>(shared_from_this());
+
+    auto handler = [weak_self](
+            const boost::system::error_code& error_code, size_t bytes_transferred) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            shared_self->receive_message_body_handler(error_code, bytes_transferred);
+        }
+    };
 
     boost::asio::async_read(m_socket, buffer, handler);
 }
@@ -133,12 +160,16 @@ void tcp_connection::handle_system_error(const boost::system::error_code& error_
     //       codes are that can occur for the async receive handlers. So it will be an
     //       ongoing exercise in trying to figure this out.
     if (error_code == boost::asio::error::eof) {
+        BONEFISH_TRACE("connection closed: %1%", error_code);
         const auto& close_handler = get_close_handler();
         close_handler(shared_from_this());
     } else if (error_code != boost::asio::error::operation_aborted) {
         BONEFISH_TRACE("connection failed: %1%", error_code);
         const auto& fail_handler = get_fail_handler();
         fail_handler(shared_from_this(), error_code.message().c_str());
+    } else {
+        BONEFISH_TRACE("unhandled system error: %1%", error_code);
+        assert(0);
     }
 }
 

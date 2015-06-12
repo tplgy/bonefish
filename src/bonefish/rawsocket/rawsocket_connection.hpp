@@ -11,7 +11,8 @@
 namespace bonefish {
 
 class rawsocket_connection :
-        public wamp_connection_base
+        public wamp_connection_base,
+        public std::enable_shared_from_this<rawsocket_connection>
 {
 public:
     using close_handler = std::function<void(const std::shared_ptr<rawsocket_connection>&)>;
