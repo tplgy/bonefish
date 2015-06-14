@@ -119,7 +119,11 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
         invocation_message->set_arguments_kw(call_message->get_arguments_kw());
 
         BONEFISH_TRACE("%1%, %2%", *session_itr->second % *invocation_message);
-        session->get_transport()->send_message(invocation_message.get());
+        if (!session->get_transport()->send_message(invocation_message.get())) {
+            BONEFISH_TRACE("sending invocation message to callee failed: network failure");
+            return send_error(session_itr->second->get_transport(), call_message->get_type(),
+                    call_message->get_request_id(), "wamp.error.network_failure");
+        }
     } else {
         BONEFISH_TRACE("call failed (callee session closed)");
         return send_error(session_itr->second->get_transport(), call_message->get_type(),
@@ -149,6 +153,10 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
     const auto& dealer_invocation = pending_invocations_itr->second;
     std::shared_ptr<wamp_session> session = dealer_invocation->get_session().lock();
 
+    // There is no error message to propogate in this case as this error
+    // message was initiated by the callee and sending the callee and error
+    // message in response to an error message would not make any sense.
+    // Besides, the callers session has ended.
     if (session) {
         std::unique_ptr<wamp_error_message> caller_error_message(new wamp_error_message);
         caller_error_message->set_request_type(wamp_message_type::CALL);
@@ -159,12 +167,10 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
         caller_error_message->set_arguments_kw(error_message->get_arguments_kw());
 
         BONEFISH_TRACE("%1%, %2%", *session_itr->second % *caller_error_message);
-        session->get_transport()->send_message(caller_error_message.get());
+        if (!session->get_transport()->send_message(caller_error_message.get())) {
+            BONEFISH_TRACE("failed to send error message to caller: network failure");
+        }
     } else {
-        // There is no error message to propogate in this case as this error
-        // message was initiated by the callee and sending the callee and error
-        // message in response to an error message would not make any sense.
-        // Besides, the callers session has ended.
         BONEFISH_TRACE("dropping a stale call error message (caller session closed)");
     }
 
@@ -204,8 +210,14 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
     registered_message->set_request_id(register_message->get_request_id());
     registered_message->set_registration_id(registration_id);
 
+    // If we fail to send the registered message it is most likely that
+    // the underlying network connection has been closed/lost which means
+    // that the callee is no longer reachable on this session. So all we
+    // do here is trace the fact that this event occured.
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *registered_message);
-    session_itr->second->get_transport()->send_message(registered_message.get());
+    if (!session_itr->second->get_transport()->send_message(registered_message.get())) {
+        BONEFISH_TRACE("failed to send registered message to caller: network failure");
+    }
 }
 
 void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
@@ -244,8 +256,14 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
     std::unique_ptr<wamp_unregistered_message> unregistered_message(new wamp_unregistered_message);
     unregistered_message->set_request_id(unregister_message->get_request_id());
 
+    // If we fail to send the unregistered message it is most likely that
+    // the underlying network connection has been closed/lost which means
+    // that the callee is no longer reachable on this session. So all we
+    // do here is trace the fact that this event occured.
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unregistered_message);
-    session_itr->second->get_transport()->send_message(unregistered_message.get());
+    if (!session_itr->second->get_transport()->send_message(unregistered_message.get())) {
+        BONEFISH_TRACE("failed to send unregistered message to caller: network failure");
+    }
 }
 
 void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
@@ -273,8 +291,14 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
         result_message->set_arguments(yield_message->get_arguments());
         result_message->set_arguments_kw(yield_message->get_arguments_kw());
 
+        // If we fail to send the result message it is most likely that the
+        // underlying network connection has been closed/lost which means
+        // that the callee is no longer reachable on this session. So all
+        // we do here is trace the fact that this event occured.
         BONEFISH_TRACE("%1%, %2%", *session_itr->second % *result_message);
-        session->get_transport()->send_message(result_message.get());
+        if (!session->get_transport()->send_message(result_message.get())) {
+            BONEFISH_TRACE("failed to send result message to caller: network failure");
+        }
     } else {
         // The caller has closed its session. In this case there is no
         // reason to send an error to the callee so we just silently
@@ -302,7 +326,9 @@ void wamp_dealer::send_error(const std::unique_ptr<wamp_transport>& transport,
     error_message->set_error(error);
 
     BONEFISH_TRACE("%1%", *error_message);
-    transport->send_message(error_message.get());
+    if (!transport->send_message(error_message.get())) {
+        BONEFISH_TRACE("failed to send error message");
+    }
 }
 
 void wamp_dealer::invocation_timeout_handler(const wamp_request_id& request_id,

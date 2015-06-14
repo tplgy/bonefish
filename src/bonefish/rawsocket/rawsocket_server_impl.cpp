@@ -157,24 +157,37 @@ void rawsocket_server_impl::on_handshake(
     uint32_t serializer = (capabilities & 0x000F0000) >> 16;
     if (serializer != 0x2) {
         BONEFISH_TRACE("invalid serializer specified: %1%", serializer);
-        return connection->send_handshake(htonl(0x7F100000));
+        if (!connection->send_handshake(htonl(0x7F100000))) {
+            BONEFISH_TRACE("failed to send handshake response to component: network failure");
+            teardown_connection(connection);
+        }
+        return;
     }
 
-    // Make sure that the reserved bits are all zeros as expected.
+    // Make sure that the reserved bits are all zeros as expected otherwise
+    // send an error response back in the returned handshake.
     uint32_t reserved = capabilities & 0x0000FFFF;
     if (reserved != 0) {
-        return connection->send_handshake(htonl(0x7F300000));
+        if (!connection->send_handshake(htonl(0x7F300000))) {
+            BONEFISH_TRACE("failed to send handshake response to component: network failure");
+            teardown_connection(connection);
+        }
+        return;
     }
 
     // TODO: For now just echo back the clients capabilities. Once we
     //       decide to support a maximum message length we will have
     //       to report that back to the client here.
-    connection->send_handshake(htonl(capabilities));
-
-    // Prepare the connection to start receiving wamp messages. We only have to
-    // initiate this once and it will then continue to re-arm itself after each
-    // message is received.
-    connection->async_receive();
+    if (connection->send_handshake(htonl(capabilities))) {
+        // Prepare the connection to start receiving wamp messages. We only have to
+        // initiate this once and it will then continue to re-arm itself after each
+        // message is received. This is effectively what switches us from a handshake
+        // receiving state to a message receiving state.
+        connection->async_receive();
+    } else {
+        BONEFISH_TRACE("failed to send handshake response to component: network failure");
+        teardown_connection(connection);
+    }
 }
 
 void rawsocket_server_impl::on_message(

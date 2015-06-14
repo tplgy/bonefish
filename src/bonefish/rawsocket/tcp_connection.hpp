@@ -24,8 +24,8 @@ public:
     virtual void async_handshake() override;
     virtual void async_receive() override;
 
-    virtual void send_handshake(uint32_t capabilities) override;
-    virtual void send_message(const char* message, size_t length) override;
+    virtual bool send_handshake(uint32_t capabilities) override;
+    virtual bool send_message(const char* message, size_t length) override;
 
 private:
     void receive_handshake_handler(

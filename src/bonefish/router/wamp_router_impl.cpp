@@ -129,8 +129,14 @@ void wamp_router_impl::process_hello_message(const wamp_session_id& session_id,
     welcome_message->set_session_id(session_id);
     welcome_message->set_details(m_welcome_details.marshal());
 
+    // If we fail to send the welcomemessage it is most likely that the
+    // underlying network connection has been closed/lost which means
+    // that the component is no longer reachable on this session. So all
+    // we do here is trace the fact that this event occured.
     BONEFISH_TRACE("%1%, %2%", *session % *welcome_message);
-    session->get_transport()->send_message(welcome_message.get());
+    if (!session->get_transport()->send_message(welcome_message.get())) {
+        BONEFISH_TRACE("failed to send the welcome message: network failure");
+    }
 }
 
 void wamp_router_impl::process_goodbye_message(const wamp_session_id& session_id,
@@ -148,7 +154,9 @@ void wamp_router_impl::process_goodbye_message(const wamp_session_id& session_id
         session->set_state(wamp_session_state::CLOSED);
 
         BONEFISH_TRACE("%1%, %2%", *session % *goodbye_message);
-        session->get_transport()->send_message(message.get());
+        if (!session->get_transport()->send_message(message.get())) {
+            BONEFISH_TRACE("failed to send goodbye message to component: network failure");
+        }
     } else if (session->get_state() == wamp_session_state::CLOSING) {
         session->set_state(wamp_session_state::CLOSED);
     } else {
