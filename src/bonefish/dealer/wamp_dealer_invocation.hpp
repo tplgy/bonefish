@@ -28,6 +28,12 @@ public:
 
 private:
     wamp_request_id m_request_id;
+
+    // We use a weak pointer to the session here because there is no
+    // convenient way to cleanup pending invocations when a sesson is
+    // detached without walking the entire mapping of outstanding
+    // invocations. So instead we allow things to simply timeout and
+    // clean themselves up naturally.
     std::weak_ptr<wamp_session> m_session;
     boost::asio::deadline_timer m_timeout_timer;
 };

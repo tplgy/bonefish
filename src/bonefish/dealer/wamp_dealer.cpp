@@ -19,13 +19,13 @@
 namespace bonefish {
 
 wamp_dealer::wamp_dealer(boost::asio::io_service& io_service)
-    : m_request_id_generator()
+    : m_io_service(io_service)
+    , m_request_id_generator()
     , m_registration_id_generator()
     , m_sessions()
     , m_session_registrations()
     , m_procedure_registrations()
     , m_registered_procedures()
-    , m_io_service(io_service)
     , m_pending_invocations()
 {
 }
@@ -51,23 +51,27 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
     }
 
     BONEFISH_TRACE("detach session: %1%", *session_itr->second);
-    auto session_registration_itr = m_session_registrations.find(session_id);
-    if (session_registration_itr != m_session_registrations.end()) {
-        auto registered_procedures_itr =
-                m_registered_procedures.find(session_registration_itr->second);
-        if (registered_procedures_itr == m_registered_procedures.end()) {
-            throw std::logic_error("dealer registered procedures out of sync");
+    auto session_registrations_itr = m_session_registrations.find(session_id);
+    if (session_registrations_itr != m_session_registrations.end()) {
+        auto& registration_ids = session_registrations_itr->second;
+        for (const auto& registration_id : registration_ids) {
+            auto registered_procedures_itr =
+                    m_registered_procedures.find(registration_id);
+            if (registered_procedures_itr == m_registered_procedures.end()) {
+                throw std::logic_error("dealer registered procedures out of sync");
+            }
+
+            auto procedure_registrations_itr =
+                    m_procedure_registrations.find(registered_procedures_itr->second);
+            if (procedure_registrations_itr == m_procedure_registrations.end()) {
+                throw std::logic_error("dealer procedure registrations out of sync");
+            }
+
+            m_procedure_registrations.erase(procedure_registrations_itr);
+            m_registered_procedures.erase(registered_procedures_itr);
         }
 
-        auto procedure_registrations_itr =
-                m_procedure_registrations.find(registered_procedures_itr->second);
-        if (procedure_registrations_itr == m_procedure_registrations.end()) {
-            throw std::logic_error("dealer procedure registrations out of sync");
-        }
-
-        m_procedure_registrations.erase(procedure_registrations_itr);
-        m_registered_procedures.erase(registered_procedures_itr);
-        m_session_registrations.erase(session_registration_itr);
+        m_session_registrations.erase(session_registrations_itr);
     }
 
     m_sessions.erase(session_itr);
@@ -102,15 +106,12 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     dealer_invocation->set_request_id(call_message->get_request_id());
     dealer_invocation->set_timeout(
             std::bind(&wamp_dealer::invocation_timeout_handler, this, request_id, std::placeholders::_1), 30);
-
     m_pending_invocations.insert(std::make_pair(request_id, std::move(dealer_invocation)));
 
-    std::shared_ptr<wamp_session> session =
-            procedure_registrations_itr->second->get_session().lock();
-
-    if (session) {
         const wamp_registration_id& registration_id =
                 procedure_registrations_itr->second->get_registration_id();
+        std::shared_ptr<wamp_session> session =
+                procedure_registrations_itr->second->get_session();
 
         std::unique_ptr<wamp_invocation_message> invocation_message(new wamp_invocation_message);
         invocation_message->set_request_id(request_id);
@@ -124,11 +125,6 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
             return send_error(session_itr->second->get_transport(), call_message->get_type(),
                     call_message->get_request_id(), "wamp.error.network_failure");
         }
-    } else {
-        BONEFISH_TRACE("call failed (callee session closed)");
-        return send_error(session_itr->second->get_transport(), call_message->get_type(),
-                call_message->get_request_id(), "wamp.error.no_such_session");
-    }
 }
 
 void wamp_dealer::process_error_message(const wamp_session_id& session_id,
@@ -203,7 +199,7 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
             new wamp_dealer_registration(session_itr->second, registration_id));
     m_procedure_registrations[procedure] = std::move(dealer_registration);
 
-    m_session_registrations[session_id] = registration_id;
+    m_session_registrations[session_id].insert(registration_id);
     m_registered_procedures[registration_id] = procedure;
 
     std::unique_ptr<wamp_registered_message> registered_message(new wamp_registered_message);
@@ -229,21 +225,29 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
     }
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unregister_message);
-    auto session_registration_itr = m_session_registrations.find(session_id);
-    if (session_registration_itr == m_session_registrations.end()) {
+    auto session_registrations_itr = m_session_registrations.find(session_id);
+    if (session_registrations_itr == m_session_registrations.end()) {
+        return send_error(session_itr->second->get_transport(), unregister_message->get_type(),
+                unregister_message->get_request_id(), "wamp.error.no_such_registration");
+    }
+
+    auto& registration_ids = session_registrations_itr->second;
+    auto registration_ids_itr = registration_ids.find(
+            unregister_message->get_registration_id());
+    if (registration_ids_itr == registration_ids.end()) {
         return send_error(session_itr->second->get_transport(), unregister_message->get_type(),
                 unregister_message->get_request_id(), "wamp.error.no_such_registration");
     }
 
     auto registered_procedures_itr =
-            m_registered_procedures.find(session_registration_itr->second);
+            m_registered_procedures.find(*registration_ids_itr);
     if (registered_procedures_itr == m_registered_procedures.end()) {
-        BONEFISH_TRACE("error: dealer registered procedures out of sync");
+        throw std::logic_error("dealer registered procedures out of sync");
     } else {
         auto procedure_registrations_itr =
                 m_procedure_registrations.find(registered_procedures_itr->second);
         if (procedure_registrations_itr == m_procedure_registrations.end()) {
-            BONEFISH_TRACE("error: dealer procedure registrations out of sync");
+            throw std::logic_error("dealer procedure registrations out of sync");
         } else {
             m_procedure_registrations.erase(procedure_registrations_itr);
         }
@@ -251,7 +255,10 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
         m_registered_procedures.erase(registered_procedures_itr);
     }
 
-    m_session_registrations.erase(session_registration_itr);
+    registration_ids.erase(registration_ids_itr);
+    if (registration_ids.empty()) {
+        m_session_registrations.erase(session_registrations_itr);
+    }
 
     std::unique_ptr<wamp_unregistered_message> unregistered_message(new wamp_unregistered_message);
     unregistered_message->set_request_id(unregister_message->get_request_id());
@@ -284,7 +291,6 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
 
     const auto& dealer_invocation = pending_invocations_itr->second;
     std::shared_ptr<wamp_session> session = dealer_invocation->get_session().lock();
-
     if (session) {
         std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
         result_message->set_request_id(dealer_invocation->get_request_id());

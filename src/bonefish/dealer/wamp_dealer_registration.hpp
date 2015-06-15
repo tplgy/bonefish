@@ -20,10 +20,10 @@ public:
     void set_registration_id(const wamp_registration_id& registration_id);
 
     const wamp_registration_id& get_registration_id() const;
-    const std::weak_ptr<wamp_session>& get_session() const;
+    const std::shared_ptr<wamp_session>& get_session() const;
 
 private:
-    std::weak_ptr<wamp_session> m_session;
+    std::shared_ptr<wamp_session> m_session;
     wamp_registration_id m_registration_id;
 };
 
@@ -54,7 +54,7 @@ inline void wamp_dealer_registration::set_registration_id(const wamp_registratio
     m_registration_id = registration_id;
 }
 
-inline const std::weak_ptr<wamp_session>& wamp_dealer_registration::get_session() const
+inline const std::shared_ptr<wamp_session>& wamp_dealer_registration::get_session() const
 {
     return m_session;
 }
