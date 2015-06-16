@@ -12,6 +12,7 @@
 #include <boost/asio.hpp>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace bonefish {
 
@@ -64,6 +65,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<wamp_dealer_registration>> m_procedure_registrations;
     std::unordered_map<wamp_registration_id, std::string> m_registered_procedures;
 
+    std::unordered_map<wamp_session_id, std::unordered_set<wamp_request_id>> m_session_invocations;
     std::unordered_map<wamp_request_id, std::unique_ptr<wamp_dealer_invocation>> m_pending_invocations;
 };
 

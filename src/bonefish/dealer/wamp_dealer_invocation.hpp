@@ -24,17 +24,17 @@ public:
     void set_timeout(timeout_callback callback, unsigned timeout_sec);
 
     const wamp_request_id& get_request_id() const;
-    const std::weak_ptr<wamp_session>& get_session() const;
+    const std::shared_ptr<wamp_session>& get_session() const;
 
 private:
     wamp_request_id m_request_id;
 
-    // We use a weak pointer to the session here because there is no
+    // We use a shared pointer to the session here because there is no
     // convenient way to cleanup pending invocations when a sesson is
     // detached without walking the entire mapping of outstanding
     // invocations. So instead we allow things to simply timeout and
     // clean themselves up naturally.
-    std::weak_ptr<wamp_session> m_session;
+    std::shared_ptr<wamp_session> m_session;
     boost::asio::deadline_timer m_timeout_timer;
 };
 
@@ -66,7 +66,7 @@ inline void wamp_dealer_invocation::set_timeout(timeout_callback callback, unsig
     m_timeout_timer.async_wait(callback);
 }
 
-inline const std::weak_ptr<wamp_session>& wamp_dealer_invocation::get_session() const
+inline const std::shared_ptr<wamp_session>& wamp_dealer_invocation::get_session() const
 {
     return m_session;
 }

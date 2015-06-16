@@ -26,6 +26,7 @@ wamp_dealer::wamp_dealer(boost::asio::io_service& io_service)
     , m_session_registrations()
     , m_procedure_registrations()
     , m_registered_procedures()
+    , m_session_invocations()
     , m_pending_invocations()
 {
 }
@@ -51,6 +52,7 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
     }
 
     BONEFISH_TRACE("detach session: %1%", *session_itr->second);
+    BONEFISH_TRACE("cleaning up session registratons");
     auto session_registrations_itr = m_session_registrations.find(session_id);
     if (session_registrations_itr != m_session_registrations.end()) {
         auto& registration_ids = session_registrations_itr->second;
@@ -72,6 +74,17 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
         }
 
         m_session_registrations.erase(session_registrations_itr);
+    }
+
+    BONEFISH_TRACE("cleaning up session invocations");
+    auto session_invocations_itr = m_session_invocations.find(session_id);
+    if (session_invocations_itr != m_session_invocations.end()) {
+        const auto& request_ids = session_invocations_itr->second;
+        for (const auto& request_id : request_ids) {
+            m_pending_invocations.erase(request_id);
+        }
+
+        m_session_invocations.erase(session_invocations_itr);
     }
 
     m_sessions.erase(session_itr);
@@ -101,30 +114,31 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     const wamp_request_id request_id = m_request_id_generator.generate();
     std::unique_ptr<wamp_dealer_invocation> dealer_invocation(
             new wamp_dealer_invocation(m_io_service));
-
     dealer_invocation->set_session(session_itr->second);
     dealer_invocation->set_request_id(call_message->get_request_id());
     dealer_invocation->set_timeout(
             std::bind(&wamp_dealer::invocation_timeout_handler, this, request_id, std::placeholders::_1), 30);
+
+    m_session_invocations[session_id].insert(request_id);
     m_pending_invocations.insert(std::make_pair(request_id, std::move(dealer_invocation)));
 
-        const wamp_registration_id& registration_id =
-                procedure_registrations_itr->second->get_registration_id();
-        std::shared_ptr<wamp_session> session =
-                procedure_registrations_itr->second->get_session();
+    const wamp_registration_id& registration_id =
+            procedure_registrations_itr->second->get_registration_id();
+    std::shared_ptr<wamp_session> session =
+            procedure_registrations_itr->second->get_session();
 
-        std::unique_ptr<wamp_invocation_message> invocation_message(new wamp_invocation_message);
-        invocation_message->set_request_id(request_id);
-        invocation_message->set_registration_id(registration_id);
-        invocation_message->set_arguments(call_message->get_arguments());
-        invocation_message->set_arguments_kw(call_message->get_arguments_kw());
+    std::unique_ptr<wamp_invocation_message> invocation_message(new wamp_invocation_message);
+    invocation_message->set_request_id(request_id);
+    invocation_message->set_registration_id(registration_id);
+    invocation_message->set_arguments(call_message->get_arguments());
+    invocation_message->set_arguments_kw(call_message->get_arguments_kw());
 
-        BONEFISH_TRACE("%1%, %2%", *session_itr->second % *invocation_message);
-        if (!session->get_transport()->send_message(invocation_message.get())) {
-            BONEFISH_TRACE("sending invocation message to callee failed: network failure");
-            return send_error(session_itr->second->get_transport(), call_message->get_type(),
-                    call_message->get_request_id(), "wamp.error.network_failure");
-        }
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *invocation_message);
+    if (!session->get_transport()->send_message(invocation_message.get())) {
+        BONEFISH_TRACE("sending invocation message to callee failed: network failure");
+        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+                call_message->get_request_id(), "wamp.error.network_failure");
+    }
 }
 
 void wamp_dealer::process_error_message(const wamp_session_id& session_id,
@@ -147,30 +161,31 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
     }
 
     const auto& dealer_invocation = pending_invocations_itr->second;
-    std::shared_ptr<wamp_session> session = dealer_invocation->get_session().lock();
+    std::shared_ptr<wamp_session> session = dealer_invocation->get_session();
 
-    // There is no error message to propogate in this case as this error
-    // message was initiated by the callee and sending the callee and error
-    // message in response to an error message would not make any sense.
-    // Besides, the callers session has ended.
-    if (session) {
-        std::unique_ptr<wamp_error_message> caller_error_message(new wamp_error_message);
-        caller_error_message->set_request_type(wamp_message_type::CALL);
-        caller_error_message->set_request_id(dealer_invocation->get_request_id());
-        caller_error_message->set_details(error_message->get_details());
-        caller_error_message->set_error(error_message->get_error());
-        caller_error_message->set_arguments(error_message->get_arguments());
-        caller_error_message->set_arguments_kw(error_message->get_arguments_kw());
+    std::unique_ptr<wamp_error_message> caller_error_message(new wamp_error_message);
+    caller_error_message->set_request_type(wamp_message_type::CALL);
+    caller_error_message->set_request_id(dealer_invocation->get_request_id());
+    caller_error_message->set_details(error_message->get_details());
+    caller_error_message->set_error(error_message->get_error());
+    caller_error_message->set_arguments(error_message->get_arguments());
+    caller_error_message->set_arguments_kw(error_message->get_arguments_kw());
 
-        BONEFISH_TRACE("%1%, %2%", *session_itr->second % *caller_error_message);
-        if (!session->get_transport()->send_message(caller_error_message.get())) {
-            BONEFISH_TRACE("failed to send error message to caller: network failure");
-        }
-    } else {
-        BONEFISH_TRACE("dropping a stale call error message (caller session closed)");
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *caller_error_message);
+    if (!session->get_transport()->send_message(caller_error_message.get())) {
+        // There is no error message to propogate in this case as this error
+        // message was initiated by the callee and sending the callee and error
+        // message in response to an error message would not make any sense.
+        // Besides, the callers session has ended.
+        BONEFISH_TRACE("failed to send error message to caller: network failure");
     }
 
-    m_pending_invocations.erase(pending_invocations_itr);
+    // The failure to send a message in the event of a network failure
+    // will detach the session. When this happens the pending invocations
+    // be cleaned up. So we don't use an iterator here to erase the pending
+    // invocation becuase it may have just been invalidated above.
+    m_session_invocations[session->get_session_id()].erase(request_id);
+    m_pending_invocations.erase(request_id);
 }
 
 void wamp_dealer::process_register_message(const wamp_session_id& session_id,
@@ -290,36 +305,28 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
     }
 
     const auto& dealer_invocation = pending_invocations_itr->second;
-    std::shared_ptr<wamp_session> session = dealer_invocation->get_session().lock();
-    if (session) {
-        std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
-        result_message->set_request_id(dealer_invocation->get_request_id());
-        result_message->set_arguments(yield_message->get_arguments());
-        result_message->set_arguments_kw(yield_message->get_arguments_kw());
+    std::shared_ptr<wamp_session> session = dealer_invocation->get_session();
 
-        // If we fail to send the result message it is most likely that the
-        // underlying network connection has been closed/lost which means
-        // that the callee is no longer reachable on this session. So all
-        // we do here is trace the fact that this event occured.
-        BONEFISH_TRACE("%1%, %2%", *session_itr->second % *result_message);
-        if (!session->get_transport()->send_message(result_message.get())) {
-            BONEFISH_TRACE("failed to send result message to caller: network failure");
-        }
-    } else {
-        // The caller has closed its session. In this case there is no
-        // reason to send an error to the callee so we just silently
-        // drop the yield message.
-        BONEFISH_TRACE("dropping a stale call yield (caller session closed)");
+    std::unique_ptr<wamp_result_message> result_message(new wamp_result_message);
+    result_message->set_request_id(dealer_invocation->get_request_id());
+    result_message->set_arguments(yield_message->get_arguments());
+    result_message->set_arguments_kw(yield_message->get_arguments_kw());
 
-        // NOTE: When we implement progressive call results from the
-        //       advanced wamp specification it might be possible or
-        //       even necessary to provide some feedback to the callee.
-        //       Especially if there is a significant amount of data
-        //       to be returned as we may want to have the callee stop
-        //       if the caller bails.
+    // If we fail to send the result message it is most likely that the
+    // underlying network connection has been closed/lost which means
+    // that the callee is no longer reachable on this session. So all
+    // we do here is trace the fact that this event occured.
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *result_message);
+    if (!session->get_transport()->send_message(result_message.get())) {
+        BONEFISH_TRACE("failed to send result message to caller: network failure");
     }
 
-    m_pending_invocations.erase(pending_invocations_itr);
+    // The failure to send a message in the event of a network failure
+    // will detach the session. When this happens the pending invocations
+    // be cleaned up. So we don't use an iterator here to erase the pending
+    // invocation becuase it may have just been invalidated above.
+    m_session_invocations[session->get_session_id()].erase(request_id);
+    m_pending_invocations.erase(request_id);
 }
 
 void wamp_dealer::send_error(const std::unique_ptr<wamp_transport>& transport,
@@ -351,20 +358,16 @@ void wamp_dealer::invocation_timeout_handler(const wamp_request_id& request_id,
     }
 
     BONEFISH_TRACE("timing out a pending invocation");
-    const auto& call_request_id = pending_invocations_itr->second->get_request_id();
-    std::shared_ptr<wamp_session> session = pending_invocations_itr->second->get_session().lock();
-    if (session) {
-        send_error(session->get_transport(), wamp_message_type::CALL,
-                call_request_id, "wamp.error.call_timed_out");
-    } else {
-        // This is normal and can happen when a caller places a call and
-        // the callee then closes its session after the router has sent
-        // the invocation and before the callee processed the invocation
-        // and generated a yield.
-        BONEFISH_TRACE("invocation timeout (caller session closed)");
-    }
+    std::shared_ptr<wamp_session> session = pending_invocations_itr->second->get_session();
+    send_error(session->get_transport(), wamp_message_type::CALL,
+            request_id, "wamp.error.call_timed_out");
 
-    m_pending_invocations.erase(pending_invocations_itr);
+    // The failure to send a message in the event of a network failure
+    // will detach the session. When this happens the pending invocations
+    // be cleaned up. So we don't use an iterator here to erase the pending
+    // invocation becuase it may have just been invalidated above.
+    m_session_invocations[session->get_session_id()].erase(request_id);
+    m_pending_invocations.erase(request_id);
 }
 
 } // namespace bonefish
