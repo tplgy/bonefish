@@ -1,9 +1,7 @@
 Bonefish
 ========
 
-Bonefish is an open-source C++ WAMP application router that enables building
-applications from loosely-coupled components. It currently supports the WAMP
-Basic Profile and RawSocket Transport as part of the Advanced Profile.
+Bonefish is an open-source C++ WAMP application router that enables building applications from loosely-coupled components. It currently supports the WAMP Basic Profile and RawSocket Transport as part of the Advanced Profile. Bonefish is capable of hosting multiple routers each with their own realm and associated set of websocket and/or rawsocket endpoints.
 
 For more information on WAMP, see http://wamp.ws/
 
@@ -34,13 +32,40 @@ $ make
 $ make install
 ```
 
-### Running
+### Deploy
 
+You have the option to use bonefish as both an embedded library or as a standalone WAMP server.
+
+#### Embedded
+
+To understand how to integrate with bonefish as an embedded library an example has been provided:
+
+```
+examples/integration.cpp
+```
+
+To debug bonefish when it is an embedded library there is a global setting that can be turned on:
+
+```
+bonefish::trace::set_enabled(bool enabled)
+```
+
+This will enable debug tracing which is currently sent to the console. It is up to the embedder to select an appropriate mechanism for enabling and disabling debugging such as a preprocessor macro or environment variable.
+
+#### Standalone
 Apart from using it as an embedded library, you can also run bonefish as a standalone WAMP server:
 
 ```
-bin/bonefish --realm "default" --websocket-port 9999 --rawsocket-port 8888
+daemon/bonefish --realm "default" --websocket-port 9999 --rawsocket-port 8888
 ```
+
+To debug bonefish when it is run in standalone mode you can supply the optional command line switch:
+
+```
+daemon/bonefish --realm "default" --websocket-port 9999 --rawsocket-port 8888 --debug
+```
+
+This will enable debug tracing which is currently sent to the console.
 
 ### Options
 
@@ -50,16 +75,17 @@ bin/bonefish --realm "default" --websocket-port 9999 --rawsocket-port 8888
 ## Third Party Libraries
 
 Bonefish relies on the following header-only library projects:
-- WebSocket++ - https://github.com/zaphoyd/websocketpp
-- msgpack for C/C++ - https://github.com/msgpack/msgpack-c
-- RapidJSON - https://github.com/miloyip/rapidjson
+
+- [**WebSocket++**](https://github.com/zaphoyd/websocketpp)
+- [**msgpack-c**](https://github.com/msgpack/msgpack-c)
+- [**RapidJSON**](https://github.com/miloyip/rapidjson)
 
 ## License
 
-```
 Copyright 2015 Topology LP.
 
 Licensed under the Apache License, Version 2.0 (the "License");
+
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
@@ -70,4 +96,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-```
+
