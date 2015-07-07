@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 project(bonefish)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Werror ${CMAKE_CXX_FLAGS}")
+if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Werror ${CMAKE_CXX_FLAGS}")
+endif()
+
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
     if ("${CMAKE_GENERATOR}" STREQUAL "Ninja")
@@ -25,6 +28,11 @@ if(shared)
 else()
     set(Boost_USE_STATIC_LIBS ON)
     add_definitions(-DBOOST_ASIO_SEPARATE_COMPILATION)
+endif()
+
+if(WIN32)
+    add_definitions(-D_WIN32_WINNT=0x0500)
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif()
 
 include_directories(

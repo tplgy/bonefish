@@ -2,7 +2,6 @@
 #define BONEFISH_IDENTIFIERS_WAMP_SEQUENTIAL_ID_HPP
 
 #include <cstdint>
-#include <limits>
 #include <functional>
 #include <ostream>
 #include <sstream>
@@ -15,7 +14,7 @@ class wamp_sequential_id
 public:
     static const uint64_t MIN = 1;
     static const uint64_t MAX = 1ULL << 53;
-    static const uint64_t INVALID = std::numeric_limits<uint64_t>::max();
+    static const uint64_t INVALID = UINT64_MAX;
 
 public:
     wamp_sequential_id();

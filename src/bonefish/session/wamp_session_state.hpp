@@ -1,6 +1,7 @@
 #ifndef BONEFISH_SESSION_WAMP_SESSION_STATE_HPP
 #define BONEFISH_SESSION_WAMP_SESSION_STATE_HPP
 
+#include <cstdint>
 #include <ostream>
 #include <string>
 

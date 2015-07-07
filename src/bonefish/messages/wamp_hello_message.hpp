@@ -11,6 +11,7 @@
 #include <msgpack.hpp>
 #include <ostream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace bonefish {

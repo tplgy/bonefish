@@ -2,6 +2,7 @@
 #define BONEFISH_ROLES_WAMP_ROLE_TYPE_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <type_traits>

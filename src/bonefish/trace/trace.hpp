@@ -2,8 +2,8 @@
 #define BONEFISH_WAMP_TRACE_HPP
 
 #include <boost/format.hpp>
-#include <boost/preprocessor/arithmetic/sub.hpp>
-#include <boost/preprocessor/control/if.hpp>
+#include <boost/preprocessor/comparison/greater.hpp>
+#include <boost/preprocessor/control/iif.hpp>
 #include <boost/preprocessor/variadic/size.hpp>
 #include <iostream>
 #include <string.h>
@@ -33,16 +33,16 @@ inline const char* base_file_name(const char* file_path)
 } // namespace bonefish
 
 // Macro for facilitating debug trace logging.
-#define BONEFISH_TRACE(fmt, ...) \
-    BOOST_PP_IF(BOOST_PP_SUB(BOOST_PP_VARIADIC_SIZE("dummy", ##__VA_ARGS__), 1), BONFISH_TRACE_ARGS(fmt, __VA_ARGS__), BONFISH_TRACE_NOARGS(fmt, __VA_ARGS__))
+#define BONEFISH_TRACE(...) \
+	BOOST_PP_IIF(BOOST_PP_GREATER(BOOST_PP_VARIADIC_SIZE(__VA_ARGS__), 1), BONEFISH_TRACE_ARGS(__VA_ARGS__), BONEFISH_TRACE_NOARGS(BOOST_PP_VARIADIC_ELEM(0, __VA_ARGS__)))
 
-#define BONFISH_TRACE_NOARGS(fmt, ...) \
+#define BONEFISH_TRACE_NOARGS(fmt) \
     if (bonefish::trace::is_enabled()) { \
         std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
                 << boost::format(fmt) << std::endl; \
     }
 
-#define BONFISH_TRACE_ARGS(fmt, ...) \
+#define BONEFISH_TRACE_ARGS(fmt, ...) \
     if (bonefish::trace::is_enabled()) { \
         std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
                 << (boost::format(fmt) % __VA_ARGS__) << std::endl; \

@@ -6,6 +6,10 @@
 #include <ostream>
 #include <type_traits>
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 namespace bonefish {
 
 enum class wamp_message_type : int
@@ -48,7 +52,5 @@ inline std::ostream& operator<<(std::ostream& os, const wamp_message_type& type)
 } // namespace bonefish
 
 MSGPACK_ADD_ENUM(bonefish::wamp_message_type);
-
-#include <msgpack.hpp>
 
 #endif // BONEFISH_MESSAGES_WAMP_MESSAGE_TYPE_HPP

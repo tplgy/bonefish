@@ -7,6 +7,7 @@
 #include <iostream>
 #include <msgpack.hpp>
 #include <stdexcept>
+#include <string>
 #include <unordered_set>
 
 namespace bonefish {
