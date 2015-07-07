@@ -55,18 +55,47 @@ private:
             const boost::system::error_code& error);
 
 private:
+    /// Asynchronous event loop for executing completion handlers.
     boost::asio::io_service& m_io_service;
 
+    /// Generates request ids for all invocation requests that are processed.
     wamp_request_id_generator m_request_id_generator;
+
+    /// Generates registration ids for all procedures that are registered.
     wamp_registration_id_generator m_registration_id_generator;
 
+    /// Tracks the sessions that are currently attached to the dealer.
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
+
+    /// Tracks the registrations that have been made for each session. This allows
+    /// for individual unregistrations to occur as well as for all of the outstanding
+    /// registrations to be cleaned up when a sessions is closed.
     std::unordered_map<wamp_session_id, std::unordered_set<wamp_registration_id>> m_session_registrations;
-    std::unordered_map<std::string, std::unique_ptr<wamp_dealer_registration>> m_procedure_registrations;
+
+    /// Maps each of the registrations to its corresponding procedure name. This
+    /// allows for looking up a sessions procedure registrations based on the
+    /// registration id.
     std::unordered_map<wamp_registration_id, std::string> m_registered_procedures;
 
-    std::unordered_map<wamp_session_id, std::unordered_set<wamp_request_id>> m_session_invocations;
+    /// Maps procedure names to the corresponding registration info such as which
+    /// session has registered the procedure to be invoked.
+    std::unordered_map<std::string, std::unique_ptr<wamp_dealer_registration>> m_procedure_registrations;
+
+    /// Tracks pending invocations that have been forwarded to the destination
+    /// component. The invocation object tracks enough information to provide a
+    /// response to the caller when a yield message is received from the callee
+    /// in response to the invocation.
     std::unordered_map<wamp_request_id, std::unique_ptr<wamp_dealer_invocation>> m_pending_invocations;
+
+    /// Tracks pending invocation requests based on the callers session id. This
+    /// allows for cleaning up invocation requests when the callers session is
+    /// closed and there are still outstanding requests.
+    std::unordered_map<wamp_session_id, std::unordered_set<wamp_request_id>> m_pending_caller_invocations;
+
+    /// Tracks pending invocation requests that have been forwarded to a particular
+    /// callee. This allows for the invocations to be cleaned up properly when the
+    /// callee disconnects before it is able to send a yield response.
+    std::unordered_map<wamp_session_id, std::unordered_set<wamp_request_id>> m_pending_callee_invocations;
 };
 
 } // namespace bonefish
