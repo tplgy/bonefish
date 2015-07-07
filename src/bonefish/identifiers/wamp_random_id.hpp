@@ -1,11 +1,11 @@
 #ifndef BONEFISH_IDENTIFIERS_WAMP_RANDOM_ID_HPP
 #define BONEFISH_IDENTIFIERS_WAMP_RANDOM_ID_HPP
 
-#include <cstdint>
 #include <functional>
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
+#include <stdint.h>
 
 namespace bonefish {
 
