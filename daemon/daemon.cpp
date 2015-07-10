@@ -22,7 +22,11 @@ namespace bonefish
 daemon::daemon(const daemon_options& options)
     : m_io_service()
     , m_work()
+#if defined(SIGQUIT)
     , m_termination_signals(m_io_service, SIGTERM, SIGINT, SIGQUIT)
+#else
+    , m_termination_signals(m_io_service, SIGTERM, SIGINT)
+#endif
     , m_routers(std::make_shared<wamp_routers>())
     , m_serializers(std::make_shared<wamp_serializers>())
     , m_rawsocket_server()
@@ -132,7 +136,11 @@ void daemon::termination_signal_handler(
         return;
     }
 
+#if defined(SIGQUIT)
     if (signal_number == SIGINT || signal_number == SIGTERM || signal_number == SIGQUIT) {
+#else
+    if (signal_number == SIGINT || signal_number == SIGTERM) {
+#endif
         shutdown();
     } else {
         // We should never encounter a case where we are invoked for a
