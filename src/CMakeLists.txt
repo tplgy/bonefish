@@ -1,11 +1,3 @@
-find_package(Boost REQUIRED COMPONENTS system thread)
-
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/third-party/websocketpp
-    ${CMAKE_SOURCE_DIR}/third-party/msgpack-c/include
-    ${Boost_INCLUDE_DIRS})
-
 set(SOURCES
     bonefish/broker/wamp_broker.cpp
     bonefish/common/wamp_message_processor.cpp
@@ -124,6 +116,9 @@ set(PRIVATE_HEADERS
     bonefish/websocket/websocket_transport.hpp)
 
 add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
+
+target_link_libraries(bonefish
+    ${Boost_LIBRARIES})
 
 foreach(h ${PUBLIC_HEADERS})
     get_filename_component(HEADER_INCLUDE_DIRECTORY include/${h} DIRECTORY)

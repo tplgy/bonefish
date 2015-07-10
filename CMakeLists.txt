@@ -37,10 +37,15 @@ if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif()
 
+find_package(Boost REQUIRED COMPONENTS program_options system thread)
+find_package(Threads)
+
 include_directories(
+    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/third-party/msgpack-c/include
     ${CMAKE_SOURCE_DIR}/third-party/rapidjson/include
     ${CMAKE_SOURCE_DIR}/third-party/websocketpp
+    ${Boost_INCLUDE_DIRS}
 )
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
