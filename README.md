@@ -21,7 +21,7 @@ $ git clone --recursive git@github.com:tplgy/bonefish.git
 
 ## Build
 
-Bonefish uses CMake as it's build system.
+Bonefish uses CMake as its build system.
 
 To build out of the source tree (preferred):
 
