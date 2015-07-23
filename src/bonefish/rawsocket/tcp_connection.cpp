@@ -21,7 +21,7 @@
 #include <boost/asio/write.hpp>
 #include <iostream>
 
-static const uint32_t MAX_MESSAGE_LENGTH = 1024*1024; // 1MB
+static const uint32_t MAX_MESSAGE_LENGTH = 16*1024*1024; // 16MB
 
 namespace bonefish {
 
