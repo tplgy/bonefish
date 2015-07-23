@@ -139,11 +139,11 @@ void tcp_connection::receive_message_header_handler(
     // We cannot be guaranteed that a client implementation won't accidentally
     // introduce this protocol violation. In the event that we ever encounter
     // a message that reports a zero length we fail that connection gracefully.
-    assert(m_message_length != 0);
     if (m_message_length == 0) {
         BONEFISH_TRACE("invalid message length: %1%", m_message_length);
         const auto& fail_handler = get_fail_handler();
         fail_handler(shared_from_this(), "invalid message length");
+        return;
     }
 
     m_message_buffer.reserve(ntohl(m_message_length));
