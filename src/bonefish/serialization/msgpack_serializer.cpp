@@ -44,6 +44,10 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
     std::vector<msgpack::object> fields;
     item.get().convert(&fields);
 
+    if (fields.size() < 1) {
+        throw std::runtime_error("deserialization failed for message");
+    }
+
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
     std::unique_ptr<wamp_message> message(wamp_message_factory::create_message(type));
     if (message) {
