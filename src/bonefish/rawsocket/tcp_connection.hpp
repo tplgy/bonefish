@@ -55,7 +55,7 @@ private:
 
 private:
     uint32_t m_capabilities;
-    uint32_t m_message_length;
+    uint32_t m_message_length; // stored in network order
     std::vector<char> m_message_buffer;
     boost::asio::ip::tcp::socket m_socket;
 };

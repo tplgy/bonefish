@@ -21,6 +21,8 @@
 #include <boost/asio/write.hpp>
 #include <iostream>
 
+static const uint32_t MAX_MESSAGE_LENGTH = 1024*1024; // 1MB
+
 namespace bonefish {
 
 tcp_connection::tcp_connection(boost::asio::ip::tcp::socket&& socket)
@@ -139,7 +141,7 @@ void tcp_connection::receive_message_header_handler(
     // We cannot be guaranteed that a client implementation won't accidentally
     // introduce this protocol violation. In the event that we ever encounter
     // a message that reports a zero length we fail that connection gracefully.
-    if (m_message_length == 0) {
+    if (m_message_length == 0 || ntohl(m_message_length) > MAX_MESSAGE_LENGTH) {
         BONEFISH_TRACE("invalid message length: %1%", m_message_length);
         const auto& fail_handler = get_fail_handler();
         fail_handler(shared_from_this(), "invalid message length");
