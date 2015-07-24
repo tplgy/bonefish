@@ -18,6 +18,7 @@
 #define BONEFISH_MESSAGES_WAMP_HELLO_DETAILS_HPP
 
 #include <bonefish/roles/wamp_role.hpp>
+#include <bonefish/roles/wamp_role_type.hpp>
 
 #include <cstddef>
 #include <iostream>
@@ -38,15 +39,15 @@ public:
     void unmarshal(const msgpack::object& details);
 
     const std::unordered_set<wamp_role>& get_roles() const;
-    void add_role(const wamp_role& role);
+    const wamp_role* get_role(wamp_role_type role_type) const;
+    void add_role(wamp_role&& role);
 
 private:
-    msgpack::zone m_zone;
     std::unordered_set<wamp_role> m_roles;
 };
 
 inline wamp_hello_details::wamp_hello_details()
-    : m_zone()
+    : m_roles()
 {
 }
 
@@ -54,40 +55,25 @@ inline wamp_hello_details::~wamp_hello_details()
 {
 }
 
-inline msgpack::object wamp_hello_details::marshal(msgpack::zone*) const
-{
-    throw std::logic_error("marshal not implemented");
-}
-
-inline void wamp_hello_details::unmarshal(const msgpack::object& object)
-{
-    std::unordered_map<std::string, msgpack::object> details;
-    object.convert(&details);
-
-    auto details_itr = details.find("roles");
-    if (details_itr == details.end()) {
-        return;
-    }
-
-    // TODO: Add support for features as per advanced profile support
-    std::unordered_map<std::string, msgpack::object /* features */> roles;
-    details_itr->second.convert(roles);
-
-    for (const auto& role_itr : roles) {
-        add_role(wamp_role(role_type_from_string(role_itr.first)));
-    }
-
-    // TODO: Add support for agent as per advanced profile support
-}
-
 inline const std::unordered_set<wamp_role>& wamp_hello_details::get_roles() const
 {
     return m_roles;
 }
 
-inline void wamp_hello_details::add_role(const wamp_role& role)
+inline const wamp_role* wamp_hello_details::get_role(wamp_role_type role_type) const
 {
-    m_roles.insert(role);
+    for (const auto& role : m_roles) {
+        if (role.get_type() == role_type) {
+            return &role;
+        }
+    }
+
+    return nullptr;
+}
+
+inline void wamp_hello_details::add_role(wamp_role&& role)
+{
+    m_roles.insert(std::move(role));
 }
 
 } // namespace bonefish

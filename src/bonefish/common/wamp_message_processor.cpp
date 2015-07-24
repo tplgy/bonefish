@@ -21,6 +21,7 @@
 #include <bonefish/messages/wamp_call_message.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
+#include <bonefish/messages/wamp_hello_details.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_publish_message.hpp>
@@ -96,8 +97,18 @@ void wamp_message_processor::process_message(
                 connection->set_session_id(id);
                 connection->set_realm(hello_message->get_realm());
 
-                router->attach_session(std::make_shared<wamp_session>(
-                        id, hello_message->get_realm(), std::move(transport)));
+                // We need to setup the sessions roles before attaching the session
+                // so that we know whether or not to also attach the session to the
+                // dealer and the broker.
+                wamp_hello_details hello_details;
+                hello_details.unmarshal(hello_message->get_details());
+                const auto& roles = hello_details.get_roles();
+
+                auto session = std::make_shared<wamp_session>(
+                        id, hello_message->get_realm(), std::move(transport));
+                session->set_roles(hello_details.get_roles());
+
+                router->attach_session(session);
                 router->process_hello_message(id, hello_message);
             }
             break;

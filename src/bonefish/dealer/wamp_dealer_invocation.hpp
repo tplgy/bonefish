@@ -37,7 +37,7 @@ public:
 
     void set_request_id(const wamp_request_id& request_id);
     void set_session(const std::shared_ptr<wamp_session>& session);
-    void set_timeout(timeout_callback callback, unsigned timeout_sec);
+    void set_timeout(timeout_callback callback, unsigned timeout_ms);
 
     const wamp_request_id& get_request_id() const;
     const std::shared_ptr<wamp_session>& get_session() const;
@@ -76,10 +76,16 @@ inline void wamp_dealer_invocation::set_session(const std::shared_ptr<wamp_sessi
     m_session = session;
 }
 
-inline void wamp_dealer_invocation::set_timeout(timeout_callback callback, unsigned timeout_sec)
+inline void wamp_dealer_invocation::set_timeout(timeout_callback callback, unsigned timeout_ms)
 {
-    m_timeout_timer.expires_from_now(boost::posix_time::seconds(timeout_sec));
-    m_timeout_timer.async_wait(callback);
+    // Do not allow setting a timeout value of 0 as this is a
+    // special timeout value indicating infinite timeout. So
+    // insted we just don't arm the timer which gives us an
+    // infinite timeout.
+    if (timeout_ms) {
+        m_timeout_timer.expires_from_now(boost::posix_time::milliseconds(timeout_ms));
+        m_timeout_timer.async_wait(callback);
+    }
 }
 
 inline const std::shared_ptr<wamp_session>& wamp_dealer_invocation::get_session() const

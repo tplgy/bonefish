@@ -16,9 +16,9 @@
 
 #include <bonefish/messages/wamp_welcome_details.hpp>
 
-#include <iostream>
 #include <msgpack/object.hpp>
 #include <msgpack/pack.hpp>
+#include <stdexcept>
 
 namespace msgpack {
 MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
@@ -48,7 +48,7 @@ void operator<< (object::with_zone& details,
     for (const auto& role : welcome_details.get_roles()) {
         const std::string role_name(role_type_to_string(role.get_type()));
         roles.via.map.ptr[index].key = object(role_name, roles.zone);
-        roles.via.map.ptr[index].val = object(role.get_features().get_options(), roles.zone);
+        roles.via.map.ptr[index].val = object(role.get_features().get_attributes(), roles.zone);
         ++index;
     }
 

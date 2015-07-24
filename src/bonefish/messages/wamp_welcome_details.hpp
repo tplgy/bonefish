@@ -18,10 +18,10 @@
 #define BONEFISH_MESSAGES_WAMP_WELCOME_DETAILS_HPP
 
 #include <bonefish/roles/wamp_role.hpp>
+#include <bonefish/roles/wamp_role_type.hpp>
 
 #include <cstddef>
 #include <msgpack.hpp>
-#include <stdexcept>
 #include <unordered_set>
 
 namespace bonefish {
@@ -36,7 +36,8 @@ public:
     void unmarshal(const msgpack::object& details);
 
     const std::unordered_set<wamp_role>& get_roles() const;
-    void add_role(const wamp_role& role);
+    const wamp_role* get_role(wamp_role_type role_type) const;
+    void add_role(wamp_role&& role);
 
 private:
     msgpack::zone m_zone;
@@ -45,6 +46,7 @@ private:
 
 inline wamp_welcome_details::wamp_welcome_details()
     : m_zone()
+    , m_roles()
 {
 }
 
@@ -57,9 +59,20 @@ inline const std::unordered_set<wamp_role>& wamp_welcome_details::get_roles() co
     return m_roles;
 }
 
-inline void wamp_welcome_details::add_role(const wamp_role& role)
+inline const wamp_role* wamp_welcome_details::get_role(wamp_role_type role_type) const
 {
-    m_roles.insert(role);
+    for (const auto& role : m_roles) {
+        if (role.get_type() == role_type) {
+            return &role;
+        }
+    }
+
+    return nullptr;
+}
+
+inline void wamp_welcome_details::add_role(wamp_role&& role)
+{
+    m_roles.insert(std::move(role));
 }
 
 } // namespace bonefish

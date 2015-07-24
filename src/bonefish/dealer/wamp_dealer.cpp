@@ -18,6 +18,7 @@
 #include <bonefish/dealer/wamp_dealer_invocation.hpp>
 #include <bonefish/dealer/wamp_dealer_registration.hpp>
 #include <bonefish/messages/wamp_call_message.hpp>
+#include <bonefish/messages/wamp_call_options.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_invocation_message.hpp>
 #include <bonefish/messages/wamp_register_message.hpp>
@@ -29,6 +30,7 @@
 #include <bonefish/session/wamp_session.hpp>
 #include <bonefish/trace/trace.hpp>
 
+#include <cassert>
 #include <iostream>
 #include <stdexcept>
 
@@ -54,6 +56,9 @@ wamp_dealer::~wamp_dealer()
 
 void wamp_dealer::attach_session(const std::shared_ptr<wamp_session>& session)
 {
+    assert(session->get_role(wamp_role_type::CALLER) ||
+            session->get_role(wamp_role_type::CALLEE));
+
     BONEFISH_TRACE("attach session: %1%", *session);
     auto result = m_sessions.insert(std::make_pair(session->get_session_id(), session));
     if (!result.second) {
@@ -67,6 +72,9 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
     if (session_itr == m_sessions.end()) {
         throw std::logic_error("dealer session does not exist");
     }
+
+    assert(session_itr->second->get_role(wamp_role_type::CALLER) ||
+            session_itr->second->get_role(wamp_role_type::CALLEE));
 
     BONEFISH_TRACE("detach session: %1%", *session_itr->second);
 
@@ -153,6 +161,14 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     }
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *call_message);
+
+    // If the session placing the call does not support the caller role
+    // than do not allow the call to be processed and send an error.
+    if (!session_itr->second->get_role(wamp_role_type::CALLER)) {
+        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+                call_message->get_request_id(), "wamp.error.role_violation");
+    }
+
     const auto procedure = call_message->get_procedure();
     if (!is_valid_uri(procedure)) {
         return send_error(session_itr->second->get_transport(), call_message->get_type(),
@@ -186,6 +202,10 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
         return send_error(session_itr->second->get_transport(), call_message->get_type(),
                 call_message->get_request_id(), "wamp.error.network_failure");
     } else {
+        wamp_call_options options;
+        options.unmarshal(call_message->get_options());
+        unsigned timeout_ms = options.get_option_or<unsigned>("timeout", 0);
+
         // We only setup the invocation state after sending the message is successful.
         // This saves us from having to cleanup any state if the send fails.
         std::unique_ptr<wamp_dealer_invocation> dealer_invocation(
@@ -194,7 +214,8 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
         dealer_invocation->set_session(session_itr->second);
         dealer_invocation->set_request_id(call_message->get_request_id());
         dealer_invocation->set_timeout(
-                std::bind(&wamp_dealer::invocation_timeout_handler, this, request_id, std::placeholders::_1), 30);
+                std::bind(&wamp_dealer::invocation_timeout_handler, this,
+                        request_id, std::placeholders::_1), timeout_ms);
 
         m_pending_invocations.insert(std::make_pair(request_id, std::move(dealer_invocation)));
         m_pending_callee_invocations[session->get_session_id()].insert(request_id);
@@ -211,6 +232,7 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
     }
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *error_message);
+
     const auto request_id = error_message->get_request_id();
     auto pending_invocations_itr = m_pending_invocations.find(request_id);
     if (pending_invocations_itr == m_pending_invocations.end()) {
@@ -259,6 +281,14 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
     }
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *register_message);
+
+    // If the session registering the procedure does not support the callee
+    // role than do not allow the call to be processed and send an error.
+    if (!session_itr->second->get_role(wamp_role_type::CALLEE)) {
+        return send_error(session_itr->second->get_transport(), register_message->get_type(),
+                register_message->get_request_id(), "wamp.error.role_violation");
+    }
+
     const auto procedure = register_message->get_procedure();
     if (!is_valid_uri(procedure)) {
         return send_error(session_itr->second->get_transport(), register_message->get_type(),
@@ -302,6 +332,7 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
     }
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unregister_message);
+
     auto session_registrations_itr = m_session_registrations.find(session_id);
     if (session_registrations_itr == m_session_registrations.end()) {
         return send_error(session_itr->second->get_transport(), unregister_message->get_type(),

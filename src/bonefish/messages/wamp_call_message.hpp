@@ -124,7 +124,7 @@ inline void wamp_call_message::unmarshal(const std::vector<msgpack::object>& fie
     }
 
     m_request_id = msgpack::object(fields[1]);
-    m_options = msgpack::object(fields[2]);
+    m_options = msgpack::object(fields[2], &m_zone);
     m_procedure = msgpack::object(fields[3], &m_zone);
     if (fields.size() >= 5) {
         m_arguments = msgpack::object(fields[4], &m_zone);

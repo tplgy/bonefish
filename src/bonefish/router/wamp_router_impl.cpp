@@ -23,7 +23,6 @@
 #include <bonefish/messages/wamp_abort_message.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_goodbye_message.hpp>
-#include <bonefish/messages/wamp_hello_details.hpp>
 #include <bonefish/messages/wamp_hello_message.hpp>
 #include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
@@ -31,6 +30,7 @@
 #include <bonefish/messages/wamp_welcome_details.hpp>
 #include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
+#include <bonefish/roles/wamp_role_type.hpp>
 #include <bonefish/session/wamp_session.hpp>
 #include <bonefish/trace/trace.hpp>
 
@@ -49,8 +49,19 @@ wamp_router_impl::wamp_router_impl(boost::asio::io_service& io_service, const st
     , m_session_id_generator(wamp_session_id_factory::create(realm))
     , m_sessions()
 {
-    m_welcome_details.add_role(wamp_role(wamp_role_type::BROKER));
-    m_welcome_details.add_role(wamp_role(wamp_role_type::DEALER));
+    // Setup the broker role and supported features
+    wamp_role broker_role(wamp_role_type::BROKER);
+
+    m_welcome_details.add_role(std::move(broker_role));
+
+    // Setup the dealer role and supported features
+    wamp_role_features dealer_features;
+    dealer_features.set_attribute("call_timeout", true);
+
+    wamp_role dealer_role(wamp_role_type::DEALER);
+    dealer_role.set_features(std::move(dealer_features));
+
+    m_welcome_details.add_role(std::move(dealer_role));
 }
 
 wamp_router_impl::~wamp_router_impl()
@@ -72,17 +83,6 @@ bool wamp_router_impl::has_session(const wamp_session_id& session_id)
     return m_sessions.find(session_id) != m_sessions.end();
 }
 
-bool wamp_router_impl::attach_session(const std::shared_ptr<wamp_session>& session)
-{
-    auto result = m_sessions.insert(
-            std::make_pair(session->get_session_id(), session));
-
-    m_dealer.attach_session(session);
-    m_broker.attach_session(session);
-
-    return result.second;
-}
-
 void wamp_router_impl::close_session(const wamp_session_id& session_id, const std::string& reason)
 {
     auto session_itr = m_sessions.find(session_id);
@@ -99,16 +99,56 @@ void wamp_router_impl::close_session(const wamp_session_id& session_id, const st
 
         BONEFISH_TRACE("%1%, %2%", *session % *goodbye_message);
         session->get_transport()->send_message(goodbye_message.get());
-        return;
     }
+}
+
+bool wamp_router_impl::attach_session(const std::shared_ptr<wamp_session>& session)
+{
+    BONEFISH_TRACE("attaching session: %1%", *session);
+    auto result = m_sessions.insert(
+            std::make_pair(session->get_session_id(), session));
+
+    if (result.second) {
+        if (session->get_role(wamp_role_type::CALLER) ||
+                session->get_role(wamp_role_type::CALLEE)) {
+            m_dealer.attach_session(session);
+        }
+
+        if (session->get_role(wamp_role_type::SUBSCRIBER) ||
+                session->get_role(wamp_role_type::PUBLISHER)) {
+            m_broker.attach_session(session);
+        }
+
+        return true;
+    }
+
+    BONEFISH_TRACE("failed to attach session: %1%", *session);
+
+    return false;
 }
 
 bool wamp_router_impl::detach_session(const wamp_session_id& session_id)
 {
-    m_dealer.detach_session(session_id);
-    m_broker.detach_session(session_id);
+    auto session_itr = m_sessions.find(session_id);
+    if (session_itr == m_sessions.end()) {
+        return false;
+    }
 
-    return m_sessions.erase(session_id) == 1;
+    const auto& session = session_itr->second;
+
+    if (session->get_role(wamp_role_type::CALLER) ||
+            session->get_role(wamp_role_type::CALLEE)) {
+        m_dealer.detach_session(session_id);
+    }
+
+    if (session->get_role(wamp_role_type::SUBSCRIBER) ||
+            session->get_role(wamp_role_type::PUBLISHER)) {
+        m_broker.detach_session(session_id);
+    }
+
+    m_sessions.erase(session_itr);
+
+    return true;
 }
 
 void wamp_router_impl::process_hello_message(const wamp_session_id& session_id,
@@ -124,28 +164,27 @@ void wamp_router_impl::process_hello_message(const wamp_session_id& session_id,
     if (session->get_state() != wamp_session_state::NONE) {
         std::unique_ptr<wamp_abort_message> abort_message(new wamp_abort_message);
         abort_message->set_reason("wamp.error.session_already_open");
-
         BONEFISH_TRACE("%1%, %2%", *session % *abort_message);
         session->get_transport()->send_message(abort_message.get());
         return;
     }
 
-    wamp_hello_details hello_details;
-    hello_details.unmarshal(hello_message->get_details());
-
-    const auto& roles = hello_details.get_roles();
+    const auto& roles = session->get_roles();
     if (roles.empty()) {
-        throw std::invalid_argument("no roles specified");
+        std::unique_ptr<wamp_abort_message> abort_message(new wamp_abort_message);
+        abort_message->set_reason("wamp.error.invalid_roles");
+        BONEFISH_TRACE("%1%, %2%", *session % *abort_message);
+        session->get_transport()->send_message(abort_message.get());
+        return;
     }
 
-    session->set_roles(roles);
     session->set_state(wamp_session_state::OPEN);
 
     std::unique_ptr<wamp_welcome_message> welcome_message(new wamp_welcome_message);
     welcome_message->set_session_id(session_id);
     welcome_message->set_details(m_welcome_details.marshal());
 
-    // If we fail to send the welcomemessage it is most likely that the
+    // If we fail to send the welcome message it is most likely that the
     // underlying network connection has been closed/lost which means
     // that the component is no longer reachable on this session. So all
     // we do here is trace the fact that this event occured.

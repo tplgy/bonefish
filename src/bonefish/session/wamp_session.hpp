@@ -50,6 +50,8 @@ public:
 
     const std::string& get_realm() const;
     wamp_session_state get_state() const;
+    const wamp_role* get_role(wamp_role_type type) const;
+    const std::unordered_set<wamp_role>& get_roles() const;
     const wamp_session_id& get_session_id() const;
     const std::unique_ptr<wamp_transport>& get_transport() const;
 
@@ -100,6 +102,22 @@ inline const std::string& wamp_session::get_realm() const
 inline wamp_session_state wamp_session::get_state() const
 {
     return m_session_state;
+}
+
+inline const wamp_role* wamp_session::get_role(wamp_role_type type) const
+{
+    for (const auto& role : m_roles) {
+        if (role.get_type() == type) {
+            return &role;
+        }
+    }
+
+    return nullptr;
+}
+
+inline const std::unordered_set<wamp_role>& wamp_session::get_roles() const
+{
+    return m_roles;
 }
 
 inline const wamp_session_id& wamp_session::get_session_id() const

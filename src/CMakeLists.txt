@@ -3,6 +3,8 @@ set(SOURCES
     bonefish/common/wamp_message_processor.cpp
     bonefish/dealer/wamp_dealer.cpp
     bonefish/identifiers/wamp_session_id_factory.cpp
+    bonefish/messages/wamp_call_options.cpp
+    bonefish/messages/wamp_hello_details.cpp
     bonefish/messages/wamp_message_defaults.cpp
     bonefish/messages/wamp_message_factory.cpp
     bonefish/messages/wamp_message_type.cpp
@@ -71,6 +73,7 @@ set(PRIVATE_HEADERS
     bonefish/logging/logging.hpp
     bonefish/messages/wamp_abort_message.hpp
     bonefish/messages/wamp_call_message.hpp
+    bonefish/messages/wamp_call_options.hpp
     bonefish/messages/wamp_error_message.hpp
     bonefish/messages/wamp_event_message.hpp
     bonefish/messages/wamp_goodbye_message.hpp

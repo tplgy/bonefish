@@ -51,8 +51,8 @@ public:
     const std::shared_ptr<wamp_session_id_generator>& get_session_id_generator() const;
 
     bool has_session(const wamp_session_id& session_id);
-    bool attach_session(const std::shared_ptr<wamp_session>& session);
     void close_session(const wamp_session_id& session_id, const std::string& reason);
+    bool attach_session(const std::shared_ptr<wamp_session>& session);
     bool detach_session(const wamp_session_id& session_id);
 
     void process_call_message(const wamp_session_id& session_id,

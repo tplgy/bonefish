@@ -54,27 +54,27 @@ const char* role_type_to_string(const wamp_role_type& type)
 
 wamp_role_type role_type_from_string(const std::string& type)
 {
-    if (type.compare("callee")) {
+    if (type.compare("callee") == 0) {
         return wamp_role_type::CALLEE;
     }
 
-    if (type.compare("caller")) {
+    if (type.compare("caller") == 0) {
         return wamp_role_type::CALLER;
     }
 
-    if (type.compare("publisher")) {
+    if (type.compare("publisher") == 0) {
         return wamp_role_type::PUBLISHER;
     }
 
-    if (type.compare("subscriber")) {
+    if (type.compare("subscriber") == 0) {
         return wamp_role_type::SUBSCRIBER;
     }
 
-    if (type.compare("dealer")) {
+    if (type.compare("dealer") == 0) {
         return wamp_role_type::DEALER;
     }
 
-    if (type.compare("broker")) {
+    if (type.compare("broker") == 0) {
         return wamp_role_type::BROKER;
     }
 

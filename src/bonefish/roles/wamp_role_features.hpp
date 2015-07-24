@@ -32,18 +32,19 @@ public:
     wamp_role_features& operator=(wamp_role_features&& other);
     wamp_role_features(const wamp_role_features& other);
     wamp_role_features& operator=(const wamp_role_features& other);
-
-    void set_option(const std::string& option, bool supported);
-    bool get_option(const std::string& option) const;
-    const std::unordered_map<std::string, bool>& get_options() const;
     bool operator==(const wamp_role_features& features) const;
 
+    void set_attribute(const std::string& attribute, bool supported);
+    void set_attributes(std::unordered_map<std::string, bool>&& attributes);
+    bool get_attribute(const std::string& attribute) const;
+    const std::unordered_map<std::string, bool>& get_attributes() const;
+
 private:
-    std::unordered_map<std::string, bool> m_options;
+    std::unordered_map<std::string, bool> m_attributes;
 };
 
 inline wamp_role_features::wamp_role_features()
-    : m_options()
+    : m_attributes()
 {
 }
 
@@ -52,47 +53,31 @@ inline wamp_role_features::~wamp_role_features()
 }
 
 inline wamp_role_features::wamp_role_features(wamp_role_features&& other)
-    : m_options(std::move(other.m_options))
+    : m_attributes(std::move(other.m_attributes))
 {
 }
 
 inline wamp_role_features& wamp_role_features::operator=(wamp_role_features&& other)
 {
     if (this != &other) {
-        m_options = std::move(other.m_options);
+        m_attributes = std::move(other.m_attributes);
     }
 
     return *this;
 }
 
 inline wamp_role_features::wamp_role_features(const wamp_role_features& other)
-    : m_options(other.m_options)
+    : m_attributes(other.m_attributes)
 {
 }
 
 inline wamp_role_features& wamp_role_features::operator=(const wamp_role_features& other)
 {
     if (this != &other) {
-        m_options = other.m_options;
+        m_attributes = other.m_attributes;
     }
 
     return *this;
-}
-
-inline void wamp_role_features::set_option(const std::string& option, bool supported)
-{
-    m_options[option] = supported;
-}
-
-inline bool wamp_role_features::get_option(const std::string& option) const
-{
-    auto itr = m_options.find(option);
-    return itr != m_options.end() ? itr->second : false;
-}
-
-inline const std::unordered_map<std::string, bool>& wamp_role_features::get_options() const
-{
-    return m_options;
 }
 
 inline bool wamp_role_features::operator==(const wamp_role_features& other) const
@@ -101,7 +86,28 @@ inline bool wamp_role_features::operator==(const wamp_role_features& other) cons
         return true;
     }
 
-    return m_options == other.m_options;
+    return m_attributes == other.m_attributes;
+}
+
+inline void wamp_role_features::set_attributes(std::unordered_map<std::string, bool>&& attributes)
+{
+    m_attributes = std::move(attributes);
+}
+
+inline void wamp_role_features::set_attribute(const std::string& attribute, bool supported)
+{
+    m_attributes[attribute] = supported;
+}
+
+inline bool wamp_role_features::get_attribute(const std::string& attribute) const
+{
+    auto itr = m_attributes.find(attribute);
+    return itr != m_attributes.end() ? itr->second : false;
+}
+
+inline const std::unordered_map<std::string, bool>& wamp_role_features::get_attributes() const
+{
+    return m_attributes;
 }
 
 } // namespace bonefish

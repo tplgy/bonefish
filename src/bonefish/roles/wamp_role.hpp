@@ -20,6 +20,8 @@
 #include <bonefish/roles/wamp_role_features.hpp>
 #include <bonefish/roles/wamp_role_type.hpp>
 
+#include <ostream>
+
 namespace bonefish {
 
 class wamp_role
@@ -116,18 +118,33 @@ inline bool wamp_role::operator==(const wamp_role& other) const
             m_features == other.m_features;
 }
 
+inline std::ostream& operator<<(std::ostream& os, const wamp_role& role)
+{
+    const auto& features = role.get_features();
+    const auto& attributes = features.get_attributes();
+
+    os << role_type_to_string(role.get_type()) << " [ ";
+    for (const auto& attributes_itr : attributes) {
+        os << attributes_itr.first << "=>" << attributes_itr.second << " ";
+    }
+    if (attributes.empty()) {
+        os << "no feature attributes";
+    }
+    os << "]";
+
+    return os;
+}
+
 } // namespace bonefish
 
 namespace std {
 
 template<> struct hash<bonefish::wamp_role>
 {
-
-size_t operator()(const bonefish::wamp_role& role) const
-{
-    return hash<bonefish::wamp_role_type>()(role.get_type());
-}
-
+    size_t operator()(const bonefish::wamp_role& role) const
+    {
+        return hash<bonefish::wamp_role_type>()(role.get_type());
+    }
 };
 
 } // namespace std
