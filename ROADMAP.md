@@ -35,6 +35,11 @@ The advanced profile is fairly extensive and is very feature based. There will b
     <td>Rawsocket</td>
     <td>Enables the use of stream based sockets as WAMP application server endpoints.</td>
   </tr>
+  <tr>
+    <td>Remote Procedure Calls</td>
+    <td>Call Timeouts</td>
+    <td>Allows calls to specify a timeout. The deafult is never timeout.</td>
+  </tr>
 </table>
 
 ## Bonefish Misc
@@ -66,7 +71,7 @@ We need to select a suitable unit testing framework to use with bonefish. I star
 
 ### Component Testing
 
-We need to get rid of the python based test components and use autobahn-cpp instead.
+We need to get rid of the python based test components and use autobahn-cpp instead. This should also help to drive development of autobahn-cpp.
 
 ### Automated testing
 
