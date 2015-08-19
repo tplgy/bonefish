@@ -102,7 +102,6 @@ void wamp_message_processor::process_message(
                 // dealer and the broker.
                 wamp_hello_details hello_details;
                 hello_details.unmarshal(hello_message->get_details());
-                const auto& roles = hello_details.get_roles();
 
                 auto session = std::make_shared<wamp_session>(
                         id, hello_message->get_realm(), std::move(transport));
