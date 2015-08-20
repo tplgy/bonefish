@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(bonefish)
 
 if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Werror -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Werror -Wno-unused-local-typedefs -Wunknown-warning-option ${CMAKE_CXX_FLAGS}")
 else()
     add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
 endif()
