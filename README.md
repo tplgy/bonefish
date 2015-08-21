@@ -7,7 +7,7 @@ For more information on WAMP, see http://wamp.ws/
 
 ## Contribute
 
-If you would like to contribute to the project we welcome your patches. For simple patches feel free to submit pull requests and we will review them in a timely manner. For larger patches that modify a significant amount of code we require that you first open an issue that can be used to discuss the work that you are intending to do. This will allow us to have some influence over the design and architectural aspects of your patches. This will also prevent any issues arising from larger patches being rejected or undergoing any significant rework prior to being accepted. We also ask that you please submit your patches following the coding style used in the project. Patches that do not adhere to the project's coding style will not be accepted.
+See CONTRIBUTING.md
 
 ## Dependencies
 

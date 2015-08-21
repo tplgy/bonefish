@@ -38,7 +38,7 @@ The advanced profile is fairly extensive and is very feature based. There will b
   <tr>
     <td>Remote Procedure Calls</td>
     <td>Call Timeouts</td>
-    <td>Allows calls to specify a timeout. The deafult is never timeout.</td>
+    <td>Allows calls to specify a timeout. The default is never timeout.</td>
   </tr>
 </table>
 
@@ -68,10 +68,6 @@ The advanced profile is fairly extensive and is very feature based. There will b
 ### Unit Testing
 
 We need to select a suitable unit testing framework to use with bonefish. I started looking into Aeryn which looks like it would be a great fit however a more comprehensive analysis should be done before selecting a framework.
-
-### Component Testing
-
-We need to get rid of the python based test components and use autobahn-cpp instead. This should also help to drive development of autobahn-cpp.
 
 ### Automated testing
 
