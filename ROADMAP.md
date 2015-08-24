@@ -18,28 +18,28 @@ Add support for specifying acknowledgements for publishing:
 
 ```
 PUBLISH.Options.acknowledge
-
+```
 
 ## Advanced Profile
 
 The advanced profile is fairly extensive and is very feature based. There will be an ongoing effort to implement these features on an ongoing basis. We will call out each feature below as they are supported:
 
 <table class="tg">
-  <tr>
-    <th>Category</th>
-    <th>Feature</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td>Transports</td>
-    <td>Rawsocket</td>
-    <td>Enables the use of stream based sockets as WAMP application server endpoints.</td>
-  </tr>
-  <tr>
-    <td>Remote Procedure Calls</td>
-    <td>Call Timeouts</td>
-    <td>Allows calls to specify a timeout. The default is never timeout.</td>
-  </tr>
+<tr>
+<th>Category</th>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>Transports</td>
+<td>Rawsocket</td>
+<td>Enables the use of stream based sockets as WAMP application server endpoints.</td>
+</tr>
+<tr>
+<td>Remote Procedure Calls</td>
+<td>Call Timeouts</td>
+<td>Allows calls to specify a timeout. The default is never timeout.</td>
+</tr>
 </table>
 
 ## Bonefish Misc
@@ -59,7 +59,7 @@ The advanced profile is fairly extensive and is very feature based. There will b
 - revisit the data path that messages follow and eliminate any unnecessary copies
 - take a look at how we can use multiple cores more effectively
 - vertical scalability
-    - option 1: multiple message queues/threads per router (lockless)
+option 1: multiple message queues/threads per router (lockless)
     - option 2: multiple router instances per realm
     - for now we are running lean with everything running on a single thread
 
