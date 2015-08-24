@@ -1,16 +1,9 @@
 ROADMAP
 =======
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
-.tg .tg-9vto{font-family:Verdana, Geneva, sans-serif !important;}
-</style>
-
 ## Basic Profile
 
-The following items need to be completed before we can officially say that the basic profile is fully supported. Refer to _SPECIFICATION.md_ for details on the basic profile.
+The following items need to be completed before we can officially say that the basic profile is fully supported. Refer to [SPECIFICATION.md](SPECIFICATION.md) for details on the basic profile.
 
 ### Publishing
 
@@ -24,7 +17,7 @@ PUBLISH.Options.acknowledge
 
 The advanced profile is fairly extensive and is very feature based. There will be an ongoing effort to implement these features on an ongoing basis. We will call out each feature below as they are supported:
 
-<table class="tg">
+<table>
 <tr>
 <th>Category</th>
 <th>Feature</th>
