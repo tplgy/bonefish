@@ -7,7 +7,7 @@ For more information on WAMP, see http://wamp.ws/
 
 ## Contribute
 
-See CONTRIBUTING.md
+See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Dependencies
 
