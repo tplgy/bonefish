@@ -1,6 +1,8 @@
 Bonefish
 ========
 
+[![Build Status](https://travis-ci.org/tplgy/bonefish.png)](https://travis-ci.org/tplgy/bonefish)
+
 Bonefish is an open-source C++ WAMP application router that enables building applications from loosely-coupled components. It currently supports the WAMP Basic Profile and RawSocket Transport as part of the Advanced Profile. Bonefish is capable of hosting multiple routers each with their own realm and associated set of websocket and/or rawsocket endpoints.
 
 For more information on WAMP, see http://wamp.ws/
@@ -13,7 +15,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 You need the following installed:
 
-- A recent C++11-compatible compiler toolchain (clang-3.5 or gcc-4.9 for example)
+- A C++11-compatible compiler toolchain (minimum supported versions: clang-3.4, gcc-4.8)
 - CMake
 - Boost. It uses the ASIO, system and thread components.
 
@@ -35,6 +37,8 @@ $ cmake ../bonefish
 $ make
 $ make install
 ```
+
+If you have the `ninja` build tool available, invoke `cmake` with the `-G Ninja` option and then use `ninja` instead of `make`.
 
 ### Deploy
 

@@ -1,0 +1,76 @@
+language: cpp
+
+# sources  list: https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json,
+# packages list: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: [ 'ubuntu-toolchain-r-test', 'kalakris-cmake' ]
+          packages: [ 'g++-4.8', 'libstdc++-4.8-dev', 'ninja-build', 'cmake' ]
+      env: CMAKE_BUILD_TYPE=DEBUG
+
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: [ 'ubuntu-toolchain-r-test', 'kalakris-cmake' ]
+          packages: [ 'g++-4.8', 'libstdc++-4.8-dev', 'ninja-build', 'cmake' ]
+      env: CMAKE_BUILD_TYPE=RELEASE
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: [ 'ubuntu-toolchain-r-test', 'kalakris-cmake' ]
+          packages: [ 'libstdc++-4.8-dev', 'ninja-build', 'cmake' ]
+      env: CMAKE_BUILD_TYPE=DEBUG
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: [ 'ubuntu-toolchain-r-test', 'kalakris-cmake' ]
+          packages: [ 'libstdc++-4.8-dev', 'ninja-build', 'cmake' ]
+      env: CMAKE_BUILD_TYPE=RELEASE
+
+# container-based builds
+sudo: false
+cache:
+  directories:
+  - $HOME/.ccache
+  - $HOME/download
+
+before_install:
+  - env
+  - export SRC_DIR="`pwd`"
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install ninja; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8" BOOST_TOOLSET=gcc; fi
+  - if [ "$CXX" = "clang++" ]; then export BOOST_TOOLSET=clang; fi
+  # Install newer boost compatible with gcc 4.8.
+  - export DOWNLOAD_ROOT="$HOME/download"; if [ ! -d "$DOWNLOAD_ROOT" ]; then mkdir -p "$DOWNLOAD_ROOT"; fi
+  - export BOOST_DOWNLOAD_URL="http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.bz2/download"
+  - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost"
+  - export CMAKE_MODULE_PATH="$BOOST_ROOT"
+  - if [ ! -f "$DOWNLOAD_ROOT/boost.tar.bz2" ]; then wget --no-verbose --output-document="$DOWNLOAD_ROOT/boost.tar.bz2" "$BOOST_DOWNLOAD_URL"; fi
+  - if [ ! -d "$BOOST_ROOT" ]; then mkdir -p "$BOOST_ROOT" && tar jxf "$DOWNLOAD_ROOT/boost.tar.bz2" --strip-components=1 -C "$BOOST_ROOT"; fi
+  - if [ ! -f "$BOOST_ROOT/b2" ]; then cd "$BOOST_ROOT"; ./bootstrap.sh --with-toolset="$BOOST_TOOLSET" --with-libraries=program_options,system,thread; fi
+
+install:
+  - ccache -V && ccache --show-stats && ccache --zero-stats
+  - 'echo "using gcc : : ccache $CXX : <cflags>-std=c11 <cxxflags>-std=c++11 ;" > ~/user-config.jam'
+  - 'echo "using clang : : ccache $CXX : <cflags>-std=c11 <cxxflags>-std=c++11 ;" >> ~/user-config.jam'
+  - cd "$BOOST_ROOT"; ./b2 toolset="$BOOST_TOOLSET" threading=multi --prefix="$BOOST_ROOT" -d0 install
+
+script:
+  - $CXX --version
+  - cmake --version
+  - mkdir "$TRAVIS_BUILD_DIR/build-ninja"
+  - cd "$TRAVIS_BUILD_DIR/build-ninja"
+  - pwd
+  - cmake -Dstdlib=libstdc++ -GNinja "$SRC_DIR"
+  - ninja -v
+  - ccache --show-stats
