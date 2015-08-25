@@ -27,8 +27,6 @@
 #include <bonefish/messages/wamp_publish_message.hpp>
 #include <bonefish/messages/wamp_subscribe_message.hpp>
 #include <bonefish/messages/wamp_unsubscribe_message.hpp>
-#include <bonefish/messages/wamp_welcome_details.hpp>
-#include <bonefish/messages/wamp_welcome_message.hpp>
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/router/wamp_router_impl.hpp>
 #include <bonefish/session/wamp_session.hpp>

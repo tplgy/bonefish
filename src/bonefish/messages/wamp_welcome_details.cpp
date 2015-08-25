@@ -46,9 +46,24 @@ void operator<< (object::with_zone& details,
 
     unsigned index = 0;
     for (const auto& role : welcome_details.get_roles()) {
+        object::with_zone features(roles.zone);
+        features.type = type::MAP;
+
+        const auto& attributes = role.get_features().get_attributes();
+        if (attributes.size() == 0) {
+            features.via.map.size = 0;
+            features.via.map.ptr = nullptr;
+        } else {
+            features.via.map.size = 1;
+            features.via.map.ptr = static_cast<object_kv*>(
+                features.zone.allocate_align(sizeof(object_kv) * features.via.map.size));
+            features.via.map.ptr[index].key = object(std::string("features"), features.zone);
+            features.via.map.ptr[index].val = object(attributes, features.zone);
+        }
+
         const std::string role_name(role_type_to_string(role.get_type()));
         roles.via.map.ptr[index].key = object(role_name, roles.zone);
-        roles.via.map.ptr[index].val = object(role.get_features().get_attributes(), roles.zone);
+        roles.via.map.ptr[index].val = *(static_cast<object*>(&features));
         ++index;
     }
 
