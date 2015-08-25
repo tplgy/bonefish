@@ -36,17 +36,20 @@ void wamp_hello_details::unmarshal(const msgpack::object& object)
         return;
     }
 
-    BONEFISH_TRACE("DAVE DEBUG: %1%", object);
-
     std::unordered_map<std::string, msgpack::object> roles;
     details_itr->second.convert(roles);
 
     for (const auto& roles_itr : roles) {
-        std::unordered_map<std::string, bool> attributes;
-        roles_itr.second.convert(attributes);
+        std::unordered_map<std::string, msgpack::object> properties;
+        roles_itr.second.convert(properties);
 
         wamp_role_features features;
-        features.set_attributes(std::move(attributes));
+        auto properties_itr = properties.find("features");
+        if (properties_itr != properties.end()) {
+            std::unordered_map<std::string, bool> attributes;
+            properties_itr->second.convert(attributes);
+            features.set_attributes(std::move(attributes));
+        }
 
         wamp_role_type role_type = role_type_from_string(roles_itr.first);
         wamp_role role(role_type);
