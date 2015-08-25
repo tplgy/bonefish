@@ -124,7 +124,7 @@ target_link_libraries(bonefish
     ${Boost_LIBRARIES})
 
 foreach(h ${PUBLIC_HEADERS})
-    get_filename_component(HEADER_INCLUDE_DIRECTORY include/${h} DIRECTORY)
+    get_filename_component(HEADER_INCLUDE_DIRECTORY include/${h} PATH) # use DIRECTORY instead of PATH once requiring CMake 3.0
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h} DESTINATION ${HEADER_INCLUDE_DIRECTORY} COMPONENT "headers")
 endforeach()
 

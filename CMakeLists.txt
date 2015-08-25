@@ -1,18 +1,28 @@
 cmake_minimum_required(VERSION 2.8)
 project(bonefish)
 
-if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Werror ${CMAKE_CXX_FLAGS}")
-else()
-    add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
-endif()
+option(shared "build bonefish as a shared library" OFF)
+option(asio_source "include Boost.Asio implementation (src.hpp) in library" ON)
+option(stdlib "When building with clang, you can choose libc++ (default) or libstdc++" OFF)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "-stdlib=libc++ -Wno-unused-local-typedefs -Wno-unknown-warning-option ${CMAKE_CXX_FLAGS}")
+    if (NOT stdlib)
+		set(stdlib "libc++")
+    endif()
     if (CMAKE_GENERATOR STREQUAL "Ninja")
         set(CMAKE_CXX_FLAGS "-fcolor-diagnostics ${CMAKE_CXX_FLAGS}")
     endif()
+    if (stdlib STREQUAL "libstdc++")
+        # libstdc++ defines template<typename> friend class hash, which causes warnings
+        set(CMAKE_CXX_FLAGS "-Wno-mismatched-tags ${CMAKE_CXX_FLAGS}")
+    endif()
+    set(CMAKE_CXX_FLAGS "-stdlib=${stdlib} -Wno-unused-local-typedefs -Wno-unknown-warning-option ${CMAKE_CXX_FLAGS}")
+else()
+    if(stdlib)
+        message(STATUS "stdlib option (set to ${stdlib}) is ignored for ${CMAKE_CXX_COMPILER_ID} compiler")
+    endif()
 endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9.0") # i.e. if >= 4.9.0
         if (CMAKE_GENERATOR STREQUAL "Ninja")
@@ -23,15 +33,18 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     endif()
 endif()
 
+if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++11 ${CMAKE_CXX_FLAGS}")
+else()
+    add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
+endif()
+
 SET(CMAKE_CXX_FLAGS_DEBUG "-O0 ${CMAKE_CXX_FLAGS_DEBUG}")
 SET(CMAKE_C_FLAGS_DEBUG "-O0 ${CMAKE_C_FLAGS_DEBUG}")
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-
-option(shared "build bonefish as a shared library" OFF)
-option(asio_source "include Boost.Asio implementation (src.hpp) in library" ON)
 
 if(shared)
     set(Boost_USE_STATIC_LIBS OFF)
