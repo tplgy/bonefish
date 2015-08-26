@@ -27,10 +27,6 @@ set(SOURCES
     bonefish/websocket/websocket_server_impl.cpp
     bonefish/websocket/websocket_transport.cpp)
 
-if (asio_source)
-    list(APPEND SOURCES bonefish/boost/asio.cpp)
-endif ()
-
 set(PUBLIC_HEADERS
     bonefish/rawsocket/rawsocket_listener.hpp
     bonefish/rawsocket/rawsocket_server.hpp
