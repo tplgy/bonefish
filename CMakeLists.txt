@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 project(bonefish)
 
 option(shared "build bonefish as a shared library" OFF)
-option(asio_source "include Boost.Asio implementation (src.hpp) in library" ON)
 option(stdlib "When building with clang, you can choose libc++ (default) or libstdc++" OFF)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -48,10 +47,8 @@ set(CMAKE_MODULE_PATH
 
 if(shared)
     set(Boost_USE_STATIC_LIBS OFF)
-    add_definitions(-DBOOST_ALL_DYN_LINK)
 else()
     set(Boost_USE_STATIC_LIBS ON)
-    add_definitions(-DBOOST_ASIO_SEPARATE_COMPILATION)
 endif()
 
 if(WIN32)
