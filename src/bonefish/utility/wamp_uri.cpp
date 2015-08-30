@@ -15,7 +15,26 @@
  */
 
 #include <bonefish/utility/wamp_uri.hpp>
+
+#ifdef USE_BOOST_REGEX
+
+#include <boost/regex.hpp>
+#define REGEX_RETURN(uri, regex_name, pcre_regex) { \
+    static boost::regex regex_name(pcre_regex, \
+            boost::regex_constants::nosubs | boost::regex_constants::optimize); \
+    return boost::regex_match(uri, regex_name); \
+}
+
+#else // std::regex is supported (gcc >= 4.9, clang)
+
 #include <regex>
+#define REGEX_RETURN(uri, regex_name, pcre_regex) { \
+    static std::regex regex_name(pcre_regex, \
+            std::regex_constants::nosubs | std::regex_constants::optimize); \
+    return std::regex_match(uri, regex_name); \
+}
+
+#endif
 
 namespace bonefish {
 
@@ -28,29 +47,15 @@ bool is_valid_uri(const std::string& uri, int flags)
 {
     if (flags & uri_flags::allow_empty_components) {
         if (flags & uri_flags::strict) {
-            static std::regex strict_uri_regex_empty("^(([0-9a-z_]+\\.)|\\.)*([0-9a-z_]+)?$",
-                    std::regex_constants::nosubs | std::regex_constants::optimize);
-
-            return std::regex_match(uri, strict_uri_regex_empty);
+            REGEX_RETURN(uri, strict_uri_regex_empty, "^(([0-9a-z_]+\\.)|\\.)*([0-9a-z_]+)?$");
         }
-
-        static std::regex relaxed_uri_regex_empty("^(([^\\s\\.#]+\\.)|\\.)*([^\\s\\.#]+)?$",
-                std::regex_constants::nosubs | std::regex_constants::optimize);
-
-        return std::regex_match(uri, relaxed_uri_regex_empty);
+        REGEX_RETURN(uri, relaxed_uri_regex_empty, "^(([^\\s\\.#]+\\.)|\\.)*([^\\s\\.#]+)?$");
     }
 
     if (flags & uri_flags::strict) {
-        static std::regex strict_uri_regex("^([0-9a-z_]+\\.)*([0-9a-z_]+)$",
-                std::regex_constants::nosubs | std::regex_constants::optimize);
-
-        return std::regex_match(uri, strict_uri_regex);
+        REGEX_RETURN(uri, strict_uri_regex, "^([0-9a-z_]+\\.)*([0-9a-z_]+)$");
     }
-
-    static std::regex relaxed_uri_regex("^([^\\s\\.#]+\\.)*([^\\s\\.#]+)$",
-            std::regex_constants::nosubs | std::regex_constants::optimize);
-
-    return std::regex_match(uri, relaxed_uri_regex);
+    REGEX_RETURN(uri, relaxed_uri_regex, "^([^\\s\\.#]+\\.)*([^\\s\\.#]+)$");
 }
 
 } // namespace bonefish
