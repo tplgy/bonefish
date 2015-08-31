@@ -4,9 +4,11 @@ project(bonefish)
 option(shared "build bonefish as a shared library" OFF)
 option(stdlib "When building with clang, you can choose libc++ (default) or libstdc++" OFF)
 
+set(BOOST_COMPONENTS program_options system thread)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if (NOT stdlib)
-		set(stdlib "libc++")
+        set(stdlib "libc++")
     endif()
     if (CMAKE_GENERATOR STREQUAL "Ninja")
         set(CMAKE_CXX_FLAGS "-fcolor-diagnostics ${CMAKE_CXX_FLAGS}")
@@ -23,7 +25,10 @@ else()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9.0") # i.e. if >= 4.9.0
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9.0") # i.e. if < 4.9.0
+        list(APPEND BOOST_COMPONENTS regex)
+    add_definitions(-DUSE_BOOST_REGEX)
+    else() # >= 4.9.0
         if (CMAKE_GENERATOR STREQUAL "Ninja")
             set(CMAKE_CXX_FLAGS "-fdiagnostics-color=always ${CMAKE_CXX_FLAGS}")
         else()
@@ -38,8 +43,8 @@ else()
     add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
 endif()
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 ${CMAKE_CXX_FLAGS_DEBUG}")
-SET(CMAKE_C_FLAGS_DEBUG "-O0 ${CMAKE_C_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 ${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_C_FLAGS_DEBUG "-O0 ${CMAKE_C_FLAGS_DEBUG}")
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
@@ -56,7 +61,7 @@ if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS program_options system thread)
+find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 find_package(Threads)
 
 include_directories(
