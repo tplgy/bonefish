@@ -77,8 +77,8 @@ This will enable debug tracing which is currently sent to the console.
 
 ### Options
 
-- **shared** - if ON, bonefish will be built as a shared library. OFF implies it will be built as a static library.
-- **asio_source** - if ON, the Boost.Asio implementation (src.hpp) will be included in the library. Useful for programs which are using Boost.Asio elsewhere.
+- **shared** - if ON, bonefish will be built as a shared library. OFF implies it will be built as a static library (default).
+- **stdlib** - when building with Clang, you can choose libc++ (default) or libstdc++.
 
 ## Third Party Libraries
 
