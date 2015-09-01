@@ -66,7 +66,6 @@ set(PRIVATE_HEADERS
     bonefish/identifiers/wamp_session_id_generator.hpp
     bonefish/identifiers/wamp_subscription_id.hpp
     bonefish/identifiers/wamp_subscription_id_generator.hpp
-    bonefish/logging/logging.hpp
     bonefish/messages/wamp_abort_message.hpp
     bonefish/messages/wamp_call_message.hpp
     bonefish/messages/wamp_call_options.hpp
