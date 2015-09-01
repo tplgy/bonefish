@@ -30,11 +30,11 @@ int main(int argc, char** argv)
     desc.add_options()
         ("help,h", "produce help message")
         ("realm,r", po::value<std::string>(), "set the WAMP realm for this router")
-        ("debug,d", po::bool_switch()->default_value(false), "enable debugging")
         ("websocket-port,w", po::value<std::uint16_t>()->value_name("<port>"), "enable websocket transport on the given port")
         ("rawsocket-port,t", po::value<std::uint16_t>()->value_name("<port>"), "enable rawsocket transport on the given port")
         ("no-json", "disable JSON serialization")
         ("no-msgpack", "disable msgpack serialization")
+        ("debug,d", po::bool_switch()->default_value(false), "enable debugging")
     ;
 
     po::variables_map variables;
