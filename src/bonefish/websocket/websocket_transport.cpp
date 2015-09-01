@@ -38,7 +38,10 @@ bool websocket_transport::send_message(const wamp_message* message)
 {
     BONEFISH_TRACE("sending message: %1%", message_type_to_string(message->get_type()));
     expandable_buffer buffer = m_serializer->serialize(message);
-    m_server->send(m_handle, buffer.data(), buffer.size(), websocketpp::frame::opcode::BINARY);
+    auto opcode = (m_serializer->get_type() == wamp_serializer_type::JSON)
+            ? websocketpp::frame::opcode::TEXT
+            : websocketpp::frame::opcode::BINARY;
+    m_server->send(m_handle, buffer.data(), buffer.size(), opcode);
 
     return true;
 }

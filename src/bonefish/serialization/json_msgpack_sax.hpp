@@ -112,7 +112,7 @@ template <typename StringConversion = no_custom_string_conversion>
 struct msgpack_from_json_handler
 {
     msgpack_from_json_handler(msgpack::object& root, msgpack::zone& zone)
-        : m_containers()
+        : m_container_indexes()
         , m_queued()
         , m_root(root)
         , m_zone(zone)
@@ -121,7 +121,7 @@ struct msgpack_from_json_handler
     }
 
     msgpack::object* queue_object() {
-        if (m_containers.empty()) {
+        if (m_container_indexes.empty()) {
             if (m_previously_initialized) {
                 return nullptr;
             }
@@ -148,26 +148,18 @@ struct msgpack_from_json_handler
     }
 
     bool Int(int i) {
-        msgpack::object* o = queue_object();
-        if (!o) { return false; }
-        if (i >= 0) { return Uint64(static_cast<uint64_t>(i)); }
-        o->type = msgpack::type::NEGATIVE_INTEGER;
-        o->via.i64 = i;
-        return true;
+        return Int64(i);
     }
 
     bool Uint(unsigned i) {
-        msgpack::object* o = queue_object();
-        if (!o) { return false; }
-        o->type = msgpack::type::POSITIVE_INTEGER;
-        o->via.u64 = i;
-        return true;
+        return Uint64(i);
     }
 
     bool Int64(int64_t i) {
+        if (i >= 0) { return Uint64(static_cast<uint64_t>(i)); }
+
         msgpack::object* o = queue_object();
         if (!o) { return false; }
-        if (i >= 0) { return Uint64(static_cast<uint64_t>(i)); }
         o->type = msgpack::type::NEGATIVE_INTEGER;
         o->via.i64 = i;
         return true;
@@ -223,30 +215,32 @@ struct msgpack_from_json_handler
         msgpack::object* o = queue_object();
         if (!o) { return false; }
         o->type = msgpack::type::MAP;
-        m_containers.push(o);
+        m_container_indexes.push(m_queued.size() - 1);
         return true;
     }
 
     bool EndObject(std::size_t memberCount) {
-        if (m_containers.empty()) { return false; }
+        if (m_container_indexes.empty()) { return false; }
         if (m_queued.size() < memberCount * 2) { return false; }
-        msgpack::object* o = m_containers.top();
-        m_containers.pop();
-        if (o->type != msgpack::type::MAP) { return false; }
+        msgpack::object& o = (m_container_indexes.top() == (size_t) -1)
+                ? m_root
+                : m_queued[m_container_indexes.top()];
+        m_container_indexes.pop();
+        if (o.type != msgpack::type::MAP) { return false; }
 
         if (memberCount == 0) {
-            o->via.map.ptr = nullptr;
-            o->via.map.size = 0;
+            o.via.map.ptr = nullptr;
+            o.via.map.size = 0;
         } else {
             msgpack::object_kv* p = static_cast<msgpack::object_kv*>(
                     m_zone.allocate_align(sizeof(msgpack::object_kv)*memberCount));
             if (!p) { return false; }
-            o->via.map.ptr = p;
-            o->via.map.size = memberCount;
+            o.via.map.ptr = p;
+            o.via.map.size = memberCount;
 
             for (std::size_t i = 0; i < memberCount; ++i) {
                 const auto queued_index = m_queued.size() - (memberCount - i) * 2;
-                copy_map_item(*o, i, m_queued.at(queued_index), m_queued.at(queued_index + 1));
+                copy_map_item(o, i, m_queued.at(queued_index), m_queued.at(queued_index + 1));
             }
             m_queued.resize(m_queued.size() - memberCount * 2);
         }
@@ -257,29 +251,31 @@ struct msgpack_from_json_handler
         msgpack::object* o = queue_object();
         if (!o) { return false; }
         o->type = msgpack::type::ARRAY;
-        m_containers.push(o);
+        m_container_indexes.push(m_queued.size() - 1);
         return true;
     }
 
     bool EndArray(std::size_t elementCount) {
-        if (m_containers.empty()) { return false; }
+        if (m_container_indexes.empty()) { return false; }
         if (m_queued.size() < elementCount) { return false; }
-        msgpack::object* o = m_containers.top();
-        m_containers.pop();
-        if (o->type != msgpack::type::ARRAY) { return false; }
+        msgpack::object& o = (m_container_indexes.top() == (size_t) -1)
+                ? m_root
+                : m_queued[m_container_indexes.top()];
+        m_container_indexes.pop();
+        if (o.type != msgpack::type::ARRAY) { return false; }
 
         if (elementCount == 0) {
-            o->via.array.ptr = nullptr;
-            o->via.array.size = 0;
+            o.via.array.ptr = nullptr;
+            o.via.array.size = 0;
         } else {
             msgpack::object* p = static_cast<msgpack::object*>(
                     m_zone.allocate_align(sizeof(msgpack::object)*elementCount));
             if (!p) { return false; }
-            o->via.array.ptr = p;
-            o->via.array.size = elementCount;
+            o.via.array.ptr = p;
+            o.via.array.size = elementCount;
 
             for (std::size_t i = 0; i < elementCount; ++i) {
-                copy_array_item(*o, i, m_queued.at(m_queued.size() - elementCount + i));
+                copy_array_item(o, i, m_queued.at(m_queued.size() - elementCount + i));
             }
             m_queued.resize(m_queued.size() - elementCount);
         }
@@ -287,7 +283,7 @@ struct msgpack_from_json_handler
     }
 
 private:
-    std::stack<msgpack::object*> m_containers;
+    std::stack<size_t> m_container_indexes;
     std::vector<msgpack::object> m_queued;
     msgpack::object& m_root;
     msgpack::zone& m_zone;
