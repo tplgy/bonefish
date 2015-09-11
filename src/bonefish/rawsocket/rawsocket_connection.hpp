@@ -179,25 +179,25 @@ inline bool rawsocket_connection::send_message(const char* message, size_t lengt
     return true;
 }
 
-inline const typename rawsocket_connection::close_handler&
+inline const rawsocket_connection::close_handler&
 rawsocket_connection::get_close_handler() const
 {
     return m_close_handler;
 }
 
-inline const typename rawsocket_connection::fail_handler&
+inline const rawsocket_connection::fail_handler&
 rawsocket_connection::get_fail_handler() const
 {
     return m_fail_handler;
 }
 
-inline const typename rawsocket_connection::message_handler&
+inline const rawsocket_connection::message_handler&
 rawsocket_connection::get_message_handler() const
 {
     return m_message_handler;
 }
 
-inline const typename rawsocket_connection::handshake_handler&
+inline const rawsocket_connection::handshake_handler&
 rawsocket_connection::get_handshake_handler() const
 {
     return m_handshake_handler;
