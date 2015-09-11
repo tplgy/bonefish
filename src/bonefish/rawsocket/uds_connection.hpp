@@ -14,24 +14,23 @@
  *  limitations under the License.
  */
 
-#ifndef BONEFISH_TCP_CONNECTION_HPP
-#define BONEFISH_TCP_CONNECTION_HPP
+#ifndef BONEFISH_UDS_CONNECTION_HPP
+#define BONEFISH_UDS_CONNECTION_HPP
 
 #include <bonefish/rawsocket/rawsocket_connection.hpp>
 
 #include <boost/asio/buffer.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/local/stream_protocol.hpp>
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
 
 namespace bonefish {
 
-class tcp_connection :
-        public rawsocket_connection
+class uds_connection : public rawsocket_connection
 {
 public:
-    tcp_connection(boost::asio::ip::tcp::socket&& socket);
-    virtual ~tcp_connection() override;
+    uds_connection(boost::asio::local::stream_protocol::socket&& socket);
+    virtual ~uds_connection() override;
 
     virtual void async_read(
             void* data,
@@ -44,25 +43,26 @@ public:
             boost::system::error_code& error_code) override;
 
 private:
-    boost::asio::ip::tcp::socket m_socket;
+    boost::asio::local::stream_protocol::socket m_socket;
 };
 
-inline tcp_connection::tcp_connection(boost::asio::ip::tcp::socket&& socket)
+inline uds_connection::uds_connection(boost::asio::local::stream_protocol::socket&& socket)
     : rawsocket_connection()
     , m_socket(std::move(socket))
 {
-    // Disable Nagle algorithm to get lower latency (and lower throughput).
-    m_socket.set_option(boost::asio::ip::tcp::no_delay(true));
+    std::cerr << "creating uds connection" << std::endl;
 }
 
-inline tcp_connection::~tcp_connection()
+inline uds_connection::~uds_connection()
 {
+    std::cerr << "destroying uds connection" << std::endl;
     if (m_socket.is_open()) {
+        std::cerr << "Closed the uds socket" << std::endl;
         m_socket.close();
     }
 }
 
-inline void tcp_connection::async_read(
+inline void uds_connection::async_read(
         void* data,
         size_t length,
         const read_handler& handler)
@@ -70,7 +70,7 @@ inline void tcp_connection::async_read(
     boost::asio::async_read(m_socket, boost::asio::buffer(data, length), handler);
 }
 
-inline void tcp_connection::write(
+inline void uds_connection::write(
         const void* data,
         size_t length,
         boost::system::error_code& error_code)
@@ -80,4 +80,4 @@ inline void tcp_connection::write(
 
 } // namespace bonefish
 
-#endif // BONEFISH_TCP_CONNECTION_HPP
+#endif // BONEFISH_UDS_CONNECTION_HPP

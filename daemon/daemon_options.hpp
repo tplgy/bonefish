@@ -48,7 +48,7 @@ public:
     void set_websocket_port(std::uint16_t port) { m_websocket_port = port; }
     std::uint16_t websocket_port() const { return m_websocket_port; }
 
-    /// Enable or disable websocket support. Default value is disabled.
+    /// Enable or disable rawsocket support. Default value is disabled.
     /// At least one transport has to be enabled for the router to start.
     void set_rawsocket_enabled(bool enabled) { m_rawsocket_enabled = enabled; }
     bool is_rawsocket_enabled() const { return m_rawsocket_enabled; }
@@ -56,6 +56,10 @@ public:
     /// Set the rawsocket port. Must be nonzero if rawsocket support is enabled.
     void set_rawsocket_port(std::uint16_t port) { m_rawsocket_port = port; }
     std::uint16_t rawsocket_port() const { return m_rawsocket_port; }
+
+    /// Set the rawsocket uds path. Must be nonzero if rawsocket support is enabled.
+    void set_rawsocket_path(const std::string& path) { m_rawsocket_path = path; }
+    const std::string& rawsocket_path() const { return m_rawsocket_path; }
 
     /// Enable or disable JSON serialization support. Default value is enabled.
     /// At least one serialization method has to be enabled for the router to start.
@@ -74,6 +78,7 @@ private:
     bool m_debug_enabled;
     std::uint16_t m_websocket_port;
     std::uint16_t m_rawsocket_port;
+    std::string m_rawsocket_path;
     bool m_websocket_enabled;
     bool m_rawsocket_enabled;
     bool m_json_serialization_enabled;

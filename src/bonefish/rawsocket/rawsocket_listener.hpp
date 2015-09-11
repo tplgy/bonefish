@@ -17,14 +17,12 @@
 #ifndef BONEFISH_RAWSOCKET_LISTENER_HPP
 #define BONEFISH_RAWSOCKET_LISTENER_HPP
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <bonefish/rawsocket/rawsocket_connection.hpp>
 
+#include <boost/asio/io_service.hpp>
 #include <functional>
 
 namespace bonefish {
-
-class rawsocket_connection;
 
 class rawsocket_listener
 {
@@ -37,12 +35,19 @@ public:
 
     virtual void start_listening() = 0;
     virtual void stop_listening() = 0;
+    virtual std::shared_ptr<rawsocket_connection> create_connection() = 0;
 
     bool is_listening() const;
     const accept_handler& get_accept_handler() const;
 
-    void set_listening(bool is_listening);
     void set_accept_handler(const accept_handler& handler);
+
+    void handle_accept(const boost::system::error_code& error_code);
+
+protected:
+    virtual void async_accept() = 0;
+
+    void set_listening(bool is_listening);
 
 private:
     bool m_listening;
@@ -50,7 +55,8 @@ private:
 };
 
 inline rawsocket_listener::rawsocket_listener()
-    : m_accept_handler()
+    : m_listening(false)
+    , m_accept_handler()
 {
 }
 
@@ -63,19 +69,35 @@ inline bool rawsocket_listener::is_listening() const
     return m_listening;
 }
 
-inline const rawsocket_listener::accept_handler& rawsocket_listener::get_accept_handler() const
+inline const typename rawsocket_listener::accept_handler&
+rawsocket_listener::get_accept_handler() const
 {
     return m_accept_handler;
+}
+
+inline void rawsocket_listener::set_accept_handler(
+        const rawsocket_listener::accept_handler& handler)
+{
+    m_accept_handler = handler;
+}
+
+inline void rawsocket_listener::handle_accept(
+        const boost::system::error_code &error_code)
+{
+    if (error_code) {
+        return;
+    }
+
+    assert(get_accept_handler());
+    const auto& accept_handler = get_accept_handler();
+    accept_handler(create_connection());
+
+    async_accept();
 }
 
 inline void rawsocket_listener::set_listening(bool is_listening)
 {
     m_listening = is_listening;
-}
-
-inline void rawsocket_listener::set_accept_handler(const rawsocket_listener::accept_handler& handler)
-{
-    m_accept_handler = handler;
 }
 
 } // namespace bonefish

@@ -32,6 +32,7 @@ int main(int argc, char** argv)
         ("realm,r", po::value<std::string>(), "set the WAMP realm for this router")
         ("websocket-port,w", po::value<std::uint16_t>()->value_name("<port>"), "enable websocket transport on the given port")
         ("rawsocket-port,t", po::value<std::uint16_t>()->value_name("<port>"), "enable rawsocket transport on the given port")
+        ("rawsocket-path,u", po::value<std::string>()->value_name("<path>"), "enable rawsocket transport on the given path")
         ("no-json", "disable JSON serialization")
         ("no-msgpack", "disable msgpack serialization")
         ("debug,d", po::bool_switch()->default_value(false), "enable debugging")
@@ -69,6 +70,11 @@ int main(int argc, char** argv)
     if (variables.count("rawsocket-port")) {
         options.set_rawsocket_enabled(true);
         options.set_rawsocket_port(variables["rawsocket-port"].as<std::uint16_t>());
+    }
+
+    if (variables.count("rawsocket-path")) {
+        options.set_rawsocket_enabled(true);
+        options.set_rawsocket_path(variables["rawsocket-path"].as<std::string>());
     }
 
     if (variables.count("no-json")) {

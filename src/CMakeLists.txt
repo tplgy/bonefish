@@ -9,11 +9,11 @@ set(SOURCES
     bonefish/messages/wamp_message_factory.cpp
     bonefish/messages/wamp_message_type.cpp
     bonefish/messages/wamp_welcome_details.cpp
-    bonefish/rawsocket/tcp_connection.cpp
-    bonefish/rawsocket/tcp_listener.cpp
     bonefish/rawsocket/rawsocket_server.cpp
     bonefish/rawsocket/rawsocket_server_impl.cpp
     bonefish/rawsocket/rawsocket_transport.cpp
+    bonefish/rawsocket/tcp_listener.cpp
+    bonefish/rawsocket/uds_listener.cpp
     bonefish/roles/wamp_role_type.cpp
     bonefish/router/wamp_router.cpp
     bonefish/router/wamp_router_impl.cpp
@@ -31,6 +31,7 @@ set(PUBLIC_HEADERS
     bonefish/rawsocket/rawsocket_listener.hpp
     bonefish/rawsocket/rawsocket_server.hpp
     bonefish/rawsocket/tcp_listener.hpp
+    bonefish/rawsocket/uds_listener.hpp
     bonefish/router/wamp_router.hpp
     bonefish/router/wamp_routers.hpp
     bonefish/serialization/expandable_buffer.hpp
@@ -98,6 +99,8 @@ set(PRIVATE_HEADERS
     bonefish/rawsocket/rawsocket_transport.hpp
     bonefish/rawsocket/tcp_connection.hpp
     bonefish/rawsocket/tcp_listener.hpp
+    bonefish/rawsocket/uds_connection.hpp
+    bonefish/rawsocket/uds_listener.hpp
     bonefish/roles/wamp_role.hpp
     bonefish/roles/wamp_role_features.hpp
     bonefish/roles/wamp_role_type.hpp

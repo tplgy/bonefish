@@ -24,6 +24,7 @@
 #include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/rawsocket/rawsocket_server.hpp>
 #include <bonefish/rawsocket/tcp_listener.hpp>
+#include <bonefish/rawsocket/uds_listener.hpp>
 #include <bonefish/trace/trace.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
@@ -82,9 +83,16 @@ daemon::daemon(const daemon_options& options)
 
     if (options.is_rawsocket_enabled()) {
         m_rawsocket_server = std::make_shared<rawsocket_server>(m_routers, m_serializers);
-        auto listener = std::make_shared<tcp_listener>(
-                m_io_service, boost::asio::ip::address(), options.rawsocket_port());
-        m_rawsocket_server->attach_listener(std::static_pointer_cast<rawsocket_listener>(listener));
+        if (options.rawsocket_port() != 0) {
+            auto listener = std::make_shared<tcp_listener>(
+                    m_io_service, boost::asio::ip::address(), options.rawsocket_port());
+            m_rawsocket_server->attach_listener(std::static_pointer_cast<rawsocket_listener>(listener));
+        }
+        if (!options.rawsocket_path().empty()) {
+            auto listener = std::make_shared<uds_listener>(
+                    m_io_service, options.rawsocket_path());
+            m_rawsocket_server->attach_listener(std::static_pointer_cast<rawsocket_listener>(listener));
+        }
     }
 }
 

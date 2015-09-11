@@ -17,6 +17,8 @@
 #ifndef BONEFISH_RAWSOCKET_SERVER_IMPL_HPP
 #define BONEFISH_RAWSOCKET_SERVER_IMPL_HPP
 
+#include <bonefish/rawsocket/rawsocket_listener.hpp>
+#include <bonefish/rawsocket/rawsocket_connection.hpp>
 #include <bonefish/common/wamp_message_processor.hpp>
 
 #include <boost/asio/ip/address.hpp>
@@ -26,12 +28,11 @@
 
 namespace bonefish {
 
-class rawsocket_connection;
-class rawsocket_listener;
 class wamp_routers;
 class wamp_serializers;
 
-class rawsocket_server_impl : public std::enable_shared_from_this<rawsocket_server_impl>
+class rawsocket_server_impl :
+        public std::enable_shared_from_this<rawsocket_server_impl>
 {
 public:
     rawsocket_server_impl(
@@ -40,6 +41,7 @@ public:
     ~rawsocket_server_impl();
 
     void attach_listener(const std::shared_ptr<rawsocket_listener>& listener);
+
     void start();
     void shutdown();
 

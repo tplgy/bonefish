@@ -23,6 +23,7 @@ daemon_options::daemon_options()
     , m_debug_enabled(false)
     , m_websocket_port(0)
     , m_rawsocket_port(0)
+    , m_rawsocket_path()
     , m_websocket_enabled(false)
     , m_rawsocket_enabled(false)
     , m_json_serialization_enabled(true)
@@ -46,8 +47,9 @@ std::vector<std::string> daemon_options::problems() const
     if (m_websocket_enabled && m_websocket_port == 0) {
         list.push_back("Websocket support is enabled but no port is set.");
     }
-    if (m_rawsocket_enabled && m_rawsocket_port == 0) {
-        list.push_back("Rawsocket support is enabled but no port is set.");
+    if ((m_rawsocket_enabled && m_rawsocket_port == 0) &&
+        (m_rawsocket_enabled && m_rawsocket_path.empty())) {
+        list.push_back("Rawsocket support is enabled but no tcp port or uds path is set.");
     }
     return list;
 }

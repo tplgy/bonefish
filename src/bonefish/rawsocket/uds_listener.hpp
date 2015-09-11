@@ -14,28 +14,27 @@
  *  limitations under the License.
  */
 
-#ifndef BONEFISH_TCP_LISTENER_HPP
-#define BONEFISH_TCP_LISTENER_HPP
+#ifndef BONEFISH_UDS_LISTENER_HPP
+#define BONEFISH_UDS_LISTENER_HPP
 
 #include <bonefish/rawsocket/rawsocket_listener.hpp>
 
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <cstdint>
+#include <boost/asio/local/stream_protocol.hpp>
 #include <memory>
+#include <string>
 
 namespace bonefish {
 
-class tcp_listener :
+class uds_listener :
         public rawsocket_listener,
-        public std::enable_shared_from_this<tcp_listener>
+        public std::enable_shared_from_this<uds_listener>
 {
 public:
-    tcp_listener(
+    uds_listener(
             boost::asio::io_service& io_service,
-            const boost::asio::ip::address& ip_address,
-            uint16_t port);
-    virtual ~tcp_listener() override;
+            const std::string& path);
+    virtual ~uds_listener() override;
 
     virtual void start_listening() override;
     virtual void stop_listening() override;
@@ -45,11 +44,11 @@ protected:
     virtual void async_accept() override;
 
 private:
-    boost::asio::ip::tcp::socket m_socket;
-    boost::asio::ip::tcp::acceptor m_acceptor;
-    boost::asio::ip::tcp::endpoint m_endpoint;
+    boost::asio::local::stream_protocol::socket m_socket;
+    boost::asio::local::stream_protocol::acceptor m_acceptor;
+    boost::asio::local::stream_protocol::endpoint m_endpoint;
 };
 
 } // namespace bonefish
 
-#endif // BONEFISH_TCP_LISTENER_HPP
+#endif // BONEFISH_UDS_LISTENER_HPP

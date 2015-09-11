@@ -14,45 +14,47 @@
  *  limitations under the License.
  */
 
-#include <bonefish/rawsocket/tcp_listener.hpp>
-#include <bonefish/rawsocket/tcp_connection.hpp>
+#include <bonefish/rawsocket/uds_listener.hpp>
+#include <bonefish/rawsocket/uds_connection.hpp>
+
+#include <unistd.h>
 
 namespace bonefish {
 
-tcp_listener::tcp_listener(
+uds_listener::uds_listener(
         boost::asio::io_service& io_service,
-        const boost::asio::ip::address& ip_address,
-        uint16_t port)
+        const std::string& path)
     : rawsocket_listener()
     , m_socket(io_service)
     , m_acceptor(io_service)
-    , m_endpoint(ip_address, port)
+    , m_endpoint(path)
 {
 }
 
-tcp_listener::~tcp_listener()
+uds_listener::~uds_listener()
 {
     stop_listening();
 }
 
-void tcp_listener::start_listening()
+void uds_listener::start_listening()
 {
     if (is_listening()) {
         return;
     }
 
+    unlink(m_endpoint.path().c_str());
     m_acceptor.open(m_endpoint.protocol());
     m_acceptor.set_option(
-           boost::asio::ip::tcp::acceptor::reuse_address(true));
+           boost::asio::local::stream_protocol::acceptor::reuse_address(true));
     m_acceptor.bind(m_endpoint);
     m_acceptor.listen();
 
-    set_listening(true);
     assert(get_accept_handler());
+    set_listening(true);
     async_accept();
 }
 
-void tcp_listener::stop_listening()
+void uds_listener::stop_listening()
 {
     if (!is_listening()) {
         return;
@@ -62,12 +64,12 @@ void tcp_listener::stop_listening()
     set_listening(false);
 }
 
-std::shared_ptr<rawsocket_connection> tcp_listener::create_connection()
+std::shared_ptr<rawsocket_connection> uds_listener::create_connection()
 {
-    return std::make_shared<tcp_connection>(std::move(m_socket));
+    return std::make_shared<uds_connection>(std::move(m_socket));
 }
 
-void tcp_listener::async_accept()
+void uds_listener::async_accept()
 {
     m_acceptor.async_accept(m_socket,
             std::bind(&rawsocket_listener::handle_accept,
