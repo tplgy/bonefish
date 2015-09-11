@@ -246,17 +246,20 @@ inline void rawsocket_connection::receive_message_header_handler(
         return handle_system_error(error_code);
     }
 
+    // Convert the message length to host order for convenience.
+    uint32_t message_length = ntohl(m_message_length);
+
     // We cannot be guaranteed that a client implementation won't accidentally
     // introduce this protocol violation. In the event that we ever encounter
     // a message that reports a zero length we fail that connection gracefully.
     static const uint32_t MAX_MESSAGE_LENGTH = 16*1024*1024; // 16MB
-    if (m_message_length == 0 || ntohl(m_message_length) > MAX_MESSAGE_LENGTH) {
-        BONEFISH_TRACE("invalid message length: %1%", m_message_length);
+    if (message_length == 0 || message_length > MAX_MESSAGE_LENGTH) {
+        BONEFISH_TRACE("invalid message length: %1%", message_length);
         const auto& fail_handler = get_fail_handler();
         return fail_handler(shared_from_this(), "invalid message length");
     }
 
-    m_message_buffer.reserve(ntohl(m_message_length));
+    m_message_buffer.reserve(message_length);
 
     std::weak_ptr<rawsocket_connection> weak_self =
             std::static_pointer_cast<rawsocket_connection>(shared_from_this());
@@ -269,7 +272,7 @@ inline void rawsocket_connection::receive_message_header_handler(
         }
     };
 
-    async_read(m_message_buffer.data(), ntohl(m_message_length), handler);
+    async_read(m_message_buffer.data(), message_length, handler);
 }
 
 inline void rawsocket_connection::receive_message_body_handler(
