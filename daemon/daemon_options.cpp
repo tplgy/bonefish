@@ -48,7 +48,7 @@ std::vector<std::string> daemon_options::problems() const
         list.push_back("Websocket support is enabled but no port is set.");
     }
     if ((m_rawsocket_enabled && m_rawsocket_port == 0) &&
-        (m_rawsocket_enabled && m_rawsocket_path.empty())) {
+            (m_rawsocket_enabled && m_rawsocket_path.empty())) {
         list.push_back("Rawsocket support is enabled but no tcp port or uds path is set.");
     }
     return list;
