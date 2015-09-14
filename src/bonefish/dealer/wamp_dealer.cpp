@@ -165,20 +165,23 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     // If the session placing the call does not support the caller role
     // than do not allow the call to be processed and send an error.
     if (!session_itr->second->get_role(wamp_role_type::CALLER)) {
-        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+        send_error(session_itr->second->get_transport(), call_message->get_type(),
                 call_message->get_request_id(), "wamp.error.role_violation");
+        return;
     }
 
     const auto procedure = call_message->get_procedure();
     if (!is_valid_uri(procedure)) {
-        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+        send_error(session_itr->second->get_transport(), call_message->get_type(),
                 call_message->get_request_id(), "wamp.error.invalid_uri");
+        return;
     }
 
     auto procedure_registrations_itr = m_procedure_registrations.find(procedure);
     if (procedure_registrations_itr == m_procedure_registrations.end()) {
-        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+        send_error(session_itr->second->get_transport(), call_message->get_type(),
                 call_message->get_request_id(), "wamp.error.no_such_procedure");
+        return;
     }
 
     std::shared_ptr<wamp_session> session =
@@ -199,8 +202,9 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     if (!session->get_transport()->send_message(invocation_message.get())) {
         BONEFISH_TRACE("sending invocation message to callee failed: network failure");
 
-        return send_error(session_itr->second->get_transport(), call_message->get_type(),
+        send_error(session_itr->second->get_transport(), call_message->get_type(),
                 call_message->get_request_id(), "wamp.error.network_failure");
+        return;
     } else {
         wamp_call_options options;
         options.unmarshal(call_message->get_options());
@@ -285,20 +289,23 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
     // If the session registering the procedure does not support the callee
     // role than do not allow the call to be processed and send an error.
     if (!session_itr->second->get_role(wamp_role_type::CALLEE)) {
-        return send_error(session_itr->second->get_transport(), register_message->get_type(),
+        send_error(session_itr->second->get_transport(), register_message->get_type(),
                 register_message->get_request_id(), "wamp.error.role_violation");
+        return;
     }
 
     const auto procedure = register_message->get_procedure();
     if (!is_valid_uri(procedure)) {
-        return send_error(session_itr->second->get_transport(), register_message->get_type(),
+        send_error(session_itr->second->get_transport(), register_message->get_type(),
                 register_message->get_request_id(), "wamp.error.invalid_uri");
+        return;
     }
 
     auto procedure_registrations_itr = m_procedure_registrations.find(procedure);
     if (procedure_registrations_itr != m_procedure_registrations.end()) {
-        return send_error(session_itr->second->get_transport(), register_message->get_type(),
+        send_error(session_itr->second->get_transport(), register_message->get_type(),
                 register_message->get_request_id(), "wamp.error.procedure_already_exists");
+        return;
     }
 
     const wamp_registration_id registration_id = m_registration_id_generator.generate();
@@ -335,32 +342,36 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
 
     auto session_registrations_itr = m_session_registrations.find(session_id);
     if (session_registrations_itr == m_session_registrations.end()) {
-        return send_error(session_itr->second->get_transport(), unregister_message->get_type(),
+        send_error(session_itr->second->get_transport(), unregister_message->get_type(),
                 unregister_message->get_request_id(), "wamp.error.no_such_registration");
+        return;
     }
 
     auto& registrations = session_registrations_itr->second;
     auto registrations_itr = registrations.find(unregister_message->get_registration_id());
     if (registrations_itr == registrations.end()) {
         BONEFISH_TRACE("error: dealer session registration id does not exist");
-        return send_error(session_itr->second->get_transport(), unregister_message->get_type(),
+        send_error(session_itr->second->get_transport(), unregister_message->get_type(),
                 unregister_message->get_request_id(), "wamp.error.no_such_registration");
+        return;
     }
 
     auto registered_procedures_itr =
             m_registered_procedures.find(*registrations_itr);
     if (registered_procedures_itr == m_registered_procedures.end()) {
         BONEFISH_TRACE("error: dealer registered procedures out of sync");
-        return send_error(session_itr->second->get_transport(), unregister_message->get_type(),
+        send_error(session_itr->second->get_transport(), unregister_message->get_type(),
                 unregister_message->get_request_id(), "wamp.error.no_such_registration");
+        return;
     }
 
     auto procedure_registrations_itr =
             m_procedure_registrations.find(registered_procedures_itr->second);
     if (procedure_registrations_itr == m_procedure_registrations.end()) {
         BONEFISH_TRACE("error: dealer procedure registrations out of sync");
-        return send_error(session_itr->second->get_transport(), unregister_message->get_type(),
+        send_error(session_itr->second->get_transport(), unregister_message->get_type(),
                 unregister_message->get_request_id(), "wamp.error.no_such_registration");
+        return;
     }
 
     m_procedure_registrations.erase(procedure_registrations_itr);

@@ -190,14 +190,16 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unsubscribe_message);
     auto session_subscriptions_itr = m_session_subscriptions.find(session_id);
     if (session_subscriptions_itr == m_session_subscriptions.end()) {
-        return send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
+        send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
                 unsubscribe_message->get_request_id(), std::string("wamp.error.no_subscriptions_for_session"));
+        return;
     }
 
     const wamp_subscription_id& subscription_id = unsubscribe_message->get_subscription_id();
     if (session_subscriptions_itr->second.erase(subscription_id) == 0) {
-        return send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
+        send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
                 unsubscribe_message->get_request_id(), std::string("wamp.error.no_such_subscription"));
+        return;
     }
 
     auto subscription_topics_itr = m_subscription_topics.find(subscription_id);

@@ -231,7 +231,8 @@ inline void rawsocket_connection::receive_handshake_handler(
         const boost::system::error_code& error_code, size_t bytes_transferred)
 {
     if (error_code) {
-        return handle_system_error(error_code);
+        handle_system_error(error_code);
+        return;
     }
 
     assert(bytes_transferred == sizeof(m_capabilities));
@@ -243,7 +244,8 @@ inline void rawsocket_connection::receive_message_header_handler(
         const boost::system::error_code& error_code, size_t bytes_transferred)
 {
     if (error_code) {
-        return handle_system_error(error_code);
+        handle_system_error(error_code);
+        return;
     }
 
     // Convert the message length to host order for convenience.
@@ -256,7 +258,8 @@ inline void rawsocket_connection::receive_message_header_handler(
     if (message_length == 0 || message_length > MAX_MESSAGE_LENGTH) {
         BONEFISH_TRACE("invalid message length: %1%", message_length);
         const auto& fail_handler = get_fail_handler();
-        return fail_handler(shared_from_this(), "invalid message length");
+        fail_handler(shared_from_this(), "invalid message length");
+        return;
     }
 
     m_message_buffer.reserve(message_length);
@@ -279,7 +282,8 @@ inline void rawsocket_connection::receive_message_body_handler(
         const boost::system::error_code& error_code, size_t bytes_transferred)
 {
     if (error_code) {
-        return handle_system_error(error_code);
+        handle_system_error(error_code);
+        return;
     }
 
     const auto& message_handler = get_message_handler();
