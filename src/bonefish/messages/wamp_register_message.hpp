@@ -23,7 +23,6 @@
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
 
-#include <cassert>
 #include <cstddef>
 #include <msgpack.hpp>
 #include <ostream>
@@ -43,7 +42,9 @@ public:
 
     virtual wamp_message_type get_type() const override;
     virtual std::vector<msgpack::object> marshal() const override;
-    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
+    virtual void unmarshal(
+            const std::vector<msgpack::object>& fields,
+            msgpack::zone&& zone) override;
 
     wamp_request_id get_request_id() const;
     const msgpack::object& get_options() const;
@@ -54,7 +55,6 @@ public:
     void set_procedure(const std::string& procedure);
 
 private:
-    msgpack::zone m_zone;
     msgpack::object m_type;
     msgpack::object m_request_id;
     msgpack::object m_options;
@@ -65,8 +65,7 @@ private:
 };
 
 inline wamp_register_message::wamp_register_message()
-    : m_zone()
-    , m_type(wamp_message_type::REGISTER)
+    : m_type(wamp_message_type::REGISTER)
     , m_request_id()
     , m_options(msgpack_empty_map())
     , m_procedure()
@@ -88,7 +87,9 @@ inline std::vector<msgpack::object> wamp_register_message::marshal() const
     return fields;
 }
 
-inline void wamp_register_message::unmarshal(const std::vector<msgpack::object>& fields)
+inline void wamp_register_message::unmarshal(
+        const std::vector<msgpack::object>& fields,
+        msgpack::zone&& zone)
 {
     if (fields.size() != NUM_FIELDS) {
         throw std::invalid_argument("invalid number of fields");
@@ -98,9 +99,10 @@ inline void wamp_register_message::unmarshal(const std::vector<msgpack::object>&
         throw std::invalid_argument("invalid message type");
     }
 
-    m_request_id = msgpack::object(fields[1]);
-    m_options = msgpack::object(fields[2], &m_zone);
-    m_procedure = msgpack::object(fields[3], &m_zone);
+    acquire_zone(std::move(zone));
+    m_request_id = fields[1];
+    m_options = fields[2];
+    m_procedure = fields[3];
 }
 
 inline wamp_request_id wamp_register_message::get_request_id() const
@@ -125,13 +127,16 @@ inline void wamp_register_message::set_request_id(const wamp_request_id& request
 
 inline void wamp_register_message::set_options(const msgpack::object& options)
 {
-    assert(options.type == msgpack::type::MAP);
-    m_options = msgpack::object(options, &m_zone);
+    if (options.type != msgpack::type::MAP) {
+        throw std::invalid_argument("invalid options");
+    }
+
+    m_options = msgpack::object(options, get_zone());
 }
 
 inline void wamp_register_message::set_procedure(const std::string& procedure)
 {
-    m_procedure = msgpack::object(procedure, &m_zone);
+    m_procedure = msgpack::object(procedure, get_zone());
 }
 
 inline std::ostream& operator<<(std::ostream& os, const wamp_register_message& message)

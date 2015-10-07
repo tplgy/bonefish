@@ -32,7 +32,7 @@ public:
     wamp_welcome_details();
     virtual ~wamp_welcome_details();
 
-    msgpack::object marshal(msgpack::zone* zone=nullptr);
+    msgpack::object marshal(msgpack::zone& zone);
     void unmarshal(const msgpack::object& details);
 
     const std::unordered_set<wamp_role>& get_roles() const;
@@ -40,13 +40,11 @@ public:
     void add_role(wamp_role&& role);
 
 private:
-    msgpack::zone m_zone;
     std::unordered_set<wamp_role> m_roles;
 };
 
 inline wamp_welcome_details::wamp_welcome_details()
-    : m_zone()
-    , m_roles()
+    : m_roles()
 {
 }
 

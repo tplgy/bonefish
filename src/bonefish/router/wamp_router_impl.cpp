@@ -182,7 +182,7 @@ void wamp_router_impl::process_hello_message(const wamp_session_id& session_id,
 
     std::unique_ptr<wamp_welcome_message> welcome_message(new wamp_welcome_message);
     welcome_message->set_session_id(session_id);
-    welcome_message->set_details(m_welcome_details.marshal());
+    welcome_message->set_details(m_welcome_details.marshal(welcome_message->get_zone()));
 
     // If we fail to send the welcome message it is most likely that the
     // underlying network connection has been closed/lost which means

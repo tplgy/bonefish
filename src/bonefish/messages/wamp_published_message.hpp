@@ -40,7 +40,9 @@ public:
 
     virtual wamp_message_type get_type() const override;
     virtual std::vector<msgpack::object> marshal() const override;
-    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
+    virtual void unmarshal(
+            const std::vector<msgpack::object>& fields,
+            msgpack::zone&& zone) override;
 
     wamp_request_id get_request_id() const;
     wamp_publication_id get_publication_id() const;
@@ -49,7 +51,6 @@ public:
     void set_publication_id(const wamp_publication_id& publication_id);
 
 private:
-    msgpack::zone m_zone;
     msgpack::object m_type;
     msgpack::object m_request_id;
     msgpack::object m_publication_id;
@@ -59,8 +60,7 @@ private:
 };
 
 inline wamp_published_message::wamp_published_message()
-    : m_zone()
-    , m_type(wamp_message_type::PUBLISHED)
+    : m_type(wamp_message_type::PUBLISHED)
     , m_request_id()
     , m_publication_id()
 {
@@ -81,7 +81,9 @@ inline std::vector<msgpack::object> wamp_published_message::marshal() const
     return fields;
 }
 
-inline void wamp_published_message::unmarshal(const std::vector<msgpack::object>& fields)
+inline void wamp_published_message::unmarshal(
+        const std::vector<msgpack::object>& fields,
+        msgpack::zone&& zone)
 {
     if (fields.size() != NUM_FIELDS) {
         throw std::invalid_argument("invalid number of fields");
@@ -91,8 +93,9 @@ inline void wamp_published_message::unmarshal(const std::vector<msgpack::object>
         throw std::invalid_argument("invalid message type");
     }
 
-    m_request_id = msgpack::object(fields[1]);
-    m_publication_id = msgpack::object(fields[2]);
+    acquire_zone(std::move(zone));
+    m_request_id = fields[1];
+    m_publication_id = fields[2];
 }
 
 inline wamp_request_id wamp_published_message::get_request_id() const
@@ -107,12 +110,12 @@ inline wamp_publication_id wamp_published_message::get_publication_id() const
 
 inline void wamp_published_message::set_request_id(const wamp_request_id& request_id)
 {
-    m_request_id = msgpack::object(request_id.id(), &m_zone);
+    m_request_id = msgpack::object(request_id.id());
 }
 
 inline void wamp_published_message::set_publication_id(const wamp_publication_id& publication_id)
 {
-    m_publication_id = msgpack::object(publication_id.id(), &m_zone);
+    m_publication_id = msgpack::object(publication_id.id());
 }
 
 inline std::ostream& operator<<(std::ostream& os, const wamp_published_message& message)

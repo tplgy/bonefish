@@ -25,7 +25,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <memory>
 #include <msgpack.hpp>
 #include <ostream>
 #include <stdexcept>
@@ -44,7 +43,9 @@ public:
 
     virtual wamp_message_type get_type() const override;
     virtual std::vector<msgpack::object> marshal() const override;
-    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
+    virtual void unmarshal(
+            const std::vector<msgpack::object>& fields,
+            msgpack::zone&& zone) override;
 
     wamp_session_id get_session_id() const;
     const msgpack::object& get_details() const;
@@ -53,7 +54,6 @@ public:
     void set_details(const msgpack::object&);
 
 private:
-    msgpack::zone m_zone;
     msgpack::object m_type;
     msgpack::object m_session_id;
     msgpack::object m_details;
@@ -63,8 +63,7 @@ private:
 };
 
 inline wamp_welcome_message::wamp_welcome_message()
-    : m_zone()
-    , m_type(wamp_message_type::WELCOME)
+    : m_type(wamp_message_type::WELCOME)
     , m_session_id()
     , m_details(msgpack_empty_map())
 {
@@ -85,7 +84,9 @@ inline std::vector<msgpack::object> wamp_welcome_message::marshal() const
     return fields;
 }
 
-inline void wamp_welcome_message::unmarshal(const std::vector<msgpack::object>& fields)
+inline void wamp_welcome_message::unmarshal(
+        const std::vector<msgpack::object>& fields,
+        msgpack::zone&& zone)
 {
     if (fields.size() != NUM_FIELDS) {
         throw std::invalid_argument("invalid number of fields");
@@ -95,8 +96,9 @@ inline void wamp_welcome_message::unmarshal(const std::vector<msgpack::object>& 
         throw std::invalid_argument("invalid message type");
     }
 
-    m_session_id = msgpack::object(fields[1]);
-    m_details = msgpack::object(fields[2], &m_zone);
+    acquire_zone(std::move(zone));
+    m_session_id = fields[1];
+    m_details = fields[2];
 }
 
 inline wamp_session_id wamp_welcome_message::get_session_id() const
@@ -117,7 +119,7 @@ inline void wamp_welcome_message::set_session_id(const wamp_session_id& session_
 inline void wamp_welcome_message::set_details(const msgpack::object& details)
 {
     assert(details.type == msgpack::type::MAP);
-    m_details = msgpack::object(details, &m_zone);
+    m_details = msgpack::object(details, get_zone());
 }
 
 inline std::ostream& operator<<(std::ostream& os, const wamp_welcome_message& message)

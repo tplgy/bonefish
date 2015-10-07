@@ -21,7 +21,7 @@
 
 namespace bonefish {
 
-msgpack::object wamp_hello_details::marshal(msgpack::zone*) const
+msgpack::object wamp_hello_details::marshal(msgpack::zone& zone) const
 {
     throw std::logic_error("marshal not implemented");
 }

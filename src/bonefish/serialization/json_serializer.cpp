@@ -167,8 +167,8 @@ struct wamp_bin_string_conversion
 
 wamp_message* json_serializer::deserialize(const char* buffer, size_t length) const
 {
-    msgpack::zone zone;
     msgpack::object item;
+    msgpack::zone zone;
 
     imemstream bufferstream(buffer, length);
     serialization::msgpack_from_json_handler<wamp_bin_string_conversion> handler(item, zone);
@@ -187,7 +187,7 @@ wamp_message* json_serializer::deserialize(const char* buffer, size_t length) co
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
     std::unique_ptr<wamp_message> message(wamp_message_factory::create_message(type));
     if (message) {
-        message->unmarshal(fields);
+        message->unmarshal(fields, std::move(zone));
     } else {
         throw std::runtime_error("no deserializer defined for message");
     }
