@@ -36,7 +36,7 @@ public:
             const websocketpp::connection_hdl& handle,
             const std::shared_ptr<websocketpp::server<websocket_config>>& server);
 
-    virtual bool send_message(const wamp_message* message) override;
+    virtual bool send_message(wamp_message&& message) override;
 
 private:
     std::shared_ptr<wamp_serializer> m_serializer;

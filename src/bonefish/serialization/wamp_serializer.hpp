@@ -36,7 +36,7 @@ public:
 
     virtual wamp_serializer_type get_type() const = 0;
     virtual wamp_message* deserialize(const char* buffer, size_t length) const = 0;
-    virtual expandable_buffer serialize(const wamp_message* message) const = 0;
+    virtual expandable_buffer serialize(const wamp_message& message) const = 0;
 };
 
 inline wamp_serializer::wamp_serializer()

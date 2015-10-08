@@ -9,6 +9,10 @@ set(SOURCES
     bonefish/messages/wamp_message_factory.cpp
     bonefish/messages/wamp_message_type.cpp
     bonefish/messages/wamp_welcome_details.cpp
+    bonefish/native/native_connection.cpp
+    bonefish/native/native_server.cpp
+    bonefish/native/native_server_impl.cpp
+    bonefish/native/native_transport.cpp
     bonefish/rawsocket/rawsocket_server.cpp
     bonefish/rawsocket/rawsocket_server_impl.cpp
     bonefish/rawsocket/rawsocket_transport.cpp
@@ -28,6 +32,12 @@ set(SOURCES
     bonefish/websocket/websocket_transport.cpp)
 
 set(PUBLIC_HEADERS
+    bonefish/native/native_component_endpoint.hpp
+    bonefish/native/native_connector.hpp
+    bonefish/native/native_endpoint.hpp
+    bonefish/native/native_message_queue.hpp
+    bonefish/native/native_server.hpp
+    bonefish/native/native_server_endpoint.hpp
     bonefish/rawsocket/rawsocket_listener.hpp
     bonefish/rawsocket/rawsocket_server.hpp
     bonefish/rawsocket/tcp_listener.hpp
@@ -94,6 +104,9 @@ set(PRIVATE_HEADERS
     bonefish/messages/wamp_welcome_details.hpp
     bonefish/messages/wamp_welcome_message.hpp
     bonefish/messages/wamp_yield_message.hpp
+    bonefish/native/native_connection.hpp
+    bonefish/native/native_server_impl.hpp
+    bonefish/native/native_transport.hpp
     bonefish/rawsocket/rawsocket_connection.hpp
     bonefish/rawsocket/rawsocket_server_impl.hpp
     bonefish/rawsocket/rawsocket_transport.hpp

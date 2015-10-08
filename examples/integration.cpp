@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+#include <bonefish/native/native_server.hpp>
 #include <bonefish/rawsocket/rawsocket_server.hpp>
 #include <bonefish/rawsocket/tcp_listener.hpp>
 #include <bonefish/rawsocket/uds_listener.hpp>
@@ -52,6 +53,10 @@ int main(int argc, char** argv)
     std::shared_ptr<bonefish::wamp_serializers> serializers =
             std::make_shared<bonefish::wamp_serializers>();
     serializers->add_serializer(std::make_shared<bonefish::msgpack_serializer>());
+
+    std::shared_ptr<bonefish::native_server> native_server =
+            std::make_shared<bonefish::native_server>(io_service, routers);
+    native_server->start();
 
     std::shared_ptr<bonefish::rawsocket_server> rawsocket_server =
             std::make_shared<bonefish::rawsocket_server>(routers, serializers);

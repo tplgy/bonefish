@@ -34,9 +34,9 @@ rawsocket_transport::rawsocket_transport(
 {
 }
 
-bool rawsocket_transport::send_message(const wamp_message* message)
+bool rawsocket_transport::send_message(wamp_message&& message)
 {
-    BONEFISH_TRACE("sending message: %1%", message_type_to_string(message->get_type()));
+    BONEFISH_TRACE("sending message: %1%", message_type_to_string(message.get_type()));
     expandable_buffer buffer = m_serializer->serialize(message);
     return m_connection->send_message(buffer.data(), buffer.size());
 }

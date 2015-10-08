@@ -59,11 +59,11 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
     return message.release();
 }
 
-expandable_buffer msgpack_serializer::serialize(const wamp_message* message) const
+expandable_buffer msgpack_serializer::serialize(const wamp_message& message) const
 {
     expandable_buffer buffer(10*1024);
     msgpack::packer<expandable_buffer> packer(buffer);
-    packer.pack(message->marshal());
+    packer.pack(message.marshal());
 
     return buffer;
 }

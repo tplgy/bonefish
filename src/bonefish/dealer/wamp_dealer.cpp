@@ -199,7 +199,7 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     invocation_message->set_arguments_kw(call_message->get_arguments_kw());
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *invocation_message);
-    if (!session->get_transport()->send_message(invocation_message.get())) {
+    if (!session->get_transport()->send_message(std::move(*invocation_message))) {
         BONEFISH_TRACE("sending invocation message to callee failed: network failure");
 
         send_error(session_itr->second->get_transport(), call_message->get_type(),
@@ -259,7 +259,7 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *caller_error_message);
     std::shared_ptr<wamp_session> session = dealer_invocation->get_session();
-    if (!session->get_transport()->send_message(caller_error_message.get())) {
+    if (!session->get_transport()->send_message(std::move(*caller_error_message))) {
         // There is no error message to propogate in this case as this error
         // message was initiated by the callee and sending the callee an error
         // message in response to an error message would not make any sense.
@@ -325,7 +325,7 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
     // that the callee is no longer reachable on this session. So all we
     // do here is trace the fact that this event occured.
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *registered_message);
-    if (!session_itr->second->get_transport()->send_message(registered_message.get())) {
+    if (!session_itr->second->get_transport()->send_message(std::move(*registered_message))) {
         BONEFISH_TRACE("failed to send registered message to caller: network failure");
     }
 }
@@ -386,7 +386,7 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
     // that the callee is no longer reachable on this session. So all we
     // do here is trace the fact that this event occured.
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unregistered_message);
-    if (!session_itr->second->get_transport()->send_message(unregistered_message.get())) {
+    if (!session_itr->second->get_transport()->send_message(std::move(*unregistered_message))) {
         BONEFISH_TRACE("failed to send unregistered message to caller: network failure");
     }
 }
@@ -440,7 +440,7 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
     // that the caller is no longer reachable on this session. So all
     // we do here is trace the fact that this event occured.
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *result_message);
-    if (!session->get_transport()->send_message(result_message.get())) {
+    if (!session->get_transport()->send_message(std::move(*result_message))) {
         BONEFISH_TRACE("failed to send result message to caller: network failure");
     }
 
@@ -463,7 +463,7 @@ void wamp_dealer::send_error(const std::unique_ptr<wamp_transport>& transport,
     error_message->set_error(error);
 
     BONEFISH_TRACE("%1%", *error_message);
-    if (!transport->send_message(error_message.get())) {
+    if (!transport->send_message(std::move(*error_message))) {
         BONEFISH_TRACE("failed to send error message");
     }
 }
