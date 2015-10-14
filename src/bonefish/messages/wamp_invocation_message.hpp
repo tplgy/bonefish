@@ -44,7 +44,9 @@ public:
 
     virtual wamp_message_type get_type() const override;
     virtual std::vector<msgpack::object> marshal() const override;
-    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
+    virtual void unmarshal(
+            const std::vector<msgpack::object>& fields,
+            msgpack::zone&& zone) override;
 
     wamp_request_id get_request_id() const;
     wamp_registration_id get_registration_id() const;
@@ -59,7 +61,6 @@ public:
     void set_arguments_kw(const msgpack::object& arguments_kw);
 
 private:
-    msgpack::zone m_zone;
     msgpack::object m_type;
     msgpack::object m_request_id;
     msgpack::object m_registration_id;
@@ -73,8 +74,7 @@ private:
 };
 
 inline wamp_invocation_message::wamp_invocation_message()
-    : m_zone()
-    , m_type(wamp_message_type::INVOCATION)
+    : m_type(wamp_message_type::INVOCATION)
     , m_request_id()
     , m_registration_id()
     , m_details(msgpack_empty_map())
@@ -113,7 +113,9 @@ inline std::vector<msgpack::object> wamp_invocation_message::marshal() const
     return fields;
 }
 
-inline void wamp_invocation_message::unmarshal(const std::vector<msgpack::object>& fields)
+inline void wamp_invocation_message::unmarshal(
+        const std::vector<msgpack::object>& fields,
+        msgpack::zone&& zone)
 {
     if (fields.size() < MIN_FIELDS || fields.size() > MAX_FIELDS) {
         throw std::invalid_argument("invalid number of fields");
@@ -123,14 +125,15 @@ inline void wamp_invocation_message::unmarshal(const std::vector<msgpack::object
         throw std::invalid_argument("invalid message type");
     }
 
-    m_request_id = msgpack::object(fields[1]);
-    m_registration_id = msgpack::object(fields[2]);
-    m_details = msgpack::object(fields[3], &m_zone);
+    acquire_zone(std::move(zone));
+    m_request_id = fields[1];
+    m_registration_id = fields[2];
+    m_details = fields[3];
     if (fields.size() >= 5) {
-        m_arguments = msgpack::object(fields[4], &m_zone);
+        m_arguments = fields[4];
     }
     if (fields.size() == 6) {
-        m_arguments_kw = msgpack::object(fields[5], &m_zone);
+        m_arguments_kw = fields[5];
     }
 }
 
@@ -172,7 +175,7 @@ inline void wamp_invocation_message::set_registration_id(const wamp_registration
 inline void wamp_invocation_message::set_details(const msgpack::object& details)
 {
     if (details.type == msgpack::type::MAP) {
-        m_details = msgpack::object(details, &m_zone);
+        m_details = msgpack::object(details, get_zone());
     } else {
         throw std::invalid_argument("invalid details");
     }
@@ -181,7 +184,7 @@ inline void wamp_invocation_message::set_details(const msgpack::object& details)
 inline void wamp_invocation_message::set_arguments(const msgpack::object& arguments)
 {
     if (arguments.type == msgpack::type::NIL || arguments.type == msgpack::type::ARRAY) {
-        m_arguments = msgpack::object(arguments, &m_zone);
+        m_arguments = msgpack::object(arguments, get_zone());
     } else {
         throw std::invalid_argument("invalid arguments");
     }
@@ -190,7 +193,7 @@ inline void wamp_invocation_message::set_arguments(const msgpack::object& argume
 inline void wamp_invocation_message::set_arguments_kw(const msgpack::object& arguments_kw)
 {
     if (arguments_kw.type == msgpack::type::NIL || arguments_kw.type == msgpack::type::MAP) {
-        m_arguments_kw = msgpack::object(arguments_kw, &m_zone);
+        m_arguments_kw = msgpack::object(arguments_kw, get_zone());
     } else {
         throw std::invalid_argument("invalid arguments_kw");
     }

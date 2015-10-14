@@ -44,7 +44,9 @@ public:
 
     virtual wamp_message_type get_type() const override;
     virtual std::vector<msgpack::object> marshal() const override;
-    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
+    virtual void unmarshal(
+            const std::vector<msgpack::object>& fields,
+            msgpack::zone&& zone) override;
 
     wamp_message_type get_request_type() const;
     wamp_request_id get_request_id() const;
@@ -61,7 +63,6 @@ public:
     void set_arguments_kw(const msgpack::object& arguments_kw);
 
 private:
-    msgpack::zone m_zone;
     msgpack::object m_type;
     msgpack::object m_request_type;
     msgpack::object m_request_id;
@@ -76,8 +77,7 @@ private:
 };
 
 inline wamp_error_message::wamp_error_message()
-    : m_zone()
-    , m_type(wamp_message_type::ERROR)
+    : m_type(wamp_message_type::ERROR)
     , m_request_type()
     , m_request_id()
     , m_details(msgpack_empty_map())
@@ -117,7 +117,9 @@ inline std::vector<msgpack::object> wamp_error_message::marshal() const
     return fields;
 }
 
-inline void wamp_error_message::unmarshal(const std::vector<msgpack::object>& fields)
+inline void wamp_error_message::unmarshal(
+        const std::vector<msgpack::object>& fields,
+        msgpack::zone&& zone)
 {
     if (fields.size() < MIN_FIELDS || fields.size() > MAX_FIELDS) {
         throw std::invalid_argument("invalid number of fields");
@@ -127,15 +129,16 @@ inline void wamp_error_message::unmarshal(const std::vector<msgpack::object>& fi
         throw std::invalid_argument("invalid message type");
     }
 
-    m_request_type = msgpack::object(fields[1]);
-    m_request_id = msgpack::object(fields[2]);
-    m_details = msgpack::object(fields[3], &m_zone);
-    m_error = msgpack::object(fields[4], &m_zone);
+    acquire_zone(std::move(zone));
+    m_request_type = fields[1];
+    m_request_id = fields[2];
+    m_details = fields[3];
+    m_error = fields[4];
     if (fields.size() >= 6) {
-        m_arguments = msgpack::object(fields[5], &m_zone);
+        m_arguments = fields[5];
     }
     if (fields.size() == 7) {
-        m_arguments_kw = msgpack::object(fields[6], &m_zone);
+        m_arguments_kw = fields[6];
     }
 }
 
@@ -171,7 +174,7 @@ inline const msgpack::object& wamp_error_message::get_arguments_kw() const
 
 inline void wamp_error_message::set_request_type(const wamp_message_type& request_type)
 {
-    m_request_type = msgpack::object(request_type, &m_zone);
+    m_request_type = msgpack::object(request_type, get_zone());
 }
 
 inline void wamp_error_message::set_request_id(const wamp_request_id& request_id)
@@ -182,7 +185,7 @@ inline void wamp_error_message::set_request_id(const wamp_request_id& request_id
 inline void wamp_error_message::set_details(const msgpack::object& details)
 {
     if (details.type == msgpack::type::MAP) {
-        m_details = msgpack::object(details, &m_zone);
+        m_details = msgpack::object(details, get_zone());
     } else {
         throw std::invalid_argument("invalid details");
     }
@@ -190,13 +193,13 @@ inline void wamp_error_message::set_details(const msgpack::object& details)
 
 inline void wamp_error_message::set_error(const std::string& error)
 {
-    m_error = msgpack::object(error, &m_zone);
+    m_error = msgpack::object(error, get_zone());
 }
 
 inline void wamp_error_message::set_arguments(const msgpack::object& arguments)
 {
     if (arguments.type == msgpack::type::NIL || arguments.type == msgpack::type::ARRAY) {
-        m_arguments = msgpack::object(arguments, &m_zone);
+        m_arguments = msgpack::object(arguments, get_zone());
     } else {
         throw std::invalid_argument("invalid arguments");
     }
@@ -205,7 +208,7 @@ inline void wamp_error_message::set_arguments(const msgpack::object& arguments)
 inline void wamp_error_message::set_arguments_kw(const msgpack::object& arguments_kw)
 {
     if (arguments_kw.type == msgpack::type::NIL || arguments_kw.type == msgpack::type::MAP) {
-        m_arguments_kw = msgpack::object(arguments_kw, &m_zone);
+        m_arguments_kw = msgpack::object(arguments_kw, get_zone());
     } else {
         throw std::invalid_argument("invalid arguments_kw");
     }

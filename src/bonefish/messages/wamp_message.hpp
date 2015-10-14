@@ -19,7 +19,7 @@
 
 #include <bonefish/messages/wamp_message_type.hpp>
 
-#include <msgpack/object_fwd.hpp>
+#include <msgpack.hpp>
 #include <vector>
 
 namespace bonefish {
@@ -28,22 +28,47 @@ class wamp_message
 {
 public:
     wamp_message();
-    virtual ~wamp_message();
+    virtual ~wamp_message() = default;
 
-    wamp_message(const wamp_message& other) = delete;
+    wamp_message(const wamp_message&) = delete;
+    wamp_message(wamp_message&&) = delete;
     wamp_message& operator=(wamp_message const&) = delete;
+    wamp_message& operator=(wamp_message&&) = delete;
+
+    msgpack::zone release_zone();
+    msgpack::zone& get_zone();
 
     virtual wamp_message_type get_type() const = 0;
     virtual std::vector<msgpack::object> marshal() const = 0;
-    virtual void unmarshal(const std::vector<msgpack::object>& fields) = 0;
+    virtual void unmarshal(
+            const std::vector<msgpack::object>& fields,
+            msgpack::zone&& zone) = 0;
+
+protected:
+    void acquire_zone(msgpack::zone&& zone);
+
+private:
+    msgpack::zone m_zone;
 };
 
 inline wamp_message::wamp_message()
+    : m_zone()
 {
 }
 
-inline wamp_message::~wamp_message()
+inline msgpack::zone wamp_message::release_zone()
 {
+    return std::move(m_zone);
+}
+
+inline msgpack::zone& wamp_message::get_zone()
+{
+    return m_zone;
+}
+
+inline void wamp_message::acquire_zone(msgpack::zone&& zone)
+{
+    m_zone = std::move(zone);
 }
 
 } // namespace bonefish

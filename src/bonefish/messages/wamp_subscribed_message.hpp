@@ -41,7 +41,9 @@ public:
 
     virtual wamp_message_type get_type() const override;
     virtual std::vector<msgpack::object> marshal() const override;
-    virtual void unmarshal(const std::vector<msgpack::object>& fields) override;
+    virtual void unmarshal(
+            const std::vector<msgpack::object>& fields,
+            msgpack::zone&& zone) override;
 
     wamp_request_id get_request_id() const;
     wamp_subscription_id get_subscription_id() const;
@@ -50,7 +52,6 @@ public:
     void set_subscription_id(const wamp_subscription_id& subscription_id);
 
 private:
-    msgpack::zone m_zone;
     msgpack::object m_type;
     msgpack::object m_request_id;
     msgpack::object m_subscription_id;
@@ -60,8 +61,7 @@ private:
 };
 
 inline wamp_subscribed_message::wamp_subscribed_message()
-    : m_zone()
-    , m_type(wamp_message_type::SUBSCRIBED)
+    : m_type(wamp_message_type::SUBSCRIBED)
     , m_request_id()
     , m_subscription_id()
 {
@@ -82,7 +82,9 @@ inline std::vector<msgpack::object> wamp_subscribed_message::marshal() const
     return fields;
 }
 
-inline void wamp_subscribed_message::unmarshal(const std::vector<msgpack::object>& fields)
+inline void wamp_subscribed_message::unmarshal(
+        const std::vector<msgpack::object>& fields,
+        msgpack::zone&& zone)
 {
     if (fields.size() != NUM_FIELDS) {
         throw std::invalid_argument("invalid number of fields");
@@ -92,8 +94,9 @@ inline void wamp_subscribed_message::unmarshal(const std::vector<msgpack::object
         throw std::invalid_argument("invalid message type");
     }
 
-    m_request_id = msgpack::object(fields[1]);
-    m_subscription_id = msgpack::object(fields[2]);
+    acquire_zone(std::move(zone));
+    m_request_id = fields[1];
+    m_subscription_id = fields[2];
 }
 
 inline wamp_request_id wamp_subscribed_message::get_request_id() const

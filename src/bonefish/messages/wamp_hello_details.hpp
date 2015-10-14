@@ -20,11 +20,7 @@
 #include <bonefish/roles/wamp_role.hpp>
 #include <bonefish/roles/wamp_role_type.hpp>
 
-#include <cstddef>
-#include <iostream>
 #include <msgpack.hpp>
-#include <stdexcept>
-#include <string>
 #include <unordered_set>
 
 namespace bonefish {
@@ -35,7 +31,7 @@ public:
     wamp_hello_details();
     virtual ~wamp_hello_details();
 
-    msgpack::object marshal(msgpack::zone* zone=nullptr) const;
+    msgpack::object marshal(msgpack::zone& zone) const;
     void unmarshal(const msgpack::object& details);
 
     const std::unordered_set<wamp_role>& get_roles() const;

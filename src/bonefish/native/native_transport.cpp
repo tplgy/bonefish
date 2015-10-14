@@ -14,34 +14,28 @@
  *  limitations under the License.
  */
 
-#include <bonefish/websocket/websocket_transport.hpp>
+#include <bonefish/native/native_transport.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_type.hpp>
-#include <bonefish/serialization/expandable_buffer.hpp>
-#include <bonefish/serialization/wamp_serializer.hpp>
+#include <bonefish/native/native_connection.hpp>
 #include <bonefish/trace/trace.hpp>
 
 #include <iostream>
 
 namespace bonefish {
 
-websocket_transport::websocket_transport(const std::shared_ptr<wamp_serializer>& serializer,
-        const websocketpp::connection_hdl& handle,
-        const std::shared_ptr<websocketpp::server<websocket_config>>& server)
-    : m_serializer(serializer)
-    , m_handle(handle)
-    , m_server(server)
+native_transport::native_transport(
+        const std::shared_ptr<native_connection>& connection)
+    : m_connection(connection)
 {
 }
 
-bool websocket_transport::send_message(wamp_message&& message)
+bool native_transport::send_message(wamp_message&& message)
 {
     BONEFISH_TRACE("sending message: %1%", message_type_to_string(message.get_type()));
-    expandable_buffer buffer = m_serializer->serialize(message);
-    auto opcode = (m_serializer->get_type() == wamp_serializer_type::JSON)
-            ? websocketpp::frame::opcode::TEXT
-            : websocketpp::frame::opcode::BINARY;
-    m_server->send(m_handle, buffer.data(), buffer.size(), opcode);
+    m_connection->send_message(
+            std::move(message.marshal()),
+            std::move(message.release_zone()));
 
     return true;
 }

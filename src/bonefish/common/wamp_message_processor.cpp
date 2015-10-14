@@ -86,7 +86,7 @@ void wamp_message_processor::process_message(
             if (!router) {
                 std::unique_ptr<wamp_abort_message> abort_message(new wamp_abort_message);
                 abort_message->set_reason("wamp.error.no_such_realm");
-                transport->send_message(abort_message.get());
+                transport->send_message(std::move(*abort_message));
             } else {
                 wamp_session_id id;
                 auto generator = router->get_session_id_generator();

@@ -17,6 +17,7 @@
 #include <bonefish/websocket/websocket_server_impl.hpp>
 #include <bonefish/identifiers/wamp_session_id.hpp>
 #include <bonefish/identifiers/wamp_session_id_generator.hpp>
+#include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/router/wamp_router.hpp>
 #include <bonefish/router/wamp_routers.hpp>
 #include <bonefish/serialization/wamp_serializer.hpp>

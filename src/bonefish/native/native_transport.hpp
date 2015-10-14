@@ -14,34 +14,41 @@
  *  limitations under the License.
  */
 
-#ifndef BONEFISH_RAWSOCKET_TRANSPORT_HPP
-#define BONEFISH_RAWSOCKET_TRANSPORT_HPP
+#ifndef BONEFISH_NATIVE_TRANSPORT_HPP
+#define BONEFISH_NATIVE_TRANSPORT_HPP
 
 #include <bonefish/transport/wamp_transport.hpp>
 
-#include <iostream>
 #include <memory>
 
 namespace bonefish {
 
-class rawsocket_connection;
+class native_connection;
 class wamp_message;
-class wamp_serializer;
 
-class rawsocket_transport : public wamp_transport
+/*!
+ * A class that provides a transport that can be used to send messages
+ * over an underlying connection.
+ */
+class native_transport : public wamp_transport
 {
 public:
-    rawsocket_transport(
-            const std::shared_ptr<wamp_serializer>& serializer,
-            const std::shared_ptr<rawsocket_connection>& connection);
+    native_transport(const std::shared_ptr<native_connection>& connection);
 
+    /*!
+     * Sends a message over the transports connection.
+     *
+     * @param message The WAMP message to send.
+     */
     virtual bool send_message(wamp_message&& message) override;
 
 private:
-    std::shared_ptr<wamp_serializer> m_serializer;
-    std::shared_ptr<rawsocket_connection> m_connection;
+    /*!
+     * The underlying connection for sending messages.
+     */
+    std::shared_ptr<native_connection> m_connection;
 };
 
 } // namespace bonefish
 
-#endif // BONEFISH_RAWSOCKET_TRANSPORT_HPP
+#endif // BONEFISH_NATIVE_TRANSPORT_HPP

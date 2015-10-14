@@ -80,13 +80,9 @@ void operator<< (object::with_zone& details,
 
 namespace bonefish {
 
-msgpack::object wamp_welcome_details::marshal(msgpack::zone* zone)
+msgpack::object wamp_welcome_details::marshal(msgpack::zone& zone)
 {
-    if (zone) {
-        return msgpack::object(*this, zone);
-    }
-
-    return msgpack::object(*this, &m_zone);
+    return msgpack::object(*this, zone);
 }
 
 void wamp_welcome_details::unmarshal(const msgpack::object& object)

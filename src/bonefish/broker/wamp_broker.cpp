@@ -122,7 +122,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
             // TODO: Improve performance here by offering a transport api that
             //       takes in a pre-serialized buffer. That way we can serialize
             //       the message once and then send it to all of the subscribers.
-            session->get_transport()->send_message(event_message.get());
+            session->get_transport()->send_message(std::move(*event_message));
         }
     }
 
@@ -176,7 +176,7 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
     subscribed_message->set_subscription_id(subscription_id);
 
     BONEFISH_TRACE("%1%, %2%", *session % *subscribed_message);
-    session->get_transport()->send_message(subscribed_message.get());
+    session->get_transport()->send_message(std::move(*subscribed_message));
 }
 
 void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
@@ -227,7 +227,7 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
     unsubscribed_message->set_request_id(unsubscribe_message->get_request_id());
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unsubscribed_message);
-    session_itr->second->get_transport()->send_message(unsubscribed_message.get());
+    session_itr->second->get_transport()->send_message(std::move(*unsubscribed_message));
 }
 
 void wamp_broker::send_error(const std::unique_ptr<wamp_transport>& transport,
@@ -240,7 +240,7 @@ void wamp_broker::send_error(const std::unique_ptr<wamp_transport>& transport,
     error_message->set_error(error);
 
     BONEFISH_TRACE("%1%", *error_message);
-    transport->send_message(error_message.get());
+    transport->send_message(std::move(*error_message));
 }
 
 } // namespace bonefish

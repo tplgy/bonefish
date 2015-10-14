@@ -27,8 +27,10 @@
 #ifndef BONEFISH_SERIALIZATION_JSON_MSGPACK_SAX_HPP
 #define BONEFISH_SERIALIZATION_JSON_MSGPACK_SAX_HPP
 
+#include <cstddef>
 #include <msgpack.hpp>
 #include <stack>
+#include <vector>
 
 namespace bonefish {
 namespace serialization {
@@ -283,7 +285,7 @@ struct msgpack_from_json_handler
     }
 
 private:
-    std::stack<size_t> m_container_indexes;
+    std::stack<std::size_t> m_container_indexes;
     std::vector<msgpack::object> m_queued;
     msgpack::object& m_root;
     msgpack::zone& m_zone;

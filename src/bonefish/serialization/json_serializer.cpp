@@ -167,8 +167,8 @@ struct wamp_bin_string_conversion
 
 wamp_message* json_serializer::deserialize(const char* buffer, size_t length) const
 {
-    msgpack::zone zone;
     msgpack::object item;
+    msgpack::zone zone;
 
     imemstream bufferstream(buffer, length);
     serialization::msgpack_from_json_handler<wamp_bin_string_conversion> handler(item, zone);
@@ -187,7 +187,7 @@ wamp_message* json_serializer::deserialize(const char* buffer, size_t length) co
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
     std::unique_ptr<wamp_message> message(wamp_message_factory::create_message(type));
     if (message) {
-        message->unmarshal(fields);
+        message->unmarshal(fields, std::move(zone));
     } else {
         throw std::runtime_error("no deserializer defined for message");
     }
@@ -195,13 +195,13 @@ wamp_message* json_serializer::deserialize(const char* buffer, size_t length) co
     return message.release();
 }
 
-expandable_buffer json_serializer::serialize(const wamp_message* message) const
+expandable_buffer json_serializer::serialize(const wamp_message& message) const
 {
     expandable_buffer buffer(10*1024);
     omemstream bufferstream(buffer);
     rapidjson::Writer<omemstream> writer(bufferstream);
 
-    const std::vector<msgpack::object>& fields = message->marshal();
+    const std::vector<msgpack::object>& fields = message.marshal();
     bool write_failed = false;
 
     do {

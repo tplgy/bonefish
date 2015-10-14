@@ -51,7 +51,7 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
     wamp_message_type type = static_cast<wamp_message_type>(fields[0].as<unsigned>());
     std::unique_ptr<wamp_message> message(wamp_message_factory::create_message(type));
     if (message) {
-        message->unmarshal(fields);
+        message->unmarshal(fields, std::move(*(item.zone())));
     } else {
         throw std::runtime_error("no deserializer defined for message");
     }
@@ -59,11 +59,11 @@ wamp_message* msgpack_serializer::deserialize(const char* buffer, size_t length)
     return message.release();
 }
 
-expandable_buffer msgpack_serializer::serialize(const wamp_message* message) const
+expandable_buffer msgpack_serializer::serialize(const wamp_message& message) const
 {
     expandable_buffer buffer(10*1024);
     msgpack::packer<expandable_buffer> packer(buffer);
-    packer.pack(message->marshal());
+    packer.pack(message.marshal());
 
     return buffer;
 }
