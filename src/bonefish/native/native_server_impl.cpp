@@ -38,11 +38,23 @@ native_server_impl::native_server_impl(
         const std::shared_ptr<wamp_routers>& routers)
     : m_io_service(io_service)
     , m_routers(routers)
-    , m_connector(std::make_shared<native_connector>())
+    , m_connector()
     , m_connections()
     , m_endpoints_connected()
     , m_message_processor(routers)
 {
+}
+
+native_server_impl::~native_server_impl()
+{
+}
+
+void native_server_impl::start()
+{
+    BONEFISH_TRACE("starting native server");
+    assert(!m_connector);
+    m_connector = std::make_shared<native_connector>();
+
     std::weak_ptr<native_server_impl> weak_this = shared_from_this();
 
     auto connect_handler = [this, weak_this](
@@ -72,18 +84,11 @@ native_server_impl::native_server_impl(
     m_connector->set_disconnect_handler(disconnect_handler);
 }
 
-native_server_impl::~native_server_impl()
-{
-}
-
-void native_server_impl::start()
-{
-    BONEFISH_TRACE("starting native server");
-}
-
 void native_server_impl::shutdown()
 {
     BONEFISH_TRACE("stopping native server");
+    assert(m_connector);
+    m_connector.reset();
     // FIXME: Walk all of the connections and disconnect them?
 }
 
