@@ -38,7 +38,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++11 ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wall -Werror -Wno-unused-variable -std=c++11 ${CMAKE_CXX_FLAGS}")
 else()
     add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
 endif()
