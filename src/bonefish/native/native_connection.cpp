@@ -18,10 +18,10 @@
 
 namespace bonefish {
 
-const std::shared_ptr<native_server_endpoint>& native_connection::get_server_endpoint()
+const std::shared_ptr<native_endpoint>& native_connection::get_server_endpoint()
 {
     if (!m_server_endpoint) {
-        m_server_endpoint = std::make_shared<native_server_endpoint>();
+        m_server_endpoint = std::make_shared<native_endpoint>();
         std::weak_ptr<native_connection> weak_this = this->shared_from_this();
 
         m_server_endpoint->set_send_message_handler(
@@ -51,24 +51,6 @@ const std::shared_ptr<native_server_endpoint>& native_connection::get_server_end
                 });
             }
         );
-
-        m_server_endpoint->set_disconnected_handler([this, weak_this](){
-            auto shared_this = weak_this.lock();
-            if (!shared_this) {
-                // This will get thrown in the context of the component.
-                throw std::runtime_error("connection closed");
-            }
-
-            m_io_service.post([this, weak_this]() {
-                auto shared_this = weak_this.lock();
-                if (!shared_this) {
-                    // FIXME: This will cause the io service to bail!!
-                    throw std::runtime_error("connection closed");
-                }
-
-                m_disconnected_handler();
-            });
-        });
     }
 
     return m_server_endpoint;

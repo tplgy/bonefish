@@ -29,9 +29,8 @@
 
 namespace bonefish {
 
-class native_component_endpoint;
 class native_connection;
-class native_server_endpoint;
+class native_endpoint;
 class wamp_routers;
 
 /*!
@@ -71,19 +70,20 @@ private:
      *
      * @param component_endpoint The endpoint of the component that is establishing
      *                           the connection.
+     *
+     * @return The server endpoint associated with the connection
      */
-    std::shared_ptr<native_server_endpoint> on_connect(
-            const std::shared_ptr<native_component_endpoint>& component_endpoint);
+    std::shared_ptr<native_endpoint> on_connect(
+            const std::shared_ptr<native_endpoint>& component_endpoint);
 
     /*!
      * Callback handler that is invoked when a component is establishing a
      * connection with the server.
      *
-     * @param component_endpoint The endpoint of the component that is establishing
-     *                           the connection.
+     * @param server_endpoint The endpoint of the component that is establishing
+     *                        the connection.
      */
-    std::shared_ptr<native_component_endpoint> on_disconnect(
-            const std::shared_ptr<native_server_endpoint>& endpoint);
+    void on_disconnect(const std::shared_ptr<native_endpoint>& server_endpoint);
 
     /*!
      * Callback handler that is invoked when a message has been received.
@@ -124,9 +124,9 @@ private:
      * about server endpoints so this allows us to perform the reverse mapping
      * when required.
      */
-    std::map<std::shared_ptr<native_server_endpoint>,
+    std::map<std::shared_ptr<native_endpoint>,
             std::shared_ptr<native_connection>,
-            std::owner_less<std::shared_ptr<native_server_endpoint>>> m_endpoints_connected;
+            std::owner_less<std::shared_ptr<native_endpoint>>> m_endpoints_connected;
 
     /*!
      * The message processor to use for feeding messages into the routers.
