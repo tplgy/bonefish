@@ -17,12 +17,12 @@
 #ifndef BONEFISH_RAWSOCKET_LISTENER_HPP
 #define BONEFISH_RAWSOCKET_LISTENER_HPP
 
-#include <bonefish/rawsocket/rawsocket_connection.hpp>
-
 #include <boost/asio/io_service.hpp>
 #include <functional>
 
 namespace bonefish {
+
+class rawsocket_connection;
 
 class rawsocket_listener
 {
