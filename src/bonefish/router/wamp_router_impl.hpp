@@ -56,25 +56,25 @@ public:
     bool detach_session(const wamp_session_id& session_id);
 
     void process_call_message(const wamp_session_id& session_id,
-            const wamp_call_message* call_message);
+            wamp_call_message* call_message);
     void process_error_message(const wamp_session_id& session_id,
-            const wamp_error_message* error_message);
+            wamp_error_message* error_message);
     void process_hello_message(const wamp_session_id& session_id,
-            const wamp_hello_message* hello_message);
+            wamp_hello_message* hello_message);
     void process_goodbye_message(const wamp_session_id& session_id,
-            const wamp_goodbye_message* goodbye_message);
+            wamp_goodbye_message* goodbye_message);
     void process_publish_message(const wamp_session_id& session_id,
-            const wamp_publish_message* publish_message);
+            wamp_publish_message* publish_message);
     void process_register_message(const wamp_session_id& session_id,
-            const wamp_register_message* register_message);
+            wamp_register_message* register_message);
     void process_subscribe_message(const wamp_session_id& session_id,
-            const wamp_subscribe_message* subscribe_message);
+            wamp_subscribe_message* subscribe_message);
     void process_unregister_message(const wamp_session_id& session_id,
-            const wamp_unregister_message* unregister_message);
+            wamp_unregister_message* unregister_message);
     void process_unsubscribe_message(const wamp_session_id& session_id,
-            const wamp_unsubscribe_message* unsubscribe_message);
+            wamp_unsubscribe_message* unsubscribe_message);
     void process_yield_message(const wamp_session_id& session_id,
-            const wamp_yield_message* yield_message);
+            wamp_yield_message* yield_message);
 
 private:
     std::string m_realm;

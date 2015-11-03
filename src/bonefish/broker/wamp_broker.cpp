@@ -98,7 +98,7 @@ void wamp_broker::detach_session(const wamp_session_id& session_id)
 }
 
 void wamp_broker::process_publish_message(const wamp_session_id& session_id,
-        const wamp_publish_message* publish_message)
+        wamp_publish_message* publish_message)
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
@@ -109,19 +109,36 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
     const std::string topic = publish_message->get_topic();
     const wamp_publication_id publication_id = m_publication_id_generator.generate();
 
+    // Since a publish message fans out to potentially numerous event messages
+    // we cannot need to be a bit smarter with how we deal with passing zone
+    // ownership. For all but the last subscription we make a deep copy of the
+    // transient fields for the event messages. When we reach the last subscription
+    // it is then safe to just pass ownership of the zone.
     auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
     if (topic_subscriptions_itr != m_topic_subscriptions.end()) {
-        std::unique_ptr<wamp_event_message> event_message(new wamp_event_message);
-        event_message->set_subscription_id(topic_subscriptions_itr->second->get_subscription_id());
-        event_message->set_publication_id(publication_id);
-        event_message->set_arguments(publish_message->get_arguments());
-        event_message->set_arguments_kw(publish_message->get_arguments_kw());
+        auto sessions = topic_subscriptions_itr->second->get_sessions();
+        std::size_t num_sessions = sessions.size();
+        std::size_t current_session = 0;
 
-        for (const auto& session : topic_subscriptions_itr->second->get_sessions()) {
+        for (const auto& session : sessions) {
+            std::unique_ptr<wamp_event_message> event_message;
+            if (++current_session < num_sessions) {
+                event_message.reset(new wamp_event_message());
+                event_message->set_subscription_id(topic_subscriptions_itr->second->get_subscription_id());
+                event_message->set_publication_id(publication_id);
+                event_message->set_arguments(
+                    msgpack::object(publish_message->get_arguments(), event_message->get_zone()));
+                event_message->set_arguments_kw(
+                    msgpack::object(publish_message->get_arguments_kw(), event_message->get_zone()));
+            } else {
+                event_message.reset(new wamp_event_message(std::move(publish_message->release_zone())));
+                event_message->set_subscription_id(topic_subscriptions_itr->second->get_subscription_id());
+                event_message->set_publication_id(publication_id);
+                event_message->set_arguments(publish_message->get_arguments());
+                event_message->set_arguments_kw(publish_message->get_arguments_kw());
+            }
+
             BONEFISH_TRACE("%1%, %2%", *session % *event_message);
-            // TODO: Improve performance here by offering a transport api that
-            //       takes in a pre-serialized buffer. That way we can serialize
-            //       the message once and then send it to all of the subscribers.
             session->get_transport()->send_message(std::move(*event_message));
         }
     }
@@ -136,7 +153,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
 }
 
 void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
-        const wamp_subscribe_message* subscribe_message)
+        wamp_subscribe_message* subscribe_message)
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
@@ -171,7 +188,8 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
 
     m_session_subscriptions[session_id].insert(subscription_id);
 
-    std::unique_ptr<wamp_subscribed_message> subscribed_message(new wamp_subscribed_message);
+    std::unique_ptr<wamp_subscribed_message> subscribed_message(
+            new wamp_subscribed_message(std::move(subscribe_message->release_zone())));
     subscribed_message->set_request_id(subscribe_message->get_request_id());
     subscribed_message->set_subscription_id(subscription_id);
 
@@ -180,7 +198,7 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
 }
 
 void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
-        const wamp_unsubscribe_message* unsubscribe_message)
+        wamp_unsubscribe_message* unsubscribe_message)
 {
     auto session_itr = m_sessions.find(session_id);
     if (session_itr == m_sessions.end()) {
@@ -223,7 +241,8 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
         }
     }
 
-    std::unique_ptr<wamp_unsubscribed_message> unsubscribed_message(new wamp_unsubscribed_message);
+    std::unique_ptr<wamp_unsubscribed_message> unsubscribed_message(
+            new wamp_unsubscribed_message(std::move(unsubscribe_message->release_zone())));
     unsubscribed_message->set_request_id(unsubscribe_message->get_request_id());
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unsubscribed_message);

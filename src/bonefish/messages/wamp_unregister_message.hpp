@@ -37,6 +37,7 @@ class wamp_unregister_message : public wamp_message
 {
 public:
     wamp_unregister_message();
+    wamp_unregister_message(msgpack::zone&& zone);
     virtual ~wamp_unregister_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -61,7 +62,13 @@ private:
 };
 
 inline wamp_unregister_message::wamp_unregister_message()
-    : m_type(wamp_message_type::UNREGISTER)
+    : wamp_unregister_message(msgpack::zone())
+{
+}
+
+inline wamp_unregister_message::wamp_unregister_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::UNREGISTER)
     , m_request_id()
     , m_registration_id()
 {

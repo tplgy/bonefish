@@ -40,6 +40,7 @@ class wamp_publish_message : public wamp_message
 {
 public:
     wamp_publish_message();
+    wamp_publish_message(msgpack::zone&& zone);
     virtual ~wamp_publish_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -74,7 +75,13 @@ private:
 };
 
 inline wamp_publish_message::wamp_publish_message()
-    : m_type(wamp_message_type::PUBLISH)
+    : wamp_publish_message(msgpack::zone())
+{
+}
+
+inline wamp_publish_message::wamp_publish_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::PUBLISH)
     , m_request_id()
     , m_options(msgpack_empty_map())
     , m_topic()

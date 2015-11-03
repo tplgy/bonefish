@@ -6,4 +6,5 @@ target_link_libraries(client
     ${Boost_LIBRARIES}
     ${CMAKE_DL_LIBS}
     ${CMAKE_THREAD_LIBS_INIT}
+    ${RT_LIBRARIES}
 )

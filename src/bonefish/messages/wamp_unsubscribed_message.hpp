@@ -37,6 +37,7 @@ class wamp_unsubscribed_message : public wamp_message
 {
 public:
     wamp_unsubscribed_message();
+    wamp_unsubscribed_message(msgpack::zone&& zone);
     virtual ~wamp_unsubscribed_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -57,7 +58,13 @@ private:
 };
 
 inline wamp_unsubscribed_message::wamp_unsubscribed_message()
-    : m_type(wamp_message_type::UNSUBSCRIBED)
+    : wamp_unsubscribed_message(msgpack::zone())
+{
+}
+
+inline wamp_unsubscribed_message::wamp_unsubscribed_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::UNSUBSCRIBED)
     , m_request_id()
 {
 }

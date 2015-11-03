@@ -49,11 +49,11 @@ public:
     void detach_session(const wamp_session_id& id);
 
     void process_publish_message(const wamp_session_id& session_id,
-            const wamp_publish_message* publish_message);
+            wamp_publish_message* publish_message);
     void process_subscribe_message(const wamp_session_id& session_id,
-            const wamp_subscribe_message* subscribe_message);
+            wamp_subscribe_message* subscribe_message);
     void process_unsubscribe_message(const wamp_session_id& session_id,
-            const wamp_unsubscribe_message* unsubscribe_message);
+            wamp_unsubscribe_message* unsubscribe_message);
 
 private:
     void send_error(const std::unique_ptr<wamp_transport>& transport,

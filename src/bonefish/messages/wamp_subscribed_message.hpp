@@ -37,6 +37,7 @@ class wamp_subscribed_message : public wamp_message
 {
 public:
     wamp_subscribed_message();
+    wamp_subscribed_message(msgpack::zone&& zone);
     virtual ~wamp_subscribed_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -61,7 +62,13 @@ private:
 };
 
 inline wamp_subscribed_message::wamp_subscribed_message()
-    : m_type(wamp_message_type::SUBSCRIBED)
+    : wamp_subscribed_message(msgpack::zone())
+{
+}
+
+inline wamp_subscribed_message::wamp_subscribed_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::SUBSCRIBED)
     , m_request_id()
     , m_subscription_id()
 {

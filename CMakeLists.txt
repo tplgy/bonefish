@@ -52,8 +52,10 @@ set(CMAKE_MODULE_PATH
 
 if(shared)
     set(Boost_USE_STATIC_LIBS OFF)
+    set(RT_USE_STATIC_LIBS OFF)
 else()
     set(Boost_USE_STATIC_LIBS ON)
+    set(RT_USE_STATIC_LIBS ON)
 endif()
 
 if(WIN32)
@@ -62,6 +64,7 @@ if(WIN32)
 endif()
 
 find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+find_package(RT)
 find_package(Threads)
 
 include_directories(
