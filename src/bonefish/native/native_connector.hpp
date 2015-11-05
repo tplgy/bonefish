@@ -17,8 +17,7 @@
 #ifndef BONEFISH_NATIVE_CONNECTOR_HPP
 #define BONEFISH_NATIVE_CONNECTOR_HPP
 
-#include <bonefish/native/native_component_endpoint.hpp>
-#include <bonefish/native/native_server_endpoint.hpp>
+#include <bonefish/native/native_endpoint.hpp>
 
 #include <functional>
 #include <memory>
@@ -29,29 +28,30 @@ namespace bonefish {
  * A class that defines a connector that is shared between both the server
  * and a component to allow the component to connect/disconnect. It is the
  * server's responsibility to set the handlers in this connector and
- * make it available to components for establishing connections. The only
- * way a server can initiate a disconnect is through the component's endpoint
- * as this allows the component to define how the disconnect is handled.
+ * make it available to components for establishing connections.
  */
 class native_connector
 {
 public:
     /*!
      * Defines a handler used by a component to create a connection with the server.
-     * The component's endpoint is cached by the server so that it can communicate
-     * with the component. The component endpoint must be notified when the connect
-     * is complete.
+     * The component endpoint is passed in and cached by the server so that it can
+     * communicate with the component. A future providing the server endpoint is
+     * returned.
      */
     using connect_handler =
-            std::function<void(const std::shared_ptr<native_component_endpoint>&)>;
+            std::function<native_endpoint_future(
+                    const std::shared_ptr<native_endpoint>&)>;
 
     /*!
-     * Defines a handler used by a component to disconnect from the server. The server's
-     * endpoint is passed to the handler which finds and disconnects the associated
-     * connection. The component endpoint must be notified when the disconnect is complete.
+     * Defines a handler used by a component to disconnect from the server. The server
+     * endpoint that was acquired when the connection was established via the connect
+     * handler is passed to the disconnect handler. The server uses the server endpoint
+     * to find the associated connection. A future indicating when the disconnect is
+     * complete is returned.
      */
     using disconnect_handler =
-            std::function<void(const std::shared_ptr<native_server_endpoint>&)>;
+            std::function<boost::future<void>(const std::shared_ptr<native_endpoint>&)>;
 
 public:
     native_connector();
@@ -62,21 +62,8 @@ public:
     disconnect_handler get_disconnect_handler() const;
     void set_disconnect_handler(disconnect_handler&& handler);
 
-    /*!
-     * Called by a component to create a connection with the server.
-     *
-     * @param endpoint The component endpoint that will be used to send
-     *                 messages to the component over the connection.
-     */
-    void connect(const std::shared_ptr<native_component_endpoint>& endpoint);
-
-    /*!
-     * Called by a component to disconnect a from the server.
-     *
-     * @param endpoint The server's endpoint that the component was provided
-     *                 upon a successful call to connect().
-     */
-    void disconnect(const std::shared_ptr<native_server_endpoint>& endpoint);
+    native_endpoint_future connect(const std::shared_ptr<native_endpoint>& component_endpoint);
+    boost::future<void> disconnect(const std::shared_ptr<native_endpoint>& server_endpoint);
 
 private:
     connect_handler m_connect_handler;
@@ -109,14 +96,14 @@ inline void native_connector::set_disconnect_handler(disconnect_handler&& handle
     m_disconnect_handler = std::move(handler);
 }
 
-inline void native_connector::connect(const std::shared_ptr<native_component_endpoint>& endpoint)
+inline native_endpoint_future native_connector::connect(const std::shared_ptr<native_endpoint>& component_endpoint)
 {
-    m_connect_handler(endpoint);
+    return m_connect_handler(component_endpoint);
 }
 
-inline void native_connector::disconnect(const std::shared_ptr<native_server_endpoint>& endpoint)
+inline boost::future<void> native_connector::disconnect(const std::shared_ptr<native_endpoint>& server_endpoint)
 {
-    m_disconnect_handler(endpoint);
+    return m_disconnect_handler(server_endpoint);
 }
 
 } // namespace bonefish

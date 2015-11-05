@@ -32,12 +32,10 @@ set(SOURCES
     bonefish/websocket/websocket_transport.cpp)
 
 set(PUBLIC_HEADERS
-    bonefish/native/native_component_endpoint.hpp
     bonefish/native/native_connector.hpp
     bonefish/native/native_endpoint.hpp
     bonefish/native/native_message_queue.hpp
     bonefish/native/native_server.hpp
-    bonefish/native/native_server_endpoint.hpp
     bonefish/rawsocket/rawsocket_listener.hpp
     bonefish/rawsocket/rawsocket_server.hpp
     bonefish/rawsocket/tcp_listener.hpp

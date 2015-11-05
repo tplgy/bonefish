@@ -17,10 +17,9 @@
 #include <bonefish/native/native_server_impl.hpp>
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_factory.hpp>
-#include <bonefish/native/native_component_endpoint.hpp>
 #include <bonefish/native/native_connection.hpp>
 #include <bonefish/native/native_connector.hpp>
-#include <bonefish/native/native_server_endpoint.hpp>
+#include <bonefish/native/native_endpoint.hpp>
 #include <bonefish/native/native_transport.hpp>
 #include <bonefish/router/wamp_router.hpp>
 #include <bonefish/router/wamp_routers.hpp>
@@ -29,6 +28,7 @@
 #include <bonefish/transport/wamp_transport.hpp>
 #include <bonefish/trace/trace.hpp>
 
+#include <boost/exception/exception.hpp>
 #include <stdexcept>
 
 namespace bonefish {
@@ -38,38 +38,11 @@ native_server_impl::native_server_impl(
         const std::shared_ptr<wamp_routers>& routers)
     : m_io_service(io_service)
     , m_routers(routers)
-    , m_connector(std::make_shared<native_connector>())
+    , m_connector()
     , m_connections()
     , m_endpoints_connected()
     , m_message_processor(routers)
 {
-    std::weak_ptr<native_server_impl> weak_this = shared_from_this();
-
-    auto connect_handler = [this, weak_this](
-            const std::shared_ptr<native_component_endpoint>& component_endpoint) {
-        auto shared_this = weak_this.lock();
-        if (!shared_this) {
-            // Will be thrown in the context of the component
-            throw std::runtime_error("connect failed");
-        }
-        auto server_endpoint = on_connect(component_endpoint);
-        auto connected_handler = component_endpoint->get_connected_handler();
-        connected_handler(server_endpoint);
-    };
-    m_connector->set_connect_handler(connect_handler);
-
-    auto disconnect_handler = [this, weak_this](
-            const std::shared_ptr<native_server_endpoint>& server_endpoint) {
-        auto shared_this = weak_this.lock();
-        if (shared_this) {
-            // Will be thrown in the context of the component
-            throw std::runtime_error("disconnect failed");
-        }
-        auto component_endpoint = on_disconnect(server_endpoint);
-        auto disconnected_handler = component_endpoint->get_disconnected_handler();
-        disconnected_handler();
-    };
-    m_connector->set_disconnect_handler(disconnect_handler);
 }
 
 native_server_impl::~native_server_impl()
@@ -79,16 +52,80 @@ native_server_impl::~native_server_impl()
 void native_server_impl::start()
 {
     BONEFISH_TRACE("starting native server");
+    assert(!m_connector);
+    m_connector = std::make_shared<native_connector>();
+
+    std::weak_ptr<native_server_impl> weak_this = shared_from_this();
+
+    auto connect_handler = [this, weak_this](
+            const std::shared_ptr<native_endpoint>& component_endpoint) {
+        auto connected = std::make_shared<native_endpoint_promise>();
+
+        auto shared_this = weak_this.lock();
+        if (!shared_this) {
+            connected->set_exception(std::runtime_error("connect failed"));
+            return connected->get_future();
+        }
+
+        m_io_service.post([this, weak_this, connected, component_endpoint] () {
+            auto shared_this = weak_this.lock();
+            if (!shared_this) {
+                connected->set_exception(std::runtime_error("server shutdown"));
+                return;
+            }
+
+            try {
+                auto server_endpoint = on_connect(component_endpoint);
+                connected->set_value(server_endpoint);
+            } catch (...) {
+                connected->set_exception(boost::current_exception());
+            }
+        });
+
+        return connected->get_future();
+    };
+    m_connector->set_connect_handler(connect_handler);
+
+    auto disconnect_handler = [this, weak_this](
+            const std::shared_ptr<native_endpoint>& server_endpoint) {
+        auto disconnected = std::make_shared<boost::promise<void>>();
+
+        auto shared_this = weak_this.lock();
+        if (shared_this) {
+            disconnected->set_exception(std::runtime_error("disconnect failed"));
+            return disconnected->get_future();
+        }
+
+        m_io_service.post([this, weak_this, disconnected, server_endpoint] () {
+            auto shared_this = weak_this.lock();
+            if (!shared_this) {
+                disconnected->set_exception(std::runtime_error("server shutdown"));
+                return;
+            }
+
+            try {
+                on_disconnect(server_endpoint);
+                disconnected->set_value();
+            } catch (...) {
+                disconnected->set_exception(boost::current_exception());
+            }
+        });
+
+        return disconnected->get_future();
+    };
+    m_connector->set_disconnect_handler(disconnect_handler);
 }
 
 void native_server_impl::shutdown()
 {
     BONEFISH_TRACE("stopping native server");
+    assert(m_connector);
+    m_connector.reset();
     // FIXME: Walk all of the connections and disconnect them?
 }
 
-std::shared_ptr<native_server_endpoint> native_server_impl::on_connect(
-        const std::shared_ptr<native_component_endpoint>& component_endpoint)
+std::shared_ptr<native_endpoint> native_server_impl::on_connect(
+        const std::shared_ptr<native_endpoint>& component_endpoint)
 {
     auto connection = std::make_shared<native_connection>(
             m_io_service, component_endpoint);
@@ -113,27 +150,14 @@ std::shared_ptr<native_server_endpoint> native_server_impl::on_connect(
                     std::placeholders::_2, std::placeholders::_3));
 
     auto server_endpoint = connection->get_server_endpoint();
-    auto disconnected_handler = [this, weak_this](
-            const std::shared_ptr<native_server_endpoint>& server_endpoint) {
-        auto shared_this = weak_this.lock();
-        if (!shared_this) {
-            // There is nothing to do here but silently dismiss this
-            // error condition. The server has gone away which means
-            // the message we are trying to deliver is meaningless.
-            return;
-        }
-        on_disconnect(server_endpoint);
-    };
-    connection->set_disconnected_handler(std::bind(disconnected_handler, server_endpoint));
-
     m_connections.insert(connection);
     m_endpoints_connected[server_endpoint] = connection;
 
     return server_endpoint;
 }
 
-std::shared_ptr<native_component_endpoint> native_server_impl::on_disconnect(
-        const std::shared_ptr<native_server_endpoint>& server_endpoint)
+void native_server_impl::on_disconnect(
+        const std::shared_ptr<native_endpoint>& server_endpoint)
 {
     auto itr = m_endpoints_connected.find(server_endpoint);
     if (itr == m_endpoints_connected.end()) {
@@ -151,8 +175,6 @@ std::shared_ptr<native_component_endpoint> native_server_impl::on_disconnect(
 
     m_endpoints_connected.erase(itr);
     m_connections.erase(connection);
-
-    return connection->get_component_endpoint();
 }
 
 void native_server_impl::on_message(

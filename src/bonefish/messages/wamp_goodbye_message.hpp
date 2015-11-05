@@ -38,6 +38,7 @@ class wamp_goodbye_message : public wamp_message
 {
 public:
     wamp_goodbye_message();
+    wamp_goodbye_message(msgpack::zone&& zone);
     virtual ~wamp_goodbye_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -62,7 +63,13 @@ private:
 };
 
 inline wamp_goodbye_message::wamp_goodbye_message()
-    : m_type(wamp_message_type::GOODBYE)
+    : wamp_goodbye_message(msgpack::zone())
+{
+}
+
+inline wamp_goodbye_message::wamp_goodbye_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::GOODBYE)
     , m_details(msgpack_empty_map())
     , m_reason()
 {

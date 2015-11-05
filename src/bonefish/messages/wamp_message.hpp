@@ -28,6 +28,7 @@ class wamp_message
 {
 public:
     wamp_message();
+    wamp_message(msgpack::zone&& zone);
     virtual ~wamp_message() = default;
 
     wamp_message(const wamp_message&) = delete;
@@ -53,6 +54,11 @@ private:
 
 inline wamp_message::wamp_message()
     : m_zone()
+{
+}
+
+inline wamp_message::wamp_message(msgpack::zone&& zone)
+    : m_zone(std::move(zone))
 {
 }
 

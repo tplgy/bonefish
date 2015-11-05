@@ -79,61 +79,61 @@ bool wamp_router::detach_session(const wamp_session_id& session_id)
 }
 
 void wamp_router::process_hello_message(const wamp_session_id& session_id,
-        const wamp_hello_message* hello_message)
+        wamp_hello_message* hello_message)
 {
     m_impl->process_hello_message(session_id, hello_message);
 }
 
 void wamp_router::process_goodbye_message(const wamp_session_id& session_id,
-        const wamp_goodbye_message* goodbye_message)
+        wamp_goodbye_message* goodbye_message)
 {
     m_impl->process_goodbye_message(session_id, goodbye_message);
 }
 
 void wamp_router::process_call_message(const wamp_session_id& session_id,
-        const wamp_call_message* call_message)
+        wamp_call_message* call_message)
 {
     m_impl->process_call_message(session_id, call_message);
 }
 
 void wamp_router::process_error_message(const wamp_session_id& session_id,
-        const wamp_error_message* error_message)
+        wamp_error_message* error_message)
 {
     m_impl->process_error_message(session_id, error_message);
 }
 
 void wamp_router::process_publish_message(const wamp_session_id& session_id,
-        const wamp_publish_message* publish_message)
+        wamp_publish_message* publish_message)
 {
     m_impl->process_publish_message(session_id, publish_message);
 }
 
 void wamp_router::process_register_message(const wamp_session_id& session_id,
-        const wamp_register_message* register_message)
+        wamp_register_message* register_message)
 {
     m_impl->process_register_message(session_id, register_message);
 }
 
 void wamp_router::process_subscribe_message(const wamp_session_id& session_id,
-        const wamp_subscribe_message* subscribe_message)
+        wamp_subscribe_message* subscribe_message)
 {
     m_impl->process_subscribe_message(session_id, subscribe_message);
 }
 
 void wamp_router::process_unregister_message(const wamp_session_id& session_id,
-        const wamp_unregister_message* unregister_message)
+        wamp_unregister_message* unregister_message)
 {
     m_impl->process_unregister_message(session_id, unregister_message);
 }
 
 void wamp_router::process_unsubscribe_message(const wamp_session_id& session_id,
-        const wamp_unsubscribe_message* unsubscribe_message)
+        wamp_unsubscribe_message* unsubscribe_message)
 {
     m_impl->process_unsubscribe_message(session_id, unsubscribe_message);
 }
 
 void wamp_router::process_yield_message(const wamp_session_id& session_id,
-        const wamp_yield_message* yield_message)
+        wamp_yield_message* yield_message)
 {
     m_impl->process_yield_message(session_id, yield_message);
 }

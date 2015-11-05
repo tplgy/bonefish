@@ -38,6 +38,7 @@ class wamp_subscribe_message : public wamp_message
 {
 public:
     wamp_subscribe_message();
+    wamp_subscribe_message(msgpack::zone&& zone);
     virtual ~wamp_subscribe_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -65,6 +66,11 @@ private:
 };
 
 inline wamp_subscribe_message::wamp_subscribe_message()
+    : wamp_subscribe_message(msgpack::zone())
+{
+}
+
+inline wamp_subscribe_message::wamp_subscribe_message(msgpack::zone&& zone)
     : m_type(wamp_message_type::SUBSCRIBE)
     , m_request_id()
     , m_options(msgpack_empty_map())

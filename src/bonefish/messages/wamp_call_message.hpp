@@ -40,6 +40,7 @@ class wamp_call_message : public wamp_message
 {
 public:
     wamp_call_message();
+    wamp_call_message(msgpack::zone&& zone);
     virtual ~wamp_call_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -74,7 +75,13 @@ private:
 };
 
 inline wamp_call_message::wamp_call_message()
-    : m_type(wamp_message_type::CALL)
+    : wamp_call_message(msgpack::zone())
+{
+}
+
+inline wamp_call_message::wamp_call_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::CALL)
     , m_request_id()
     , m_options(msgpack_empty_map())
     , m_procedure()

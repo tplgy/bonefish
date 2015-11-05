@@ -40,6 +40,7 @@ class wamp_error_message : public wamp_message
 {
 public:
     wamp_error_message();
+    wamp_error_message(msgpack::zone&& zone);
     virtual ~wamp_error_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -77,7 +78,13 @@ private:
 };
 
 inline wamp_error_message::wamp_error_message()
-    : m_type(wamp_message_type::ERROR)
+    : wamp_error_message(msgpack::zone())
+{
+}
+
+inline wamp_error_message::wamp_error_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::ERROR)
     , m_request_type()
     , m_request_id()
     , m_details(msgpack_empty_map())

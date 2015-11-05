@@ -38,6 +38,7 @@ class wamp_register_message : public wamp_message
 {
 public:
     wamp_register_message();
+    wamp_register_message(msgpack::zone&& zone);
     virtual ~wamp_register_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -65,7 +66,13 @@ private:
 };
 
 inline wamp_register_message::wamp_register_message()
-    : m_type(wamp_message_type::REGISTER)
+    : wamp_register_message(msgpack::zone())
+{
+}
+
+inline wamp_register_message::wamp_register_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::REGISTER)
     , m_request_id()
     , m_options(msgpack_empty_map())
     , m_procedure()

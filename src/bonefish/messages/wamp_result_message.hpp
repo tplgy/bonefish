@@ -39,6 +39,7 @@ class wamp_result_message : public wamp_message
 {
 public:
     wamp_result_message();
+    wamp_result_message(msgpack::zone&& zone);
     virtual ~wamp_result_message() override;
 
     virtual wamp_message_type get_type() const override;
@@ -70,7 +71,13 @@ private:
 };
 
 inline wamp_result_message::wamp_result_message()
-    : m_type(wamp_message_type::RESULT)
+    : wamp_result_message(msgpack::zone())
+{
+}
+
+inline wamp_result_message::wamp_result_message(msgpack::zone&& zone)
+    : wamp_message(std::move(zone))
+    , m_type(wamp_message_type::RESULT)
     , m_request_id()
     , m_details(msgpack_empty_map())
     , m_arguments()
