@@ -10,5 +10,8 @@ target_link_libraries(bonefish_bin
     bonefish
     ${Boost_LIBRARIES}
     ${CMAKE_DL_LIBS}
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${RT_LIBRARIES})
+    ${CMAKE_THREAD_LIBS_INIT})
+
+if (RT_FOUND)
+    target_link_libraries(bonefish_bin ${RT_LIBRARIES})
+endif()
