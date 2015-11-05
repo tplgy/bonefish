@@ -11,5 +11,5 @@ target_link_libraries(integration
     ${CMAKE_THREAD_LIBS_INIT})
 
 if (RT_FOUND)
-    target_link_lbraries(integration ${RT_LIBRARIES})
+    target_link_libraries(integration ${RT_LIBRARIES})
 endif()
