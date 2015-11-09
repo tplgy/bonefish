@@ -37,6 +37,9 @@ tcp_listener::~tcp_listener()
 
 void tcp_listener::start_listening()
 {
+    assert(get_error_handler());
+    assert(get_accept_handler());
+
     if (is_listening()) {
         return;
     }
@@ -48,7 +51,6 @@ void tcp_listener::start_listening()
     m_acceptor.listen();
 
     set_listening(true);
-    assert(get_accept_handler());
     async_accept();
 }
 

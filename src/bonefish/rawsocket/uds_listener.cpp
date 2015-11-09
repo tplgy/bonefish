@@ -38,6 +38,9 @@ uds_listener::~uds_listener()
 
 void uds_listener::start_listening()
 {
+    assert(get_error_handler());
+    assert(get_accept_handler());
+
     if (is_listening()) {
         return;
     }
@@ -49,7 +52,6 @@ void uds_listener::start_listening()
     m_acceptor.bind(m_endpoint);
     m_acceptor.listen();
 
-    assert(get_accept_handler());
     set_listening(true);
     async_accept();
 }
