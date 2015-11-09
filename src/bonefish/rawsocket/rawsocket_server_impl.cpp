@@ -51,6 +51,34 @@ rawsocket_server_impl::~rawsocket_server_impl()
 void rawsocket_server_impl::attach_listener(const std::shared_ptr<rawsocket_listener>& listener)
 {
     std::weak_ptr<rawsocket_server_impl> weak_self = shared_from_this();
+
+    listener->set_error_handler([weak_self](
+            rawsocket_listener& listener,
+            const boost::system::error_code& error_code) {
+        auto shared_self = weak_self.lock();
+        if (shared_self) {
+            // We better have an error code to process otherwise the
+            // caller is almost certainly calling us by mistake..
+            assert(error_code);
+
+            // If the error code is reporting an aborted operation then
+            // it is an indication that the listener is shutting down so
+            // there is no action to take here.
+            if (error_code == boost::asio::error::operation_aborted) {
+                return;
+            }
+
+            // Otherwise, the listener has encountered some kind of network
+            // error when trying to accept connections. As a result, we should
+            // try to re-establish a listening socket otherwise this listener
+            // could be rendered unusable.
+            assert(listener.is_listening());
+            BONEFISH_TRACE("rawsocket listener error: %1%", error_code);
+            listener.stop_listening();
+            listener.start_listening();
+        }
+    });
+
     listener->set_accept_handler([weak_self](const std::shared_ptr<rawsocket_connection>& connection) {
         auto shared_self = weak_self.lock();
         if (shared_self) {

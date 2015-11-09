@@ -27,6 +27,10 @@ class rawsocket_connection;
 class rawsocket_listener
 {
 public:
+    using error_handler = std::function<void(
+            rawsocket_listener& listener,
+            const boost::system::error_code& error_code)>;
+
     using accept_handler = std::function<void(const std::shared_ptr<rawsocket_connection>&)>;
 
 public:
@@ -38,8 +42,11 @@ public:
     virtual std::shared_ptr<rawsocket_connection> create_connection() = 0;
 
     bool is_listening() const;
-    const accept_handler& get_accept_handler() const;
 
+    const error_handler& get_error_handler() const;
+    void set_error_handler(const error_handler& handler);
+
+    const accept_handler& get_accept_handler() const;
     void set_accept_handler(const accept_handler& handler);
 
     void handle_accept(const boost::system::error_code& error_code);
@@ -51,6 +58,7 @@ protected:
 
 private:
     bool m_listening;
+    error_handler m_error_handler;
     accept_handler m_accept_handler;
 };
 
@@ -69,6 +77,18 @@ inline bool rawsocket_listener::is_listening() const
     return m_listening;
 }
 
+inline const typename rawsocket_listener::error_handler&
+rawsocket_listener::get_error_handler() const
+{
+    return m_error_handler;
+}
+
+inline void rawsocket_listener::set_error_handler(
+        const rawsocket_listener::error_handler& handler)
+{
+    m_error_handler = handler;
+}
+
 inline const typename rawsocket_listener::accept_handler&
 rawsocket_listener::get_accept_handler() const
 {
@@ -84,14 +104,21 @@ inline void rawsocket_listener::set_accept_handler(
 inline void rawsocket_listener::handle_accept(
         const boost::system::error_code &error_code)
 {
+    // If an error has occured, notify the registered error
+    // handler so appropriate action can be taken.
     if (error_code) {
+        assert(get_error_handler());
+        const auto& error_handler = get_error_handler();
+        error_handler(*this, error_code);
         return;
     }
 
+    // Otherwise, this is a new incoming connection so go ahead
+    // and create a new connection and notify the registered
+    // accept handler.
     assert(get_accept_handler());
     const auto& accept_handler = get_accept_handler();
     accept_handler(create_connection());
-
     async_accept();
 }
 
