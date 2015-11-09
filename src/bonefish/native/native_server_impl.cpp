@@ -63,14 +63,14 @@ void native_server_impl::start()
 
         auto shared_this = weak_this.lock();
         if (!shared_this) {
-            connected->set_exception(std::runtime_error("connect failed"));
+            connected->set_exception(boost::copy_exception(std::runtime_error("connect failed")));
             return connected->get_future();
         }
 
         m_io_service.post([this, weak_this, connected, component_endpoint] () {
             auto shared_this = weak_this.lock();
             if (!shared_this) {
-                connected->set_exception(std::runtime_error("server shutdown"));
+                connected->set_exception(boost::copy_exception(std::runtime_error("server shutdown")));
                 return;
             }
 
@@ -92,14 +92,14 @@ void native_server_impl::start()
 
         auto shared_this = weak_this.lock();
         if (shared_this) {
-            disconnected->set_exception(std::runtime_error("disconnect failed"));
+            disconnected->set_exception(boost::copy_exception( std::runtime_error("disconnect failed")));
             return disconnected->get_future();
         }
 
         m_io_service.post([this, weak_this, disconnected, server_endpoint] () {
             auto shared_this = weak_this.lock();
             if (!shared_this) {
-                disconnected->set_exception(std::runtime_error("server shutdown"));
+                disconnected->set_exception(boost::copy_exception(std::runtime_error("server shutdown")));
                 return;
             }
 
