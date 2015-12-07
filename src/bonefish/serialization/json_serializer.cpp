@@ -19,9 +19,9 @@
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_factory.hpp>
 #include <bonefish/serialization/base64.hpp>
-#include <bonefish/serialization/json_msgpack_sax.hpp>
 
 #include <iostream>
+#include <json_msgpack/json_msgpack_sax.hpp>
 #include <msgpack.hpp>
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/error/en.h>
@@ -171,7 +171,7 @@ wamp_message* json_serializer::deserialize(const char* buffer, size_t length) co
     msgpack::zone zone;
 
     imemstream bufferstream(buffer, length);
-    serialization::msgpack_from_json_handler<wamp_bin_string_conversion> handler(item, zone);
+    json_msgpack::msgpack_from_json_handler<wamp_bin_string_conversion> handler(item, zone);
     rapidjson::Reader reader;
     reader.Parse(bufferstream, handler);
 
@@ -211,7 +211,7 @@ expandable_buffer json_serializer::serialize(const wamp_message& message) const
         }
 
         for (const msgpack::object& field : fields) {
-            if (!serialization::write_json<decltype(writer), wamp_bin_string_conversion>(writer, field)) {
+            if (!json_msgpack::write_json<decltype(writer), wamp_bin_string_conversion>(writer, field)) {
                 write_failed = true;
                 break;
             }

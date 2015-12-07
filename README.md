@@ -84,9 +84,10 @@ This will enable debug tracing which is currently sent to the console.
 
 Bonefish relies on the following header-only library projects:
 
-- [**WebSocket++**](https://github.com/zaphoyd/websocketpp)
+- [**json-msgpack**](https://github.com/tplgy/json-msgpack)
 - [**msgpack-c**](https://github.com/msgpack/msgpack-c)
 - [**RapidJSON**](https://github.com/miloyip/rapidjson)
+- [**WebSocket++**](https://github.com/zaphoyd/websocketpp)
 
 ## License
 
