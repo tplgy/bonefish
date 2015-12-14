@@ -53,7 +53,7 @@ set(PUBLIC_HEADERS
 
 set(PRIVATE_HEADERS
     bonefish/broker/wamp_broker.hpp
-    bonefish/broker/wamp_broker_subscription.hpp
+    bonefish/broker/wamp_broker_subscriptions.hpp
     bonefish/broker/wamp_broker_topic.hpp
     bonefish/common/wamp_connection_base.hpp
     bonefish/common/wamp_message_processor.hpp

@@ -31,7 +31,7 @@
 
 namespace bonefish {
 
-class wamp_broker_subscription;
+class wamp_broker_subscriptions;
 class wamp_broker_topic;
 class wamp_publish_message;
 class wamp_session;
@@ -66,7 +66,7 @@ private:
     wamp_subscription_id_generator m_subscription_id_generator;
     std::unordered_map<wamp_session_id, std::shared_ptr<wamp_session>> m_sessions;
     std::unordered_map<wamp_session_id, std::unordered_set<wamp_subscription_id>> m_session_subscriptions;
-    std::unordered_map<std::string, std::unique_ptr<wamp_broker_subscription>> m_topic_subscriptions;
+    std::unordered_map<std::string, std::unique_ptr<wamp_broker_subscriptions>> m_topic_subscriptions;
     std::unordered_map<wamp_subscription_id, std::unique_ptr<wamp_broker_topic>> m_subscription_topics;
 };
 

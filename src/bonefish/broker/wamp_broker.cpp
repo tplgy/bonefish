@@ -15,7 +15,7 @@
  */
 
 #include <bonefish/broker/wamp_broker.hpp>
-#include <bonefish/broker/wamp_broker_subscription.hpp>
+#include <bonefish/broker/wamp_broker_subscriptions.hpp>
 #include <bonefish/broker/wamp_broker_topic.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
 #include <bonefish/messages/wamp_event_message.hpp>
@@ -66,6 +66,7 @@ void wamp_broker::detach_session(const wamp_session_id& session_id)
     BONEFISH_TRACE("detach session: %1%", session_itr->second.get());
     auto session_subscriptions_itr = m_session_subscriptions.find(session_id);
     if (session_subscriptions_itr != m_session_subscriptions.end()) {
+        BONEFISH_TRACE("cleaning up session subscriptions");
         for (const auto& subscription_id : session_subscriptions_itr->second) {
             auto subscription_topics_itr = m_subscription_topics.find(subscription_id);
             if (subscription_topics_itr == m_subscription_topics.end()) {
@@ -74,6 +75,7 @@ void wamp_broker::detach_session(const wamp_session_id& session_id)
             }
 
             std::string topic = subscription_topics_itr->second->get_topic();
+            BONEFISH_TRACE("cleaning up subscription topic");
             subscription_topics_itr->second->remove_session(session_itr->second);
             if (subscription_topics_itr->second->get_sessions().size() == 0) {
                 m_subscription_topics.erase(subscription_id);
@@ -85,8 +87,9 @@ void wamp_broker::detach_session(const wamp_session_id& session_id)
                 continue;
             }
 
-            topic_subscriptions_itr->second->remove_session(session_itr->second);
-            if (topic_subscriptions_itr->second->get_sessions().size() == 0) {
+            BONEFISH_TRACE("cleaning up topic subscriptions");
+            topic_subscriptions_itr->second->remove_subscription(subscription_id);
+            if (topic_subscriptions_itr->second->get_subscriptions().size() == 0) {
                 m_topic_subscriptions.erase(topic);
             }
         }
@@ -116,15 +119,18 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
     // it is then safe to just pass ownership of the zone.
     auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
     if (topic_subscriptions_itr != m_topic_subscriptions.end()) {
-        auto sessions = topic_subscriptions_itr->second->get_sessions();
-        std::size_t num_sessions = sessions.size();
-        std::size_t current_session = 0;
+        const auto& subscriptions = topic_subscriptions_itr->second->get_subscriptions();
+        std::size_t num_subscriptions = subscriptions.size();
+        std::size_t current_subscription = 0;
 
-        for (const auto& session : sessions) {
+        for (const auto& subscription : subscriptions) {
+            const auto& subscription_id = subscription.first;
+            const auto& session = subscription.second;
+
             std::unique_ptr<wamp_event_message> event_message;
-            if (++current_session < num_sessions) {
+            if (++current_subscription < num_subscriptions) {
                 event_message.reset(new wamp_event_message());
-                event_message->set_subscription_id(topic_subscriptions_itr->second->get_subscription_id());
+                event_message->set_subscription_id(subscription_id);
                 event_message->set_publication_id(publication_id);
                 event_message->set_arguments(
                     msgpack::object(publish_message->get_arguments(), event_message->get_zone()));
@@ -132,7 +138,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
                     msgpack::object(publish_message->get_arguments_kw(), event_message->get_zone()));
             } else {
                 event_message.reset(new wamp_event_message(std::move(publish_message->release_zone())));
-                event_message->set_subscription_id(topic_subscriptions_itr->second->get_subscription_id());
+                event_message->set_subscription_id(subscription_id);
                 event_message->set_publication_id(publication_id);
                 event_message->set_arguments(publish_message->get_arguments());
                 event_message->set_arguments_kw(publish_message->get_arguments_kw());
@@ -161,19 +167,16 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
     }
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *subscribe_message);
-    wamp_subscription_id subscription_id;
+    wamp_subscription_id subscription_id = m_subscription_id_generator.generate();
     auto& session = session_itr->second;
     {
         auto result = m_topic_subscriptions.insert(
                 std::make_pair(subscribe_message->get_topic(), nullptr));
+
         if (result.second) {
-            subscription_id = m_subscription_id_generator.generate();
-            result.first->second.reset(new wamp_broker_subscription(subscription_id));
-            result.first->second->add_session(session);
-        } else {
-            subscription_id = result.first->second->get_subscription_id();
-            result.first->second->add_session(session);
+            result.first->second.reset(new wamp_broker_subscriptions());
         }
+        result.first->second->add_subscription(subscription_id, session);
     }
 
     {
@@ -234,8 +237,8 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
         if (topic_subscriptions_itr == m_topic_subscriptions.end()) {
             BONEFISH_TRACE("error: broker topic subscription out of sync");
         } else {
-            topic_subscriptions_itr->second->remove_session(session_itr->second);
-            if (topic_subscriptions_itr->second->get_sessions().size() == 0) {
+            topic_subscriptions_itr->second->remove_subscription(subscription_id);
+            if (topic_subscriptions_itr->second->get_subscriptions().size() == 0) {
                 m_topic_subscriptions.erase(topic);
             }
         }
