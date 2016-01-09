@@ -5,10 +5,13 @@ set(SOURCES
     bonefish/identifiers/wamp_session_id_factory.cpp
     bonefish/messages/wamp_call_options.cpp
     bonefish/messages/wamp_hello_details.cpp
+    bonefish/messages/wamp_invocation_details.cpp
     bonefish/messages/wamp_message_defaults.cpp
     bonefish/messages/wamp_message_factory.cpp
     bonefish/messages/wamp_message_type.cpp
+    bonefish/messages/wamp_result_details.cpp
     bonefish/messages/wamp_welcome_details.cpp
+    bonefish/messages/wamp_yield_options.cpp
     bonefish/native/native_connection.cpp
     bonefish/native/native_server.cpp
     bonefish/native/native_server_impl.cpp
@@ -83,6 +86,7 @@ set(PRIVATE_HEADERS
     bonefish/messages/wamp_goodbye_message.hpp
     bonefish/messages/wamp_hello_details.hpp
     bonefish/messages/wamp_hello_message.hpp
+    bonefish/messages/wamp_invocation_details.hpp
     bonefish/messages/wamp_invocation_message.hpp
     bonefish/messages/wamp_message.hpp
     bonefish/messages/wamp_message_defaults.hpp
@@ -92,6 +96,7 @@ set(PRIVATE_HEADERS
     bonefish/messages/wamp_published_message.hpp
     bonefish/messages/wamp_registered_message.hpp
     bonefish/messages/wamp_register_message.hpp
+    bonefish/messages/wamp_result_details.hpp
     bonefish/messages/wamp_result_message.hpp
     bonefish/messages/wamp_subscribed_message.hpp
     bonefish/messages/wamp_subscribe_message.hpp
@@ -102,6 +107,7 @@ set(PRIVATE_HEADERS
     bonefish/messages/wamp_welcome_details.hpp
     bonefish/messages/wamp_welcome_message.hpp
     bonefish/messages/wamp_yield_message.hpp
+    bonefish/messages/wamp_yield_options.hpp
     bonefish/native/native_connection.hpp
     bonefish/native/native_server_impl.hpp
     bonefish/native/native_transport.hpp

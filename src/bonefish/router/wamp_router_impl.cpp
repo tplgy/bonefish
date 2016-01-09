@@ -56,6 +56,7 @@ wamp_router_impl::wamp_router_impl(boost::asio::io_service& io_service, const st
 
     // Setup the dealer role and supported features
     wamp_role_features dealer_features;
+    dealer_features.set_attribute("progressive_call_results", true);
     dealer_features.set_attribute("call_timeout", true);
 
     wamp_role dealer_role(wamp_role_type::DEALER);

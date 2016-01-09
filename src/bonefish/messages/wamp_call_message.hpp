@@ -185,7 +185,7 @@ inline void wamp_call_message::set_options(const msgpack::object& options)
 
 inline void wamp_call_message::set_procedure(const std::string& procedure)
 {
-    m_procedure = procedure;
+    m_procedure = msgpack::object(procedure, get_zone());
 }
 
 inline void wamp_call_message::set_arguments(const msgpack::object& arguments)

@@ -163,7 +163,7 @@ inline void wamp_result_message::set_request_id(const wamp_request_id& request_i
 
 inline void wamp_result_message::set_details(const msgpack::object& details)
 {
-    if (details.type != msgpack::type::MAP) {
+    if (details.type == msgpack::type::MAP) {
         m_details = msgpack::object(details, get_zone());
     } else {
         throw std::invalid_argument("invalid details");
