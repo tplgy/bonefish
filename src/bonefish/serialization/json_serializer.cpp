@@ -148,7 +148,7 @@ struct wamp_bin_string_conversion
     {
         size_t encode_size = base64::encode_size(o.via.bin.ptr, o.via.bin.size);
         std::vector<char> encoded(1 + encode_size);
-        encoded.at(1) = '\0';
+        encoded[0] = '\0';
 
         try {
             base64::encode(encoded.data() + 1, encode_size, o.via.bin.ptr, o.via.bin.size);
