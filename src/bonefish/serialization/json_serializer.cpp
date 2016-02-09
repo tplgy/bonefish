@@ -18,8 +18,7 @@
 
 #include <bonefish/messages/wamp_message.hpp>
 #include <bonefish/messages/wamp_message_factory.hpp>
-#include <bonefish/serialization/base64.hpp>
-
+#include <cppcodec/base64_default_rfc4648.hpp>
 #include <iostream>
 #include <json_msgpack/json_msgpack_sax.hpp>
 #include <msgpack.hpp>
@@ -126,19 +125,19 @@ struct wamp_bin_string_conversion
         (void) copy; // unused
         (void) userdata;
 
-        size_t decode_size = base64::decode_size(str + 1, length - 1);
-        char* decoded = static_cast<char*>(zone.allocate_align(decode_size));
+        size_t decoded_size = base64::decoded_max_size(length - 1);
+        char* decoded = static_cast<char*>(zone.allocate_align(decoded_size));
         if (!decoded) { return false; }
 
         try {
-            base64::decode(decoded, decode_size, str + 1, length - 1);
-        } catch (boost::archive::iterators::dataflow_exception&) {
+            decoded_size = base64::decode(decoded, decoded_size, str + 1, length - 1);
+        } catch (cppcodec::parse_error&) {
             return false;
         }
 
         o.type = msgpack::type::BIN;
         o.via.bin.ptr = decoded;
-        o.via.bin.size = decode_size;
+        o.via.bin.size = decoded_size;
 
         return true;
     }
@@ -146,17 +145,13 @@ struct wamp_bin_string_conversion
     template <typename Writer>
     static bool from_bin(Writer& writer, const msgpack::object& o)
     {
-        size_t encode_size = base64::encode_size(o.via.bin.ptr, o.via.bin.size);
-        std::vector<char> encoded(1 + encode_size);
-        encoded.at(1) = '\0';
+        size_t encoded_size = base64::encoded_size(o.via.bin.size);
+        std::vector<char> encoded(1 + encoded_size);
+        encoded[0] = '\0';
 
-        try {
-            base64::encode(encoded.data() + 1, encode_size, o.via.bin.ptr, o.via.bin.size);
-        } catch (boost::archive::iterators::dataflow_exception&) {
-            return false;
-        }
+        base64::encode(encoded.data() + 1, encoded_size, o.via.bin.ptr, o.via.bin.size);
 
-        return writer.String(encoded.data(), encode_size);
+        return writer.String(encoded.data(), encoded_size);
     }
 
     template <typename Writer>
