@@ -69,6 +69,7 @@ find_package(Threads)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/third-party/cppcodec
     ${CMAKE_SOURCE_DIR}/third-party/json-msgpack/include
     ${CMAKE_SOURCE_DIR}/third-party/msgpack-c/include
     ${CMAKE_SOURCE_DIR}/third-party/rapidjson/include

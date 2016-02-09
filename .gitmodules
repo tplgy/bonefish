@@ -10,3 +10,6 @@
 [submodule "third-party/json-msgpack"]
 	path = third-party/json-msgpack
 	url = https://github.com/tplgy/json-msgpack.git
+[submodule "third-party/cppcodec"]
+	path = third-party/cppcodec
+	url = https://github.com/tplgy/cppcodec.git
