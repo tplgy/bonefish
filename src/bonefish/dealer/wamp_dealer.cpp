@@ -20,13 +20,16 @@
 #include <bonefish/messages/wamp_call_message.hpp>
 #include <bonefish/messages/wamp_call_options.hpp>
 #include <bonefish/messages/wamp_error_message.hpp>
+#include <bonefish/messages/wamp_invocation_details.hpp>
 #include <bonefish/messages/wamp_invocation_message.hpp>
 #include <bonefish/messages/wamp_register_message.hpp>
 #include <bonefish/messages/wamp_registered_message.hpp>
+#include <bonefish/messages/wamp_result_details.hpp>
 #include <bonefish/messages/wamp_result_message.hpp>
 #include <bonefish/messages/wamp_unregister_message.hpp>
 #include <bonefish/messages/wamp_unregistered_message.hpp>
 #include <bonefish/messages/wamp_yield_message.hpp>
+#include <bonefish/messages/wamp_yield_options.hpp>
 #include <bonefish/session/wamp_session.hpp>
 #include <bonefish/trace/trace.hpp>
 
@@ -192,10 +195,24 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     const wamp_registration_id& registration_id =
             procedure_registrations_itr->second->get_registration_id();
 
+    wamp_call_options call_options;
+    call_options.unmarshal(call_message->get_options());
+
+    // You can't rely on simply assigning the call options to the invocation
+    // details. Some call options may only be applicable to the dealer and
+    // not the callee. Likewise, some invocation details may be in addition
+    // to whatever is provided in the call options. As a result, we only copy
+    // specific options over to the invocation details.
+    wamp_invocation_details invocation_details;
+    if (call_options.get_option_or("receive_progress", false)) {
+        invocation_details.set_detail("receive_progress", true);
+    }
+
     std::unique_ptr<wamp_invocation_message> invocation_message(
             new wamp_invocation_message(std::move(call_message->release_zone())));
     invocation_message->set_request_id(request_id);
     invocation_message->set_registration_id(registration_id);
+    invocation_message->set_details(invocation_details.marshal(invocation_message->get_zone()));
     invocation_message->set_arguments(call_message->get_arguments());
     invocation_message->set_arguments_kw(call_message->get_arguments_kw());
 
@@ -206,26 +223,24 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
         send_error(session_itr->second->get_transport(), call_message->get_type(),
                 call_message->get_request_id(), "wamp.error.network_failure");
         return;
-    } else {
-        wamp_call_options options;
-        options.unmarshal(call_message->get_options());
-        unsigned timeout_ms = options.get_option_or<unsigned>("timeout", 0);
-
-        // We only setup the invocation state after sending the message is successful.
-        // This saves us from having to cleanup any state if the send fails.
-        std::unique_ptr<wamp_dealer_invocation> dealer_invocation(
-                new wamp_dealer_invocation(m_io_service));
-
-        dealer_invocation->set_session(session_itr->second);
-        dealer_invocation->set_request_id(call_message->get_request_id());
-        dealer_invocation->set_timeout(
-                std::bind(&wamp_dealer::invocation_timeout_handler, this,
-                        request_id, std::placeholders::_1), timeout_ms);
-
-        m_pending_invocations.insert(std::make_pair(request_id, std::move(dealer_invocation)));
-        m_pending_callee_invocations[session->get_session_id()].insert(request_id);
-        m_pending_caller_invocations[session_id].insert(request_id);
     }
+
+    unsigned timeout_ms = call_options.get_option_or<unsigned>("timeout", 0);
+
+    // We only setup the invocation state after sending the message is successful.
+    // This saves us from having to cleanup any state if the send fails.
+    std::unique_ptr<wamp_dealer_invocation> dealer_invocation(
+            new wamp_dealer_invocation(m_io_service));
+
+    dealer_invocation->set_session(session_itr->second);
+    dealer_invocation->set_request_id(call_message->get_request_id());
+    dealer_invocation->set_timeout(
+            std::bind(&wamp_dealer::invocation_timeout_handler, this,
+                    request_id, std::placeholders::_1), timeout_ms);
+
+    m_pending_invocations.insert(std::make_pair(request_id, std::move(dealer_invocation)));
+    m_pending_callee_invocations[session->get_session_id()].insert(request_id);
+    m_pending_caller_invocations[session_id].insert(request_id);
 }
 
 void wamp_dealer::process_error_message(const wamp_session_id& session_id,
@@ -420,23 +435,26 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
     // We can't have a pending invocation without a pending caller/callee
     // as they are tracked in a synchronized manner. So to have one without
     // the other is considered to be an error.
-    auto pending_callee_invocations_itr =
-            m_pending_callee_invocations.find(session_itr->second->get_session_id());
-    if (pending_callee_invocations_itr == m_pending_callee_invocations.end()) {
-        throw std::logic_error("dealer pending callee invocations out of sync");
-    }
-    pending_callee_invocations_itr->second.erase(request_id);
+    assert(m_pending_callee_invocations.count(session_itr->second->get_session_id()));
+    assert(m_pending_caller_invocations.count(session->get_session_id()));
 
-    auto pending_caller_invocations_itr =
-            m_pending_caller_invocations.find(session->get_session_id());
-    if (pending_caller_invocations_itr == m_pending_caller_invocations.end()) {
-        throw std::logic_error("dealer pending caller invocations out of sync");
+    wamp_yield_options yield_options;
+    yield_options.unmarshal(yield_message->get_options());
+
+    // You can't rely on simply assigning the yield options to the result
+    // details. Some yield options may only be applicable to the dealer.
+    // Likewise, some result details may be in addition to whatever is
+    // provided in the yield options. As a result, we only copy specific
+    // options over to the result details.
+    wamp_result_details result_details;
+    if (yield_options.get_option_or("progress", false)) {
+        result_details.set_detail("progress", true);
     }
-    pending_caller_invocations_itr->second.erase(request_id);
 
     std::unique_ptr<wamp_result_message> result_message(
             new wamp_result_message(std::move(yield_message->release_zone())));
     result_message->set_request_id(dealer_invocation->get_request_id());
+    result_message->set_details(result_details.marshal(result_message->get_zone()));
     result_message->set_arguments(yield_message->get_arguments());
     result_message->set_arguments_kw(yield_message->get_arguments_kw());
 
@@ -449,10 +467,18 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
         BONEFISH_TRACE("failed to send result message to caller: network failure");
     }
 
-    // The failure to send a message in the event of a network failure
+    // If the call has more results in progress then do not cleanup any of the
+    // invocation state and just bail out here.
+    if (yield_options.get_option_or("progress", false)) {
+        return;
+    }
+
+    // Otherwise, the call still has results in progress so do not remove the
+    // invocation. The failure to send a message in the event of a network failure
     // will detach the session. When this happens the pending invocations
     // be cleaned up. So we don't use an iterator here to erase the pending
-    // invocation because it may have just been invalidated above.
+    // invocation because it may have just been invalidated above if an
+    // error occured.
     m_pending_callee_invocations[session_id].erase(request_id);
     m_pending_caller_invocations[session->get_session_id()].erase(request_id);
     m_pending_invocations.erase(request_id);

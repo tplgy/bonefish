@@ -31,7 +31,12 @@ The advanced profile is fairly extensive and is very feature based. There will b
 <tr>
 <td>Remote Procedure Calls</td>
 <td>Call Timeouts</td>
-<td>Allows calls to specify a timeout. The default is never timeout.</td>
+<td>Allows callers to specify a timeout. The default is never timeout.</td>
+</tr>
+<tr>
+<td></td>
+<td>Progressive Call Results</td>
+<td>Allows callers to specify that they support receiving results that span across multiple yields from the callee. These multi-part style results are guaranteed to arrive in order.</td>
 </tr>
 </table>
 
