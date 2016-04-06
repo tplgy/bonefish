@@ -97,7 +97,7 @@ inline void native_message_queue::push_message(
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_messages.push_back(
-            std::move(message(std::move(fields), std::move(zone))));
+            message(std::move(fields), std::move(zone)));
 }
 
 inline void native_message_queue::pop_message(

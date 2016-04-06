@@ -209,7 +209,7 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     }
 
     std::unique_ptr<wamp_invocation_message> invocation_message(
-            new wamp_invocation_message(std::move(call_message->release_zone())));
+            new wamp_invocation_message(call_message->release_zone()));
     invocation_message->set_request_id(request_id);
     invocation_message->set_registration_id(registration_id);
     invocation_message->set_details(invocation_details.marshal(invocation_message->get_zone()));
@@ -266,7 +266,7 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
     const auto& dealer_invocation = pending_invocations_itr->second;
 
     std::unique_ptr<wamp_error_message> caller_error_message(
-            new wamp_error_message(std::move(error_message->release_zone())));
+            new wamp_error_message(error_message->release_zone()));
     caller_error_message->set_request_type(wamp_message_type::CALL);
     caller_error_message->set_request_id(dealer_invocation->get_request_id());
     caller_error_message->set_details(error_message->get_details());
@@ -334,7 +334,7 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
     m_registered_procedures[registration_id] = procedure;
 
     std::unique_ptr<wamp_registered_message> registered_message(
-            new wamp_registered_message(std::move(register_message->release_zone())));
+            new wamp_registered_message(register_message->release_zone()));
     registered_message->set_request_id(register_message->get_request_id());
     registered_message->set_registration_id(registration_id);
 
@@ -397,7 +397,7 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
     registrations.erase(registrations_itr);
 
     std::unique_ptr<wamp_unregistered_message> unregistered_message(
-            new wamp_unregistered_message(std::move(unregister_message->release_zone())));
+            new wamp_unregistered_message(unregister_message->release_zone()));
     unregistered_message->set_request_id(unregister_message->get_request_id());
 
     // If we fail to send the unregistered message it is most likely that
@@ -452,7 +452,7 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
     }
 
     std::unique_ptr<wamp_result_message> result_message(
-            new wamp_result_message(std::move(yield_message->release_zone())));
+            new wamp_result_message(yield_message->release_zone()));
     result_message->set_request_id(dealer_invocation->get_request_id());
     result_message->set_details(result_details.marshal(result_message->get_zone()));
     result_message->set_arguments(yield_message->get_arguments());
