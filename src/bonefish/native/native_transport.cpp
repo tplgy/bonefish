@@ -34,8 +34,8 @@ bool native_transport::send_message(wamp_message&& message)
 {
     BONEFISH_TRACE("sending message: %1%", message_type_to_string(message.get_type()));
     m_connection->send_message(
-            std::move(message.marshal()),
-            std::move(message.release_zone()));
+            message.marshal(),
+            message.release_zone());
 
     return true;
 }

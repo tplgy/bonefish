@@ -137,7 +137,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
                 event_message->set_arguments_kw(
                     msgpack::object(publish_message->get_arguments_kw(), event_message->get_zone()));
             } else {
-                event_message.reset(new wamp_event_message(std::move(publish_message->release_zone())));
+                event_message.reset(new wamp_event_message(publish_message->release_zone()));
                 event_message->set_subscription_id(subscription_id);
                 event_message->set_publication_id(publication_id);
                 event_message->set_arguments(publish_message->get_arguments());
@@ -192,7 +192,7 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
     m_session_subscriptions[session_id].insert(subscription_id);
 
     std::unique_ptr<wamp_subscribed_message> subscribed_message(
-            new wamp_subscribed_message(std::move(subscribe_message->release_zone())));
+            new wamp_subscribed_message(subscribe_message->release_zone()));
     subscribed_message->set_request_id(subscribe_message->get_request_id());
     subscribed_message->set_subscription_id(subscription_id);
 
@@ -245,7 +245,7 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
     }
 
     std::unique_ptr<wamp_unsubscribed_message> unsubscribed_message(
-            new wamp_unsubscribed_message(std::move(unsubscribe_message->release_zone())));
+            new wamp_unsubscribed_message(unsubscribe_message->release_zone()));
     unsubscribed_message->set_request_id(unsubscribe_message->get_request_id());
 
     BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unsubscribed_message);
