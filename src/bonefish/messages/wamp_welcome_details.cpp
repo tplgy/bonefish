@@ -57,8 +57,8 @@ void operator<< (object::with_zone& details,
             features.via.map.size = 1;
             features.via.map.ptr = static_cast<object_kv*>(
                 features.zone.allocate_align(sizeof(object_kv) * features.via.map.size));
-            features.via.map.ptr[index].key = object(std::string("features"), features.zone);
-            features.via.map.ptr[index].val = object(attributes, features.zone);
+            features.via.map.ptr[0].key = object(std::string("features"), features.zone);
+            features.via.map.ptr[0].val = object(attributes, features.zone);
         }
 
         const std::string role_name(role_type_to_string(role.get_type()));
