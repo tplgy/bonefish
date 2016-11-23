@@ -4,7 +4,7 @@ project(bonefish)
 option(shared "build bonefish as a shared library" OFF)
 option(stdlib "When building with clang, you can choose libc++ (default) or libstdc++" OFF)
 
-set(BOOST_COMPONENTS program_options system thread)
+set(BOOST_COMPONENTS program_options regex system thread)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if (NOT stdlib)
