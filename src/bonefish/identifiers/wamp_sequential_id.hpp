@@ -29,7 +29,7 @@ namespace bonefish {
 class wamp_sequential_id
 {
 public:
-    static const uint64_t MIN = 1;
+    static const uint64_t MIN = 0;
     static const uint64_t MAX = 1ULL << 53;
 #if defined(_MSC_VER)
     static const uint64_t INVALID = UINT64_MAX;
