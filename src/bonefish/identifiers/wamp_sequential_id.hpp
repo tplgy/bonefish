@@ -29,7 +29,7 @@ namespace bonefish {
 class wamp_sequential_id
 {
 public:
-    static const uint64_t MIN = 1;
+    static const uint64_t MIN = 0;
     static const uint64_t MAX = 1ULL << 53;
 #if defined(_MSC_VER)
     static const uint64_t INVALID = UINT64_MAX;
@@ -58,7 +58,7 @@ inline wamp_sequential_id::wamp_sequential_id()
 inline wamp_sequential_id::wamp_sequential_id(uint64_t id)
     : m_id(id)
 {
-    if (m_id < MIN || m_id > MAX) {
+    if (m_id > MAX) {
         std::stringstream ss;
         ss << "sequential id " << m_id << " is out of range";
         throw std::invalid_argument(ss.str());
