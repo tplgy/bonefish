@@ -119,8 +119,6 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
     // it is then safe to just pass ownership of the zone.
     auto topic_subscriptions_itr = m_topic_subscriptions.find(topic);
     if (topic_subscriptions_itr != m_topic_subscriptions.end()) {
-        // Fix github issue #43 = work on a COPY of member subscriptions to avoid iterator 
-        // invalidation should  session->get_transport()->send_message() failure close & remove the session.
         const auto subscriptions = topic_subscriptions_itr->second->get_subscriptions();
         std::size_t num_subscriptions = subscriptions.size();
         std::size_t current_subscription = 0;
