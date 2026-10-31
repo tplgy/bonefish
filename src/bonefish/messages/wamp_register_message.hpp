@@ -90,7 +90,7 @@ inline wamp_message_type wamp_register_message::get_type() const
 
 inline std::vector<msgpack::object> wamp_register_message::marshal() const
 {
-    std::vector<msgpack::object> fields { m_type, m_request_id, m_options };
+    std::vector<msgpack::object> fields { m_type, m_request_id, m_options, m_procedure };
     return fields;
 }
 
