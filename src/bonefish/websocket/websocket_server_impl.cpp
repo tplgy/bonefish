@@ -208,6 +208,13 @@ void websocket_server_impl::on_message(websocketpp::connection_hdl handle,
         serializer = m_serializers->get_serializer(wamp_serializer_type::JSON);
     }
 
+    if (!serializer) {
+        BONEFISH_TRACE("no serializer available for negotiated subprotocol");
+        m_server->close(handle, websocketpp::close::status::policy_violation,
+                "serializer unavailable");
+        return;
+    }
+
     try {
         std::unique_ptr<wamp_message> message(
                 serializer->deserialize(buffer->get_payload().c_str(), buffer->get_payload().size()));

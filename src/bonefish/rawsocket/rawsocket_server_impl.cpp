@@ -209,6 +209,17 @@ void rawsocket_server_impl::on_handshake(
         return;
     }
 
+    // The msgpack serializer may have been disabled by configuration; reject
+    // the connection rather than negotiating a serializer we cannot provide.
+    if (!m_serializers->has_serializer(wamp_serializer_type::MSGPACK)) {
+        BONEFISH_TRACE("msgpack serializer is not enabled");
+        if (!connection->send_handshake(htonl(0x7F100000))) {
+            BONEFISH_TRACE("failed to send handshake response to component: network failure");
+            teardown_connection(connection);
+        }
+        return;
+    }
+
     // Make sure that the reserved bits are all zeros as expected otherwise
     // send an error response back in the returned handshake.
     uint32_t reserved = capabilities & 0x0000FFFF;
@@ -241,6 +252,11 @@ void rawsocket_server_impl::on_message(
     try {
         std::shared_ptr<wamp_serializer> serializer =
                 m_serializers->get_serializer(wamp_serializer_type::MSGPACK);
+        if (!serializer) {
+            BONEFISH_TRACE("msgpack serializer not available for connection");
+            teardown_connection(connection);
+            return;
+        }
         std::unique_ptr<wamp_message> message(
                 serializer->deserialize(buffer, length));
         std::unique_ptr<wamp_transport> transport(
