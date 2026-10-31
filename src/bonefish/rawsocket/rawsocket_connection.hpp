@@ -261,7 +261,10 @@ inline void rawsocket_connection::receive_message_header_handler(
         return;
     }
 
-    m_message_buffer.reserve(message_length);
+    // resize (not reserve) so the buffer actually owns the bytes read into it.
+    if (m_message_buffer.size() < message_length) {
+        m_message_buffer.resize(message_length);
+    }
 
     std::weak_ptr<rawsocket_connection> weak_self =
             std::static_pointer_cast<rawsocket_connection>(shared_from_this());
