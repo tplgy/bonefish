@@ -49,10 +49,16 @@ Clean under `-Wall -Werror` (third-party includes are SYSTEM-qualified; no
 `build/daemon/bonefish`, `build/examples/integration`,
 `build/test/functional/websocket/client`.
 
+`cmake --install` exports a self-contained `bonefish::bonefish` package (all
+headers + vendored third-party headers + `ASIO_STANDALONE`). Portability:
+`test/portability/gcc11-toolchain.cmake` (with `GCC11_ROOT=<prefix>`) builds
+with stock Ubuntu 22.04 g++ 11.4.0 — verified green. CI:
+`.github/workflows/ci.yml` (22.04/24.04 × Debug/Release + ASan/UBSan).
+
 ## Testing (all verified green, incl. under ASan+UBSan)
 
 ```bash
-cd build && ctest --output-on-failure   # 4 unit + e2e_all
+cd build && ctest --output-on-failure   # 4 unit + e2e_all + test_consumer
 ```
 
 - `test/unit/`: message wire format, WAMP URI, trace formatter, native
@@ -61,6 +67,10 @@ cd build && ctest --output-on-failure   # 4 unit + e2e_all
   socket + websocket-JSON full flows (incl. 512 KiB payload), CLI option
   regressions, embedded example. Set `BF_E2E_STDERR=<file>` to capture daemon
   stderr; the driver then fails on any sanitizer report.
+- `test_consumer` (`test/consumer/` + `run.cmake`): stage-installs the build
+  tree and configures/builds/runs an **independent** `find_package(bonefish)`
+  project against `bonefish::bonefish`. Inherits the parent compiler,
+  toolchain (`GCC11_ROOT` env is forwarded) and sanitizer flags.
 - Sanitizer recipe is in BUILD.md.
 
 ## Running & verifying

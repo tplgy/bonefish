@@ -34,15 +34,30 @@
       pass in `build-mod` and under ASan+UBSan in `build-asan` (daemon stderr
       captured and scanned: no sanitizer reports).
 - [x] M7 docs updated + MODERNIZATION_RESULT.md.
+- [x] M8 release readiness:
+      - CMake package export: `bonefish::bonefish` + self-contained header
+        install (vendored third-party headers + ASIO_STANDALONE);
+        FindBonefish.cmake forwards to config mode.
+      - `test_consumer` CTest: independent `find_package(bonefish)` project
+        (`test/consumer/`) built against a stage-install; inherits compiler/
+        toolchain/sanitizer flags.
+      - GCC 11 verified for real: official jammy g++ 11.4.0-1ubuntu1~22.04.3
+        debs extracted, built via `test/portability/gcc11-toolchain.cmake`;
+        all 6 ctest tests green (also against jammy libstdc++ 12.3.0 runtime;
+        max ABI requirement GLIBCXX_3.4.29).
+      - GCC 13: Debug + Release + ASan/UBSan all 6/6.
+      - Boost audit final: no matches in src/CMake, no boost symbols in
+        libbonefish.a or linked binaries.
+      - CI: `.github/workflows/ci.yml` (ubuntu-22.04/24.04 x Debug/Release +
+        ASan/UBSan job).
 
 ## Verified environment
 - Ubuntu 24.04, g++ 13.3.0. NO sudo; cmake via /tmp/opencode/venv (3.31.6).
-- Ubuntu 22.04 / GCC 11 not available in this container; the modern build
-  needs no Boost and no other system deps — see MODERNIZATION_RESULT.md for
-  the Ubuntu 22.04 reproduce recipe.
+- Ubuntu 22.04 validated without a container: jammy GCC 11 .deb packages
+  extracted to /tmp/opencode/gcc11 (see M8 + BUILD.md "Portability").
 - Legacy Boost 1.65.1 build (`build/`) exists only as the pre-modernization
   baseline; it no longer matches the modernized sources (expected).
 
 ## Current blocker / next step
 - No blocker. Possible follow-ups (out of scope): implement AUTHENTICATE /
-  CANCEL / INTERRUPT (protocol work), CI wiring.
+  CANCEL / INTERRUPT (protocol work); replace stale test/smoke scripts.

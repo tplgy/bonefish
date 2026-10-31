@@ -9,7 +9,8 @@ The pre-modernization Boost-based build is documented in git history
 
 - CMake >= 3.31 here (project declares `cmake_minimum_required(VERSION 3.16)`;
   CMake 4.x also works since `FindBoost` is gone, but was not tested).
-- GCC 11+ / Clang 14+ (C++20). Verified with g++ 13.3.0.
+- GCC 11+ / Clang 14+ (C++20). Verified with g++ 13.3.0 (Ubuntu 24.04) and
+  with the official Ubuntu 22.04 g++ 11.4.0 packages (see *Portability*).
 - **No Boost required.** All third-party deps are git submodules:
 
 ```
@@ -41,10 +42,18 @@ Build products: `build-mod/src/libbonefish.a`, `build-mod/daemon/bonefish`
 (target `bonefish_bin`), `build-mod/examples/integration`,
 `build-mod/test/functional/websocket/client`.
 
-Install: `cmake --install build-mod`; downstream:
-`cmake/Modules/FindBonefish.cmake` (note: downstream must provide the same
-header-only deps, i.e. link the `asio` include paths, or use CMake >= 3.30
-style exported interface).
+Install: `cmake --install build-mod --prefix <prefix>`. The install exports a
+self-contained CMake package (all bonefish headers plus the vendored
+header-only deps; `ASIO_STANDALONE` is part of the exported interface):
+
+```cmake
+find_package(bonefish REQUIRED)          # -DCMAKE_PREFIX_PATH=<prefix>
+target_link_libraries(my_app PRIVATE bonefish::bonefish)
+```
+
+`cmake/Modules/FindBonefish.cmake` still works and forwards to the config
+package when installed. `test/consumer/` is a minimal independent project
+run by the `test_consumer` CTest against a stage-install of the build tree.
 
 ## Tests (verified green, unit + E2E, plain and under sanitizers)
 
@@ -52,12 +61,14 @@ style exported interface).
 cd build-mod && ctest --output-on-failure
 ```
 
-5 tests: 4 unit (`test/unit/`: message wire format, WAMP URI validation,
-trace formatter, native connect/disconnect) + `e2e_all`
+6 tests: 4 unit (`test/unit/`: message wire format, WAMP URI validation,
+trace formatter, native connect/disconnect), `e2e_all`
 (`test/e2e/e2e_driver.py`: daemon over RawSocket TCP, RawSocket UDS, and
 WebSocket/JSON — full HELLO/SUBSCRIBE/PUBLISH/REGISTER/CALL flows incl. a
 512 KiB payload; CLI option regressions incl. `--no-msgpack`/`--no-json`
-subprotocol selection; embedded `examples/integration`). The driver needs
+subprotocol selection; embedded `examples/integration`), and `test_consumer`
+(independent `find_package(bonefish)` project built against the
+stage-install). The driver needs
 python3 with `msgpack` and `websockets` (installed in a venv here).
 
 Sanitizer run (verified clean):
@@ -84,6 +95,31 @@ capture it — the driver then fails the test if any sanitizer report appears.
 `--no-json` / `--no-msgpack` control the **websocket** subprotocols; RawSocket
 is msgpack-only by design and now rejects the handshake (0x7F100000) when
 msgpack is disabled instead of crashing (fixed).
+
+## Portability: GCC 11 / Ubuntu 22.04 (verified)
+
+GitHub Actions CI (`.github/workflows/ci.yml`) covers ubuntu-22.04 (GCC 11)
+and ubuntu-24.04 (GCC 13), Debug and Release, plus an ASan+UBSan job.
+
+Locally (verified in this 24.04 container without a 22.04 container:
+`test/portability/gcc11-toolchain.cmake` drives a build with the official
+jammy `g++-11` 11.4.0-1ubuntu1~22.04.3 `.deb` packages extracted to a
+prefix):
+
+```bash
+# extract g++-11/gcc-11/cpp-11/libgcc-11-dev/libstdc++-11-dev +
+# jammy libstdc++6/libgcc-s1 debs into $GCC11_ROOT (dpkg -x)
+GCC11_ROOT=$GCC11_ROOT cmake -S . -B build-gcc11 \
+    -DCMAKE_TOOLCHAIN_FILE=test/portability/gcc11-toolchain.cmake \
+    -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-gcc11 -j
+cd build-gcc11 && ctest --output-on-failure    # 6/6 green
+```
+
+GCC 11's libstdc++ has no `<format>` — the tree deliberately uses none of
+the GCC-11-incomplete C++20 library features (`std::format`, ranges,
+`std::span`, `jthread`, ...). Binaries need at most `GLIBCXX_3.4.29`, i.e.
+they run on stock 22.04.
 
 ## Not run / legacy
 

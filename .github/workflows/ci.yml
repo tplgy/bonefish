@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main, feature/*]
+  pull_request:
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+        build-type: [Debug, Release]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Python test dependencies
+        run: sudo apt-get update && sudo apt-get install -y python3-msgpack python3-websockets
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+      - name: Build
+        run: cmake --build build -j
+      - name: Test
+        env:
+          BF_E2E_STDERR: ${{ runner.temp }}/e2e-stderr.log
+        run: cd build && ctest --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Python test dependencies
+        run: sudo apt-get update && sudo apt-get install -y python3-msgpack python3-websockets
+      - name: Configure
+        run: >
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+      - name: Build
+        run: cmake --build build -j
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=0
+          BF_E2E_STDERR: ${{ runner.temp }}/asan-e2e-stderr.log
+        run: cd build && ctest --output-on-failure

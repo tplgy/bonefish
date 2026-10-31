@@ -56,31 +56,59 @@ cppcodec/json-msgpack pins.
   `BF_E2E_STDERR` capture fails on any sanitizer report.
 - Registered with CTest (`enable_testing()` + `test/{unit,e2e}`).
 
-## Verification evidence (this container: Ubuntu 24.04, g++ 13.3.0, CMake 3.31.6)
+## Verification evidence
 
-- `cmake --build build-mod -j` clean under `-Wall -Werror`.
-- `ctest`: 5/5 pass.
-- ASan+UBSan build (`build-asan`): 5/5 pass, daemon stderr captured,
-  zero sanitizer reports.
-- `ldd build-mod/daemon/bonefish | grep -ci boost` → 0.
+### Ubuntu 24.04 host, g++ 13.3.0, CMake 3.31.6
 
-## Reproducing on Ubuntu 22.04 (GCC 11) / 24.04 (GCC 13)
+- Debug (`build-mod`): build clean under `-Wall -Werror`; `ctest` 6/6.
+- Release (`build-rel`): `ctest` 6/6.
+- ASan+UBSan (`build-asan`): `ctest` 6/6; daemon stderr captured with
+  `BF_E2E_STDERR`, zero sanitizer reports.
 
-```bash
-# apt install g++ cmake git python3 python3-venv   (cmake >= 3.16 distro pkg is fine)
-git clone --recurse-submodules <repo> && cd bonefish
-python3 -m venv .venv && .venv/bin/pip install msgpack websockets
-source .venv/bin/activate          # so CMake finds the python with the deps
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j
-cd build && ctest --output-on-failure
-```
+### Ubuntu 22.04 toolchain, g++ 11.4.0 (verified via jammy packages)
 
-Note: this container could not run Ubuntu 22.04/GCC 11 directly. The tree
-uses no C++20 features beyond what GCC 11 implements (no concepts-heavy code,
-no ranges/`std::format`, no `std::span`/`jthread`), and Asio 1.30.2 /
-websocketpp develop both support C++20 on GCC 11 upstream, so GCC 11 is
-expected to build; treat as the first thing to check in CI.
+No container runtime (docker/podman) or user namespaces are available in this
+container, so 22.04 was validated by extracting the *official Ubuntu 22.04
+packages* (`g++-11`/`gcc-11`/`libgcc-11-dev`/`libstdc++-11-dev`
+11.4.0-1ubuntu1~22.04.3 plus jammy `libstdc++6`/`libgcc-s1` 12.3.0) and
+building through `test/portability/gcc11-toolchain.cmake`
+(`GCC11_ROOT=<prefix> cmake -S . -B build-gcc11
+-DCMAKE_TOOLCHAIN_FILE=test/portability/gcc11-toolchain.cmake`):
+
+- A probe confirmed GCC 11's libstdc++ has **no `<format>`**; the tree
+  includes no `std::format`/`std::span`/`std::ranges`/`jthread`/concepts
+  headers, so no compatibility shims were needed.
+- `cmake --build build-gcc11 -j`: clean on the first attempt, zero warnings
+  under `-Wall -Werror`.
+- `ctest` in `build-gcc11`: 6/6.
+- Re-run with jammy's runtime forced via `LD_LIBRARY_PATH`
+  (`libstdc++.so.6.0.30`): 6/6; daemon/consumer binaries require at most
+  `GLIBCXX_3.4.29` → runtime-ABI compatible with stock Ubuntu 22.04.
+
+### Independent-project consumption
+
+- The install now exports a CMake package: `bonefish::bonefish` with all
+  headers plus the vendored third-party headers (standalone Asio,
+  websocketpp, msgpack-c, rapidjson, cppcodec, json-msgpack) and
+  `ASIO_STANDALONE`, so the package is self-contained; `FindBonefish.cmake`
+  forwards to the config package when present.
+- CTest `test_consumer`: stage-installs the build tree, then configures,
+  builds and runs `test/consumer` (an independent `find_package(bonefish)`
+  project) with the parent build's compiler/toolchain/sanitizer flags.
+  Passes on GCC 13 (Debug/Release), GCC 11, and under ASan+UBSan.
+
+### Boost audit (final)
+
+- `grep -rn "boost/" src daemon examples test` → no matches.
+- `grep -i boost` in all `CMakeLists.txt` + `cmake/` → no matches.
+- `nm -C build-*/src/libbonefish.a | grep -ci boost` → 0;
+  `ldd` of daemon/consumer: no Boost libs.
+
+## CI
+
+- `.github/workflows/ci.yml`: matrix over ubuntu-22.04/24.04 × Debug/Release
+  (recursive submodules, `ctest --output-on-failure`) plus an ASan+UBSan job
+  on 24.04 with `BF_E2E_STDERR` sanitizer scanning.
 
 ## Open items (out of scope)
 
@@ -88,7 +116,5 @@ expected to build; treat as the first thing to check in CI.
   feature work.
 - `wamp_hello_details.hpp::marshal` still `logic_error` (item 5) — only a
   trap for client-side message users.
-- CI wiring (GitHub Actions matrix 22.04/24.04 + sanitizers) — the ctest
-  suites are ready to plug in.
 - `test/smoke/*.py` are stale Python-2 autobahn scripts; consider replacing
   with the new e2e driver.
