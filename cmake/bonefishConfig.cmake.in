@@ -1,0 +1,13 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(Threads REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/bonefishTargets.cmake")
+
+# Threads is attached to the target here (rather than exported from the
+# build tree) so the export does not reference an unexported imported target.
+set_target_properties(bonefish::bonefish PROPERTIES
+    INTERFACE_LINK_LIBRARIES Threads::Threads)
+
+check_required_components(bonefish)

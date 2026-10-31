@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(bonefish CXX)
+project(bonefish VERSION 1.0.0 LANGUAGES CXX)
 
 option(shared "build bonefish as a shared library" OFF)
 option(stdlib "When building with clang, you can choose libc++ (default) or libstdc++" OFF)

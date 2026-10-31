@@ -133,12 +133,61 @@ set(PRIVATE_HEADERS
 
 add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
 
+target_include_directories(bonefish PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>)
+
+# Vendored third-party headers are part of bonefish's public interface
+# (wamp_session.hpp pulls in websocketpp, which needs standalone Asio).
+target_include_directories(bonefish SYSTEM PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third-party/asio/asio/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third-party/cppcodec>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third-party/json-msgpack/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third-party/msgpack-c/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third-party/rapidjson/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third-party/websocketpp>)
+
+target_compile_definitions(bonefish PUBLIC ASIO_STANDALONE)
+
 target_link_libraries(bonefish
-    PUBLIC asio Threads::Threads)
+    PUBLIC $<BUILD_INTERFACE:asio> $<BUILD_INTERFACE:Threads::Threads>)
 
-foreach(h ${PUBLIC_HEADERS})
-    get_filename_component(HEADER_INCLUDE_DIRECTORY include/${h} PATH) # use DIRECTORY instead of PATH once requiring CMake 3.0
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${h} DESTINATION ${HEADER_INCLUDE_DIRECTORY} COMPONENT "headers")
-endforeach()
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bonefish
+    DESTINATION include
+    COMPONENT headers
+    FILES_MATCHING PATTERN "*.hpp")
 
-install(TARGETS bonefish DESTINATION lib)
+# The vendored third-party headers are installed alongside bonefish's own
+# headers so the exported package is self-contained.
+install(DIRECTORY
+    ${PROJECT_SOURCE_DIR}/third-party/asio/asio/include/
+    ${PROJECT_SOURCE_DIR}/third-party/msgpack-c/include/
+    ${PROJECT_SOURCE_DIR}/third-party/json-msgpack/include/
+    DESTINATION include
+    PATTERN "*.cpp" EXCLUDE)
+install(DIRECTORY
+    ${PROJECT_SOURCE_DIR}/third-party/websocketpp/websocketpp
+    ${PROJECT_SOURCE_DIR}/third-party/rapidjson/include/rapidjson
+    ${PROJECT_SOURCE_DIR}/third-party/cppcodec/cppcodec
+    DESTINATION include
+    PATTERN "*.cpp" EXCLUDE)
+
+include(CMakePackageConfigHelpers)
+
+install(TARGETS bonefish EXPORT bonefishTargets DESTINATION lib)
+install(EXPORT bonefishTargets
+    NAMESPACE bonefish::
+    DESTINATION lib/cmake/bonefish)
+
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/cmake/bonefishConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/bonefishConfig.cmake
+    INSTALL_DESTINATION lib/cmake/bonefish)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/bonefishConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion)
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/bonefishConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/bonefishConfigVersion.cmake
+    DESTINATION lib/cmake/bonefish)

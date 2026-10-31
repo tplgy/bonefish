@@ -1,9 +1,25 @@
 # - Try to find bonefish
+#
+# Modern installations export a CMake package (bonefish::bonefish); this
+# module simply forwards to it when present. Otherwise it falls back to
+# locating a bare libbonefish + headers (note: the vendored third-party
+# headers (standalone Asio, websocketpp, ...) must then be provided by
+# the caller; define ASIO_STANDALONE).
+#
 # Once done this will define
 #  Bonefish_FOUND - System has bonefish
 #  Bonefish_INCLUDE_DIRS - The bonefish include directories
 #  Bonefish_LIBRARIES - The libraries needed to use bonefish
-#  Bonefish_DEFINITIONS - Compiler switches needed for using bonefish
+
+find_package(bonefish CONFIG QUIET)
+if(bonefish_FOUND)
+    set(Bonefish_FOUND TRUE)
+    set(Bonefish_LIBRARIES bonefish::bonefish)
+    get_target_property(Bonefish_INCLUDE_DIRS bonefish::bonefish
+        INTERFACE_INCLUDE_DIRECTORIES)
+    mark_as_advanced(Bonefish_FOUND)
+    return()
+endif()
 
 if(Bonefish_USE_STATIC_LIBS)
     set(_bonefish_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -35,8 +51,6 @@ set(Bonefish_INCLUDE_DIRS ${Bonefish_INCLUDE_DIR})
 set(Bonefish_DEFINITIONS ${Bonefish_DEFINITIONS})
 
 include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set Bonefish_FOUND to TRUE
-# if all listed variables are TRUE
 find_package_handle_standard_args(Bonefish DEFAULT_MSG
                                   Bonefish_LIBRARY
                                   Bonefish_LIBRARIES
