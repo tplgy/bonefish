@@ -1,5 +1,15 @@
 # BOOST_AUDIT.md
 
+> **Status (branch feature/modernize-cpp17): COMPLETE.** Every Boost
+> dependency below has been removed from `src/`, `daemon/`, `examples/` and
+> `test/`; the build no longer finds or links Boost (verified: `ldd` of
+> `build-mod/daemon/bonefish` shows zero Boost libraries). Replacements:
+> standalone Asio 1.30.2 (vendored), `std::future/promise` (no `.then()` /
+> `when_all` was in fact used anywhere), `std::error_code`, lambdas for
+> `boost::bind`, hand-rolled CLI parser for program_options, std-based
+> trace formatter for `boost::format`/BOOST_PP, `std::regex` for
+> USE_BOOST_REGEX. The inventory below is kept as the migration record.
+
 Inventory of Boost usage in this tree (verified by grep/reading sources), with
 replacement notes. See MODERNIZATION.md for a migration ordering.
 

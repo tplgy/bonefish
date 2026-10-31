@@ -1,5 +1,14 @@
 # MODERNIZATION.md
 
+> **Status (branch feature/modernize-cpp17): executed.** Steps 1–3 below are
+> done: websocketpp repinned to develop (bce2586), standalone Asio 1.30.2
+> vendored, zero Boost, C++20, ctest added. Bugs 1, 2, 3 and 6 are fixed with
+> regression tests (plus two more found by the new test suite:
+> `wamp_register_message::marshal()` dropped the procedure, and a
+> null-serializer segfault behind `--no-msgpack`). Bug 4 (AUTHENTICATE /
+> CANCEL / INTERRUPT) remains open — protocol feature work. See
+> MODERNIZATION_RESULT.md for the outcome and test evidence.
+
 Upgrade analysis and plan. All items verified by reading the code; the three
 confirmed bugs have exact locations. See BOOST_AUDIT.md for the Boost/Asio
 inventory and BUILD.md for the dependency ceiling.
