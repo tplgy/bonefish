@@ -21,7 +21,7 @@
 #include <bonefish/dealer/wamp_dealer.hpp>
 #include <bonefish/messages/wamp_welcome_details.hpp>
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -44,7 +44,7 @@ class wamp_yield_message;
 class wamp_router_impl
 {
 public:
-    wamp_router_impl(boost::asio::io_service& io_service, const std::string& realm);
+    wamp_router_impl(asio::io_context& io_service, const std::string& realm);
     ~wamp_router_impl();
 
     const std::string& get_realm() const;

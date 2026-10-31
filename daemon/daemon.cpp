@@ -28,8 +28,9 @@
 #include <bonefish/trace/trace.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
-#include <boost/asio/ip/address.hpp>
-#include <boost/bind.hpp>
+#include <asio/ip/address.hpp>
+#include <functional>
+#include <memory>
 #include <signal.h>
 #include <string.h>
 
@@ -85,7 +86,7 @@ daemon::daemon(const daemon_options& options)
         m_rawsocket_server = std::make_shared<rawsocket_server>(m_routers, m_serializers);
         if (options.rawsocket_port() != 0) {
             auto listener = std::make_shared<tcp_listener>(
-                    m_io_service, boost::asio::ip::address(), options.rawsocket_port());
+                    m_io_service, asio::ip::address(), options.rawsocket_port());
             m_rawsocket_server->attach_listener(std::static_pointer_cast<rawsocket_listener>(listener));
         }
         if (!options.rawsocket_path().empty()) {
@@ -103,16 +104,18 @@ daemon::~daemon()
 
 void daemon::run()
 {
-    m_work.reset(new boost::asio::io_service::work(m_io_service));
+    m_work = std::make_unique<decltype(asio::make_work_guard(m_io_service))>(asio::make_work_guard(m_io_service));
     m_termination_signals.async_wait(
-            boost::bind(&daemon::termination_signal_handler, this, _1, _2));
+            [this](const std::error_code& error_code, int signal_number) {
+                termination_signal_handler(error_code, signal_number);
+            });
 
     if (m_rawsocket_server) {
         m_rawsocket_server->start();
     }
 
     if (m_websocket_server) {
-        m_websocket_server->start(boost::asio::ip::address(), m_websocket_port);
+        m_websocket_server->start(asio::ip::address(), m_websocket_port);
     }
 
     m_io_service.run();
@@ -121,11 +124,11 @@ void daemon::run()
 void daemon::shutdown()
 {
     if (m_work.get()) {
-        m_io_service.dispatch(boost::bind(&daemon::shutdown_handler, this));
+        m_io_service.dispatch([this]() { shutdown_handler(); });
     }
 }
 
-boost::asio::io_service& daemon::io_service()
+asio::io_context& daemon::io_service()
 {
     return m_io_service;
 }
@@ -154,9 +157,9 @@ void daemon::shutdown_handler()
 }
 
 void daemon::termination_signal_handler(
-        const boost::system::error_code& error_code, int signal_number)
+        const std::error_code& error_code, int signal_number)
 {
-    if (error_code == boost::asio::error::operation_aborted) {
+    if (error_code == asio::error::operation_aborted) {
         return;
     }
 
@@ -174,7 +177,9 @@ void daemon::termination_signal_handler(
         // terminate upon receipt of one of the registered signals.
         assert(0);
         m_termination_signals.async_wait(
-                boost::bind(&daemon::termination_signal_handler, this, _1, _2));
+                [this](const std::error_code& error_code, int signal_number) {
+                    termination_signal_handler(error_code, signal_number);
+                });
     }
 }
 

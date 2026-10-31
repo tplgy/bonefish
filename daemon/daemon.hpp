@@ -21,8 +21,8 @@
 #include <bonefish/serialization/msgpack_serializer.hpp>
 #include <bonefish/websocket/websocket_server.hpp>
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/signal_set.hpp>
+#include <asio/io_context.hpp>
+#include <asio/signal_set.hpp>
 #include <cstdint>
 #include <memory>
 
@@ -42,17 +42,17 @@ public:
 
     void run();
     void shutdown();
-    boost::asio::io_service& io_service();
+    asio::io_context& io_service();
 
 private:
     void shutdown_handler();
     void termination_signal_handler(
-            const boost::system::error_code& error_code, int signal_number);
+            const std::error_code& error_code, int signal_number);
 
 private:
-    boost::asio::io_service m_io_service;
-    std::shared_ptr<boost::asio::io_service::work> m_work;
-    boost::asio::signal_set m_termination_signals;
+    asio::io_context m_io_service;
+    std::unique_ptr<asio::executor_work_guard<asio::io_context::executor_type>> m_work;
+    asio::signal_set m_termination_signals;
 
     std::shared_ptr<bonefish::wamp_routers> m_routers;
     std::shared_ptr<bonefish::wamp_serializers> m_serializers;

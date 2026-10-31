@@ -22,7 +22,7 @@
 namespace bonefish {
 
 uds_listener::uds_listener(
-        boost::asio::io_service& io_service,
+        asio::io_context& io_service,
         const std::string& path)
     : rawsocket_listener()
     , m_socket(io_service)
@@ -48,7 +48,7 @@ void uds_listener::start_listening()
     unlink(m_endpoint.path().c_str());
     m_acceptor.open(m_endpoint.protocol());
     m_acceptor.set_option(
-           boost::asio::local::stream_protocol::acceptor::reuse_address(true));
+           asio::local::stream_protocol::acceptor::reuse_address(true));
     m_acceptor.bind(m_endpoint);
     m_acceptor.listen();
 

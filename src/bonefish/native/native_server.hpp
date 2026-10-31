@@ -17,7 +17,7 @@
 #ifndef BONEFISH_NATIVE_SERVER_HPP
 #define BONEFISH_NATIVE_SERVER_HPP
 
-#include <boost/asio/io_service.hpp>
+#include <asio/io_context.hpp>
 #include <memory>
 
 namespace bonefish {
@@ -37,7 +37,7 @@ class native_server
 {
 public:
     native_server(
-            boost::asio::io_service& io_service,
+            asio::io_context& io_service,
             const std::shared_ptr<wamp_routers>& routers);
 
     ~native_server();

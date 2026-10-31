@@ -27,14 +27,14 @@
 #include <bonefish/websocket/websocket_protocol.hpp>
 #include <bonefish/websocket/websocket_transport.hpp>
 
-#include <boost/asio/io_service.hpp>
+#include <asio/io_context.hpp>
 #include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/utilities.hpp>
 
 namespace bonefish {
 
 websocket_server_impl::websocket_server_impl(
-        boost::asio::io_service& io_service,
+        asio::io_context& io_service,
         const std::shared_ptr<wamp_routers>& routers,
         const std::shared_ptr<wamp_serializers>& serializers)
     : m_io_service(io_service)
@@ -49,17 +49,17 @@ websocket_server_impl::~websocket_server_impl()
 {
 }
 
-void websocket_server_impl::start(const boost::asio::ip::address& ip_address, uint16_t port)
+void websocket_server_impl::start(const asio::ip::address& ip_address, uint16_t port)
 {
-    BONEFISH_TRACE("starting websocket server: %1%:%2%", ip_address.to_string() % port);
+    BONEFISH_TRACE("starting websocket server: %1%:%2%", ip_address.to_string(), port);
 
-    boost::asio::ip::tcp::endpoint endpoint(ip_address, port);
+    asio::ip::tcp::endpoint endpoint(ip_address, port);
 
     std::weak_ptr<websocket_server_impl> weak_self = shared_from_this();
 
     auto init_handler = [weak_self](
             websocketpp::connection_hdl handle,
-            boost::asio::ip::tcp::socket& socket) {
+            asio::ip::tcp::socket& socket) {
         auto shared_self = weak_self.lock();
         if (shared_self) {
             shared_self->on_socket_init(handle, socket);
@@ -132,9 +132,9 @@ void websocket_server_impl::shutdown()
 }
 
 void websocket_server_impl::on_socket_init(websocketpp::connection_hdl handle,
-        boost::asio::ip::tcp::socket& s)
+        asio::ip::tcp::socket& s)
 {
-    s.set_option(boost::asio::ip::tcp::no_delay(true));
+    s.set_option(asio::ip::tcp::no_delay(true));
 }
 
 void websocket_server_impl::on_open(websocketpp::connection_hdl handle)

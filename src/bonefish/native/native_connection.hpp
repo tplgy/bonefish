@@ -22,7 +22,7 @@
 #include <bonefish/native/native_message_queue.hpp>
 #include <bonefish/trace/trace.hpp>
 
-#include <boost/asio/io_service.hpp>
+#include <asio/io_context.hpp>
 #include <functional>
 #include <memory>
 #include <msgpack.hpp>
@@ -56,7 +56,7 @@ public:
 
 public:
     native_connection(
-            boost::asio::io_service& io_service,
+            asio::io_context& io_service,
             const std::shared_ptr<native_endpoint>& component_endpoint);
 
     virtual ~native_connection() override;
@@ -96,7 +96,7 @@ private:
     /*!
      * This io service is used to drive events for this connection.
      */
-    boost::asio::io_service& m_io_service;
+    asio::io_context& m_io_service;
 
     /*!
      * The endpoint representing the server side of this connection. It is
@@ -126,7 +126,7 @@ private:
 };
 
 inline native_connection::native_connection(
-        boost::asio::io_service& io_service,
+        asio::io_context& io_service,
         const std::shared_ptr<native_endpoint>& component_endpoint)
     : wamp_connection_base()
     , m_io_service(io_service)

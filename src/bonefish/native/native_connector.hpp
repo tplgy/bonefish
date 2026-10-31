@@ -51,7 +51,7 @@ public:
      * complete is returned.
      */
     using disconnect_handler =
-            std::function<boost::future<void>(const std::shared_ptr<native_endpoint>&)>;
+            std::function<std::future<void>(const std::shared_ptr<native_endpoint>&)>;
 
 public:
     native_connector();
@@ -63,7 +63,7 @@ public:
     void set_disconnect_handler(disconnect_handler&& handler);
 
     native_endpoint_future connect(const std::shared_ptr<native_endpoint>& component_endpoint);
-    boost::future<void> disconnect(const std::shared_ptr<native_endpoint>& server_endpoint);
+    std::future<void> disconnect(const std::shared_ptr<native_endpoint>& server_endpoint);
 
 private:
     connect_handler m_connect_handler;
@@ -101,7 +101,7 @@ inline native_endpoint_future native_connector::connect(const std::shared_ptr<na
     return m_connect_handler(component_endpoint);
 }
 
-inline boost::future<void> native_connector::disconnect(const std::shared_ptr<native_endpoint>& server_endpoint)
+inline std::future<void> native_connector::disconnect(const std::shared_ptr<native_endpoint>& server_endpoint)
 {
     return m_disconnect_handler(server_endpoint);
 }

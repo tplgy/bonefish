@@ -17,12 +17,7 @@
 #ifndef BONEFISH_NATIVE_ENDPOINT_HPP
 #define BONEFISH_NATIVE_ENDPOINT_HPP
 
-// http://stackoverflow.com/questions/22597948/using-boostfuture-with-then-continuations/
-#define BOOST_THREAD_PROVIDES_FUTURE
-#define BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION
-#define BOOST_THREAD_PROVIDES_FUTURE_WHEN_ALL_WHEN_ANY
-
-#include <boost/thread/future.hpp>
+#include <future>
 #include <functional>
 #include <msgpack.hpp>
 #include <vector>
@@ -35,13 +30,13 @@ class native_endpoint;
  * Defines a convenience type for a future that is fulfilled with a server
  * endpoint.
  */
-using native_endpoint_future = boost::future<std::shared_ptr<native_endpoint>>;
+using native_endpoint_future = std::future<std::shared_ptr<native_endpoint>>;
 
 /*!
  * Defines a convenience type for a promise that fullfils a server
  * endpoint as its promise.
  */
-using native_endpoint_promise = boost::promise<std::shared_ptr<native_endpoint>>;
+using native_endpoint_promise = std::promise<std::shared_ptr<native_endpoint>>;
 
 /*!
  * A class that provides the concept of an endpoint for communicating natively

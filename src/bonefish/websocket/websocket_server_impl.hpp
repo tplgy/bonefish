@@ -20,9 +20,9 @@
 #include <bonefish/common/wamp_message_processor.hpp>
 #include <bonefish/websocket/websocket_config.hpp>
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <asio/io_context.hpp>
+#include <asio/ip/address.hpp>
+#include <asio/ip/tcp.hpp>
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
@@ -36,17 +36,17 @@ class wamp_serializers;
 class websocket_server_impl : public std::enable_shared_from_this<websocket_server_impl>
 {
 public:
-    websocket_server_impl(boost::asio::io_service& io_service,
+    websocket_server_impl(asio::io_context& io_service,
             const std::shared_ptr<wamp_routers>& routers,
             const std::shared_ptr<wamp_serializers>& serializers);
     ~websocket_server_impl();
 
-    void start(const boost::asio::ip::address& ip_address, uint16_t port);
+    void start(const asio::ip::address& ip_address, uint16_t port);
     void shutdown();
 
 private:
     void on_socket_init(websocketpp::connection_hdl handle,
-            boost::asio::ip::tcp::socket& socket);
+            asio::ip::tcp::socket& socket);
     void on_open(websocketpp::connection_hdl handle);
     void on_close(websocketpp::connection_hdl handle);
     void on_fail(websocketpp::connection_hdl handle);
@@ -55,7 +55,7 @@ private:
             websocketpp::server<websocket_config>::message_ptr message);
 
 private:
-    boost::asio::io_service& m_io_service;
+    asio::io_context& m_io_service;
     std::shared_ptr<websocketpp::server<websocket_config>> m_server;
     std::shared_ptr<wamp_routers> m_routers;
     std::shared_ptr<wamp_serializers> m_serializers;

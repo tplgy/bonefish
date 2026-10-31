@@ -27,10 +27,8 @@
 // **NOTE:** This file is a snapshot of the WebSocket++ utility client tutorial.
 // Additional related material can be found in the tutorials/utility_client
 // directory of the WebSocket++ repository.
-// This is the Include Boost.Asio source code if not used as header-only library.
-#if defined(BOOST_ASIO_DYN_LINK) || defined(BOOST_ASIO_SEPARATE_COMPILATION)
-#include <boost/asio/impl/src.hpp>
-#endif
+// Standalone Asio is used in header-only mode (ASIO_STANDALONE is defined
+// by the build system), so no separate Asio source compilation is needed.
 
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>

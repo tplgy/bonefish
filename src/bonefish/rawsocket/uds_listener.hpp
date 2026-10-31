@@ -19,8 +19,8 @@
 
 #include <bonefish/rawsocket/rawsocket_listener.hpp>
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/local/stream_protocol.hpp>
+#include <asio/io_context.hpp>
+#include <asio/local/stream_protocol.hpp>
 #include <memory>
 #include <string>
 
@@ -32,7 +32,7 @@ class uds_listener :
 {
 public:
     uds_listener(
-            boost::asio::io_service& io_service,
+            asio::io_context& io_service,
             const std::string& path);
     virtual ~uds_listener() override;
 
@@ -44,9 +44,9 @@ protected:
     virtual void async_accept() override;
 
 private:
-    boost::asio::local::stream_protocol::socket m_socket;
-    boost::asio::local::stream_protocol::acceptor m_acceptor;
-    boost::asio::local::stream_protocol::endpoint m_endpoint;
+    asio::local::stream_protocol::socket m_socket;
+    asio::local::stream_protocol::acceptor m_acceptor;
+    asio::local::stream_protocol::endpoint m_endpoint;
 };
 
 } // namespace bonefish

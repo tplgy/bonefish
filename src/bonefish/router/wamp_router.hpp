@@ -17,7 +17,7 @@
 #ifndef BONEFISH_WAMP_ROUTER_HPP
 #define BONEFISH_WAMP_ROUTER_HPP
 
-#include <boost/asio/io_service.hpp>
+#include <asio/io_context.hpp>
 #include <memory>
 #include <string>
 
@@ -44,7 +44,7 @@ class wamp_yield_message;
 class wamp_router
 {
 public:
-    wamp_router(boost::asio::io_service& io_service, const std::string& realm);
+    wamp_router(asio::io_context& io_service, const std::string& realm);
     ~wamp_router();
 
     const std::string& get_realm() const;

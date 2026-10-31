@@ -17,7 +17,7 @@
 #ifndef BONEFISH_RAWSOCKET_SERVER_HPP
 #define BONEFISH_RAWSOCKET_SERVER_HPP
 
-#include <boost/asio/ip/tcp.hpp>
+#include <asio/ip/tcp.hpp>
 #include <set>
 #include <memory>
 

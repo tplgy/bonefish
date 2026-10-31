@@ -19,8 +19,8 @@
 
 #include <bonefish/rawsocket/rawsocket_listener.hpp>
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <asio/io_context.hpp>
+#include <asio/ip/tcp.hpp>
 #include <cstdint>
 #include <memory>
 
@@ -32,8 +32,8 @@ class tcp_listener :
 {
 public:
     tcp_listener(
-            boost::asio::io_service& io_service,
-            const boost::asio::ip::address& ip_address,
+            asio::io_context& io_service,
+            const asio::ip::address& ip_address,
             uint16_t port);
     virtual ~tcp_listener() override;
 
@@ -45,9 +45,9 @@ protected:
     virtual void async_accept() override;
 
 private:
-    boost::asio::ip::tcp::socket m_socket;
-    boost::asio::ip::tcp::acceptor m_acceptor;
-    boost::asio::ip::tcp::endpoint m_endpoint;
+    asio::ip::tcp::socket m_socket;
+    asio::ip::tcp::acceptor m_acceptor;
+    asio::ip::tcp::endpoint m_endpoint;
 };
 
 } // namespace bonefish

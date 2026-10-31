@@ -20,7 +20,8 @@
 #include <bonefish/identifiers/wamp_request_id.hpp>
 #include <bonefish/session/wamp_session.hpp>
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
+#include <chrono>
 #include <functional>
 #include <unordered_set>
 
@@ -29,10 +30,10 @@ namespace bonefish {
 class wamp_dealer_invocation
 {
 public:
-    typedef std::function<void(const boost::system::error_code&)> timeout_callback;
+    typedef std::function<void(const std::error_code&)> timeout_callback;
 
 public:
-    wamp_dealer_invocation(boost::asio::io_service& io_service);
+    wamp_dealer_invocation(asio::io_context& io_service);
     ~wamp_dealer_invocation();
 
     void set_request_id(const wamp_request_id& request_id);
@@ -51,10 +52,10 @@ private:
     // invocations. So instead we allow things to simply timeout and
     // clean themselves up naturally.
     std::shared_ptr<wamp_session> m_session;
-    boost::asio::deadline_timer m_timeout_timer;
+    asio::steady_timer m_timeout_timer;
 };
 
-inline wamp_dealer_invocation::wamp_dealer_invocation(boost::asio::io_service& io_service)
+inline wamp_dealer_invocation::wamp_dealer_invocation(asio::io_context& io_service)
     : m_request_id()
     , m_session()
     , m_timeout_timer(io_service)
@@ -83,7 +84,7 @@ inline void wamp_dealer_invocation::set_timeout(timeout_callback callback, unsig
     // insted we just don't arm the timer which gives us an
     // infinite timeout.
     if (timeout_ms) {
-        m_timeout_timer.expires_from_now(boost::posix_time::milliseconds(timeout_ms));
+        m_timeout_timer.expires_after(std::chrono::milliseconds(timeout_ms));
         m_timeout_timer.async_wait(callback);
     }
 }

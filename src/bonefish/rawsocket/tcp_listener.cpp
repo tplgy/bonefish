@@ -20,8 +20,8 @@
 namespace bonefish {
 
 tcp_listener::tcp_listener(
-        boost::asio::io_service& io_service,
-        const boost::asio::ip::address& ip_address,
+        asio::io_context& io_service,
+        const asio::ip::address& ip_address,
         uint16_t port)
     : rawsocket_listener()
     , m_socket(io_service)
@@ -46,7 +46,7 @@ void tcp_listener::start_listening()
 
     m_acceptor.open(m_endpoint.protocol());
     m_acceptor.set_option(
-           boost::asio::ip::tcp::acceptor::reuse_address(true));
+           asio::ip::tcp::acceptor::reuse_address(true));
     m_acceptor.bind(m_endpoint);
     m_acceptor.listen();
 

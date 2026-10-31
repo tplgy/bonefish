@@ -39,7 +39,7 @@
 
 namespace bonefish {
 
-wamp_dealer::wamp_dealer(boost::asio::io_service& io_service)
+wamp_dealer::wamp_dealer(asio::io_context& io_service)
     : m_io_service(io_service)
     , m_request_id_generator()
     , m_registration_id_generator()
@@ -102,7 +102,7 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
             }
 
             BONEFISH_TRACE("removing registration: %1%, procedure %2%",
-                    *session_itr->second % procedure_registrations_itr->first);
+                    *session_itr->second, procedure_registrations_itr->first);
 
             m_procedure_registrations.erase(procedure_registrations_itr);
             m_registered_procedures.erase(registered_procedures_itr);
@@ -123,7 +123,7 @@ void wamp_dealer::detach_session(const wamp_session_id& session_id)
                 std::shared_ptr<wamp_session> session = dealer_invocation->get_session();
 
                 BONEFISH_TRACE("cleaning up pending caller invocation: %1%, request_id %2%",
-                        *session % request_id);
+                        *session, request_id);
 
                 m_pending_invocations.erase(pending_invocations_itr);
             }
@@ -163,7 +163,7 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
         throw std::logic_error("dealer session does not exist");
     }
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *call_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *call_message);
 
     // If the session placing the call does not support the caller role
     // than do not allow the call to be processed and send an error.
@@ -216,7 +216,7 @@ void wamp_dealer::process_call_message(const wamp_session_id& session_id,
     invocation_message->set_arguments(call_message->get_arguments());
     invocation_message->set_arguments_kw(call_message->get_arguments_kw());
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *invocation_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *invocation_message);
     if (!session->get_transport()->send_message(std::move(*invocation_message))) {
         BONEFISH_TRACE("sending invocation message to callee failed: network failure");
 
@@ -251,7 +251,7 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
         throw std::logic_error("dealer session does not exist");
     }
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *error_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *error_message);
 
     const auto request_id = error_message->get_request_id();
     auto pending_invocations_itr = m_pending_invocations.find(request_id);
@@ -274,7 +274,7 @@ void wamp_dealer::process_error_message(const wamp_session_id& session_id,
     caller_error_message->set_arguments(error_message->get_arguments());
     caller_error_message->set_arguments_kw(error_message->get_arguments_kw());
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *caller_error_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *caller_error_message);
     std::shared_ptr<wamp_session> session = dealer_invocation->get_session();
     if (!session->get_transport()->send_message(std::move(*caller_error_message))) {
         // There is no error message to propogate in this case as this error
@@ -301,7 +301,7 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
         throw std::logic_error("dealer session does not exist");
     }
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *register_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *register_message);
 
     // If the session registering the procedure does not support the callee
     // role than do not allow the call to be processed and send an error.
@@ -342,7 +342,7 @@ void wamp_dealer::process_register_message(const wamp_session_id& session_id,
     // the underlying network connection has been closed/lost which means
     // that the callee is no longer reachable on this session. So all we
     // do here is trace the fact that this event occured.
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *registered_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *registered_message);
     if (!session_itr->second->get_transport()->send_message(std::move(*registered_message))) {
         BONEFISH_TRACE("failed to send registered message to caller: network failure");
     }
@@ -356,7 +356,7 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
         throw std::logic_error("dealer session does not exist");
     }
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unregister_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *unregister_message);
 
     auto session_registrations_itr = m_session_registrations.find(session_id);
     if (session_registrations_itr == m_session_registrations.end()) {
@@ -404,7 +404,7 @@ void wamp_dealer::process_unregister_message(const wamp_session_id& session_id,
     // the underlying network connection has been closed/lost which means
     // that the callee is no longer reachable on this session. So all we
     // do here is trace the fact that this event occured.
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unregistered_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *unregistered_message);
     if (!session_itr->second->get_transport()->send_message(std::move(*unregistered_message))) {
         BONEFISH_TRACE("failed to send unregistered message to caller: network failure");
     }
@@ -421,7 +421,7 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
     // It is considered to be a normal condition if we cannot find the
     // associated invocation. Typically this occurs if the invocation
     // timed out or if the callers session has ended.
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *yield_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *yield_message);
     const auto request_id = yield_message->get_request_id();
     auto pending_invocations_itr = m_pending_invocations.find(request_id);
     if (pending_invocations_itr == m_pending_invocations.end()) {
@@ -462,7 +462,7 @@ void wamp_dealer::process_yield_message(const wamp_session_id& session_id,
     // underlying network connection has been closed/lost which means
     // that the caller is no longer reachable on this session. So all
     // we do here is trace the fact that this event occured.
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *result_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *result_message);
     if (!session->get_transport()->send_message(std::move(*result_message))) {
         BONEFISH_TRACE("failed to send result message to caller: network failure");
     }
@@ -500,9 +500,9 @@ void wamp_dealer::send_error(const std::unique_ptr<wamp_transport>& transport,
 }
 
 void wamp_dealer::invocation_timeout_handler(const wamp_request_id& request_id,
-        const boost::system::error_code& error)
+        const std::error_code& error)
 {
-    if (error == boost::asio::error::operation_aborted) {
+    if (error == asio::error::operation_aborted) {
         return;
     }
 

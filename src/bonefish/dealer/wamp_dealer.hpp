@@ -25,7 +25,7 @@
 #include <bonefish/messages/wamp_message_type.hpp>
 #include <bonefish/utility/wamp_uri.hpp>
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -45,7 +45,7 @@ class wamp_yield_message;
 class wamp_dealer
 {
 public:
-    wamp_dealer(boost::asio::io_service& io_service);
+    wamp_dealer(asio::io_context& io_service);
     ~wamp_dealer();
 
     void attach_session(const std::shared_ptr<wamp_session>& session);
@@ -68,11 +68,11 @@ private:
             const std::string& error) const;
 
     void invocation_timeout_handler(const wamp_request_id& request_id,
-            const boost::system::error_code& error);
+            const std::error_code& error);
 
 private:
     /// Asynchronous event loop for executing completion handlers.
-    boost::asio::io_service& m_io_service;
+    asio::io_context& m_io_service;
 
     /// Generates request ids for all invocation requests that are processed.
     wamp_request_id_generator m_request_id_generator;

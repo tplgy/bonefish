@@ -20,7 +20,7 @@
 #include <bonefish/common/wamp_message_processor.hpp>
 #include <bonefish/native/native_connector.hpp>
 
-#include <boost/asio/io_service.hpp>
+#include <asio/io_context.hpp>
 #include <map>
 #include <memory>
 #include <msgpack.hpp>
@@ -41,7 +41,7 @@ class native_server_impl :
 {
 public:
     native_server_impl(
-            boost::asio::io_service& io_service,
+            asio::io_context& io_service,
             const std::shared_ptr<wamp_routers>& routers);
 
     ~native_server_impl();
@@ -101,7 +101,7 @@ private:
     /*!
      * The io service to drive all events.
      */
-    boost::asio::io_service& m_io_service;
+    asio::io_context& m_io_service;
 
     /*!
      * The routers serviced by this server.

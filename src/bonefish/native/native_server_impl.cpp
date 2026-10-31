@@ -28,13 +28,12 @@
 #include <bonefish/transport/wamp_transport.hpp>
 #include <bonefish/trace/trace.hpp>
 
-#include <boost/exception/exception.hpp>
 #include <stdexcept>
 
 namespace bonefish {
 
 native_server_impl::native_server_impl(
-        boost::asio::io_service& io_service,
+        asio::io_context& io_service,
         const std::shared_ptr<wamp_routers>& routers)
     : m_io_service(io_service)
     , m_routers(routers)
@@ -63,14 +62,14 @@ void native_server_impl::start()
 
         auto shared_this = weak_this.lock();
         if (!shared_this) {
-            connected->set_exception(boost::copy_exception(std::runtime_error("connect failed")));
+            connected->set_exception(std::make_exception_ptr(std::runtime_error("connect failed")));
             return connected->get_future();
         }
 
         m_io_service.post([this, weak_this, connected, component_endpoint] () {
             auto shared_this = weak_this.lock();
             if (!shared_this) {
-                connected->set_exception(boost::copy_exception(std::runtime_error("server shutdown")));
+                connected->set_exception(std::make_exception_ptr(std::runtime_error("server shutdown")));
                 return;
             }
 
@@ -78,7 +77,7 @@ void native_server_impl::start()
                 auto server_endpoint = on_connect(component_endpoint);
                 connected->set_value(server_endpoint);
             } catch (...) {
-                connected->set_exception(boost::current_exception());
+                connected->set_exception(std::current_exception());
             }
         });
 
@@ -88,18 +87,18 @@ void native_server_impl::start()
 
     auto disconnect_handler = [this, weak_this](
             const std::shared_ptr<native_endpoint>& server_endpoint) {
-        auto disconnected = std::make_shared<boost::promise<void>>();
+        auto disconnected = std::make_shared<std::promise<void>>();
 
         auto shared_this = weak_this.lock();
         if (shared_this) {
-            disconnected->set_exception(boost::copy_exception( std::runtime_error("disconnect failed")));
+            disconnected->set_exception(std::make_exception_ptr( std::runtime_error("disconnect failed")));
             return disconnected->get_future();
         }
 
         m_io_service.post([this, weak_this, disconnected, server_endpoint] () {
             auto shared_this = weak_this.lock();
             if (!shared_this) {
-                disconnected->set_exception(boost::copy_exception(std::runtime_error("server shutdown")));
+                disconnected->set_exception(std::make_exception_ptr(std::runtime_error("server shutdown")));
                 return;
             }
 
@@ -107,7 +106,7 @@ void native_server_impl::start()
                 on_disconnect(server_endpoint);
                 disconnected->set_value();
             } catch (...) {
-                disconnected->set_exception(boost::current_exception());
+                disconnected->set_exception(std::current_exception());
             }
         });
 

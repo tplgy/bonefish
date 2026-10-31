@@ -16,25 +16,12 @@
 
 #include <bonefish/utility/wamp_uri.hpp>
 
-#ifdef USE_BOOST_REGEX
-
-#include <boost/regex.hpp>
-#define REGEX_RETURN(uri, regex_name, pcre_regex) { \
-    static boost::regex regex_name(pcre_regex, \
-            boost::regex_constants::nosubs | boost::regex_constants::optimize); \
-    return boost::regex_match(uri, regex_name); \
-}
-
-#else // std::regex is supported (gcc >= 4.9, clang)
-
 #include <regex>
 #define REGEX_RETURN(uri, regex_name, pcre_regex) { \
     static std::regex regex_name(pcre_regex, \
             std::regex_constants::nosubs | std::regex_constants::optimize); \
     return std::regex_match(uri, regex_name); \
 }
-
-#endif
 
 namespace bonefish {
 

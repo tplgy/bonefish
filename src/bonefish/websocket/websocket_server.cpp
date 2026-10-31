@@ -23,7 +23,7 @@
 namespace bonefish {
 
 websocket_server::websocket_server(
-        boost::asio::io_service& io_service,
+        asio::io_context& io_service,
         const std::shared_ptr<wamp_routers>& routers,
         const std::shared_ptr<wamp_serializers>& serializers)
     : m_impl(std::make_shared<websocket_server_impl>(io_service, routers, serializers))
@@ -34,7 +34,7 @@ websocket_server::~websocket_server()
 {
 }
 
-void websocket_server::start(const boost::asio::ip::address& ip_address, uint16_t port)
+void websocket_server::start(const asio::ip::address& ip_address, uint16_t port)
 {
     m_impl->start(ip_address, port);
 }

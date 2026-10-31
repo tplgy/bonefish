@@ -21,8 +21,8 @@
 #include <bonefish/rawsocket/rawsocket_connection.hpp>
 #include <bonefish/common/wamp_message_processor.hpp>
 
-#include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <asio/ip/address.hpp>
+#include <asio/ip/tcp.hpp>
 #include <set>
 #include <memory>
 

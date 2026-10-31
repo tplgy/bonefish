@@ -22,7 +22,7 @@
 namespace bonefish {
 
 native_server::native_server(
-        boost::asio::io_service& io_service,
+        asio::io_context& io_service,
         const std::shared_ptr<wamp_routers>& routers)
     : m_impl(new native_server_impl(io_service, routers))
 {

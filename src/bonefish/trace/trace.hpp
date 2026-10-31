@@ -17,12 +17,12 @@
 #ifndef BONEFISH_WAMP_TRACE_HPP
 #define BONEFISH_WAMP_TRACE_HPP
 
-#include <boost/format.hpp>
-#include <boost/preprocessor/comparison/greater.hpp>
-#include <boost/preprocessor/control/iif.hpp>
-#include <boost/preprocessor/variadic/size.hpp>
+#include <cctype>
+#include <cstring>
 #include <iostream>
-#include <string.h>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace bonefish {
 namespace trace {
@@ -45,23 +45,74 @@ inline const char* base_file_name(const char* file_path)
     return file_name == nullptr ? file_path : file_name + 1;
 }
 
+/*!
+ * Formats a printf-free format string using boost-format style "%N%"
+ * placeholders (1-based), where each argument is rendered through its
+ * operator<<. Unknown or out-of-range placeholders are emitted verbatim.
+ */
+inline std::string format(const std::string& fmt)
+{
+    return fmt;
+}
+
+template <typename T>
+inline std::string to_string(const T& value)
+{
+    std::ostringstream out;
+    out << value;
+    return out.str();
+}
+
+template <typename... Args>
+inline std::string format(const std::string& fmt, const Args&... args)
+{
+    std::vector<std::string> values { to_string(args)... };
+
+    std::string result;
+    result.reserve(fmt.size());
+
+    size_t i = 0;
+    while (i < fmt.size()) {
+        char c = fmt[i];
+        if (c != '%') {
+            result += c;
+            ++i;
+            continue;
+        }
+
+        size_t j = i + 1;
+        size_t n = 0;
+        bool have_digits = false;
+        while (j < fmt.size() && isdigit(static_cast<unsigned char>(fmt[j]))) {
+            n = n * 10 + static_cast<size_t>(fmt[j] - '0');
+            ++j;
+            have_digits = true;
+        }
+
+        if (have_digits && j < fmt.size() && fmt[j] == '%') {
+            if (n >= 1 && n <= values.size()) {
+                result += values[n - 1];
+            } else {
+                result += fmt.substr(i, j + 1);
+            }
+            i = j + 1;
+        } else {
+            result += c;
+            ++i;
+        }
+    }
+
+    return result;
+}
+
 } // namespace trace
 } // namespace bonefish
 
 // Macro for facilitating debug trace logging.
 #define BONEFISH_TRACE(...) \
-	BOOST_PP_IIF(BOOST_PP_GREATER(BOOST_PP_VARIADIC_SIZE(__VA_ARGS__), 1), BONEFISH_TRACE_ARGS(__VA_ARGS__), BONEFISH_TRACE_NOARGS(BOOST_PP_VARIADIC_ELEM(0, __VA_ARGS__)))
-
-#define BONEFISH_TRACE_NOARGS(fmt) \
     if (bonefish::trace::is_enabled()) { \
         std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
-                << boost::format(fmt) << std::endl; \
-    }
-
-#define BONEFISH_TRACE_ARGS(fmt, ...) \
-    if (bonefish::trace::is_enabled()) { \
-        std::cerr << "[" << bonefish::trace::base_file_name(__FILE__) << ":" << __LINE__ << "][" << __FUNCTION__ << "] " \
-                << (boost::format(fmt) % __VA_ARGS__) << std::endl; \
+                << bonefish::trace::format(__VA_ARGS__) << std::endl; \
     }
 
 #endif // BONEFISH_WAMP_TRACE_HPP

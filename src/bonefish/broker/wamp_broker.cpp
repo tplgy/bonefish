@@ -108,7 +108,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
         throw std::logic_error("broker session does not exist");
     }
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *publish_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *publish_message);
     const std::string topic = publish_message->get_topic();
     const wamp_publication_id publication_id = m_publication_id_generator.generate();
 
@@ -144,7 +144,7 @@ void wamp_broker::process_publish_message(const wamp_session_id& session_id,
                 event_message->set_arguments_kw(publish_message->get_arguments_kw());
             }
 
-            BONEFISH_TRACE("%1%, %2%", *session % *event_message);
+            BONEFISH_TRACE("%1%, %2%", *session, *event_message);
             session->get_transport()->send_message(std::move(*event_message));
         }
     }
@@ -166,7 +166,7 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
         throw std::logic_error("broker session does not exist");
     }
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *subscribe_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *subscribe_message);
     wamp_subscription_id subscription_id = m_subscription_id_generator.generate();
     auto& session = session_itr->second;
     {
@@ -196,7 +196,7 @@ void wamp_broker::process_subscribe_message(const wamp_session_id& session_id,
     subscribed_message->set_request_id(subscribe_message->get_request_id());
     subscribed_message->set_subscription_id(subscription_id);
 
-    BONEFISH_TRACE("%1%, %2%", *session % *subscribed_message);
+    BONEFISH_TRACE("%1%, %2%", *session, *subscribed_message);
     session->get_transport()->send_message(std::move(*subscribed_message));
 }
 
@@ -208,7 +208,7 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
         throw std::logic_error("broker session does not exist");
     }
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unsubscribe_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *unsubscribe_message);
     auto session_subscriptions_itr = m_session_subscriptions.find(session_id);
     if (session_subscriptions_itr == m_session_subscriptions.end()) {
         send_error(session_itr->second->get_transport(), unsubscribe_message->get_type(),
@@ -248,7 +248,7 @@ void wamp_broker::process_unsubscribe_message(const wamp_session_id& session_id,
             new wamp_unsubscribed_message(unsubscribe_message->release_zone()));
     unsubscribed_message->set_request_id(unsubscribe_message->get_request_id());
 
-    BONEFISH_TRACE("%1%, %2%", *session_itr->second % *unsubscribed_message);
+    BONEFISH_TRACE("%1%, %2%", *session_itr->second, *unsubscribed_message);
     session_itr->second->get_transport()->send_message(std::move(*unsubscribed_message));
 }
 

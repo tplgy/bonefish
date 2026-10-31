@@ -134,7 +134,7 @@ set(PRIVATE_HEADERS
 add_library(bonefish STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
 
 target_link_libraries(bonefish
-    ${Boost_LIBRARIES})
+    PUBLIC asio Threads::Threads)
 
 foreach(h ${PUBLIC_HEADERS})
     get_filename_component(HEADER_INCLUDE_DIRECTORY include/${h} PATH) # use DIRECTORY instead of PATH once requiring CMake 3.0

@@ -28,7 +28,7 @@
 #include <bonefish/transport/wamp_transport.hpp>
 #include <bonefish/trace/trace.hpp>
 
-#include <boost/asio/ip/address.hpp>
+#include <asio/ip/address.hpp>
 #include <ios>
 
 namespace bonefish {
@@ -54,7 +54,7 @@ void rawsocket_server_impl::attach_listener(const std::shared_ptr<rawsocket_list
 
     listener->set_error_handler([weak_self](
             rawsocket_listener& listener,
-            const boost::system::error_code& error_code) {
+            const std::error_code& error_code) {
         auto shared_self = weak_self.lock();
         if (shared_self) {
             // We better have an error code to process otherwise the
@@ -64,7 +64,7 @@ void rawsocket_server_impl::attach_listener(const std::shared_ptr<rawsocket_list
             // If the error code is reporting an aborted operation then
             // it is an indication that the listener is shutting down so
             // there is no action to take here.
-            if (error_code == boost::asio::error::operation_aborted) {
+            if (error_code == asio::error::operation_aborted) {
                 return;
             }
 

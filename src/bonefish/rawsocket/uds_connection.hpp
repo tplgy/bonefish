@@ -19,17 +19,17 @@
 
 #include <bonefish/rawsocket/rawsocket_connection.hpp>
 
-#include <boost/asio/buffer.hpp>
-#include <boost/asio/local/stream_protocol.hpp>
-#include <boost/asio/read.hpp>
-#include <boost/asio/write.hpp>
+#include <asio/buffer.hpp>
+#include <asio/local/stream_protocol.hpp>
+#include <asio/read.hpp>
+#include <asio/write.hpp>
 
 namespace bonefish {
 
 class uds_connection : public rawsocket_connection
 {
 public:
-    uds_connection(boost::asio::local::stream_protocol::socket&& socket);
+    uds_connection(asio::local::stream_protocol::socket&& socket);
     virtual ~uds_connection() override;
 
     virtual void async_read(
@@ -40,13 +40,13 @@ public:
     virtual void write(
             const void* data,
             size_t length,
-            boost::system::error_code& error_code) override;
+            std::error_code& error_code) override;
 
 private:
-    boost::asio::local::stream_protocol::socket m_socket;
+    asio::local::stream_protocol::socket m_socket;
 };
 
-inline uds_connection::uds_connection(boost::asio::local::stream_protocol::socket&& socket)
+inline uds_connection::uds_connection(asio::local::stream_protocol::socket&& socket)
     : rawsocket_connection()
     , m_socket(std::move(socket))
 {
@@ -67,15 +67,15 @@ inline void uds_connection::async_read(
         size_t length,
         const read_handler& handler)
 {
-    boost::asio::async_read(m_socket, boost::asio::buffer(data, length), handler);
+    asio::async_read(m_socket, asio::buffer(data, length), handler);
 }
 
 inline void uds_connection::write(
         const void* data,
         size_t length,
-        boost::system::error_code& error_code)
+        std::error_code& error_code)
 {
-    boost::asio::write(m_socket, boost::asio::buffer(data, length), error_code);
+    asio::write(m_socket, asio::buffer(data, length), error_code);
 }
 
 } // namespace bonefish

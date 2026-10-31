@@ -38,7 +38,7 @@
 
 namespace bonefish {
 
-wamp_router::wamp_router(boost::asio::io_service& io_service, const std::string& realm)
+wamp_router::wamp_router(asio::io_context& io_service, const std::string& realm)
     : m_impl(new wamp_router_impl(io_service, realm))
 {
 }

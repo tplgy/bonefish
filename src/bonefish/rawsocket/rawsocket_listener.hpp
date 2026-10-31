@@ -17,7 +17,7 @@
 #ifndef BONEFISH_RAWSOCKET_LISTENER_HPP
 #define BONEFISH_RAWSOCKET_LISTENER_HPP
 
-#include <boost/asio/io_service.hpp>
+#include <asio/io_context.hpp>
 #include <functional>
 
 namespace bonefish {
@@ -29,7 +29,7 @@ class rawsocket_listener
 public:
     using error_handler = std::function<void(
             rawsocket_listener& listener,
-            const boost::system::error_code& error_code)>;
+            const std::error_code& error_code)>;
 
     using accept_handler = std::function<void(const std::shared_ptr<rawsocket_connection>&)>;
 
@@ -49,7 +49,7 @@ public:
     const accept_handler& get_accept_handler() const;
     void set_accept_handler(const accept_handler& handler);
 
-    void handle_accept(const boost::system::error_code& error_code);
+    void handle_accept(const std::error_code& error_code);
 
 protected:
     virtual void async_accept() = 0;
@@ -102,7 +102,7 @@ inline void rawsocket_listener::set_accept_handler(
 }
 
 inline void rawsocket_listener::handle_accept(
-        const boost::system::error_code &error_code)
+        const std::error_code &error_code)
 {
     // If an error has occured, notify the registered error
     // handler so appropriate action can be taken.
