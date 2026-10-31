@@ -13,3 +13,6 @@
 [submodule "third-party/cppcodec"]
 	path = third-party/cppcodec
 	url = https://github.com/tplgy/cppcodec.git
+[submodule "third-party/asio"]
+	path = third-party/asio
+	url = https://github.com/chriskohlhoff/asio.git
