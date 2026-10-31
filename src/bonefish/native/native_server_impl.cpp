@@ -90,7 +90,7 @@ void native_server_impl::start()
         auto disconnected = std::make_shared<std::promise<void>>();
 
         auto shared_this = weak_this.lock();
-        if (shared_this) {
+        if (!shared_this) {
             disconnected->set_exception(std::make_exception_ptr( std::runtime_error("disconnect failed")));
             return disconnected->get_future();
         }
@@ -160,7 +160,7 @@ void native_server_impl::on_disconnect(
 {
     auto itr = m_endpoints_connected.find(server_endpoint);
     if (itr == m_endpoints_connected.end()) {
-        std::invalid_argument("server endpoint does not exist");
+        throw std::invalid_argument("server endpoint does not exist");
     }
 
     auto connection = itr->second;
