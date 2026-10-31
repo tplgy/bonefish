@@ -200,6 +200,21 @@ async def connect_websocket(port):
     return WebSocketClient(ws)
 
 
+def daemon_stderr():
+    """If BF_E2E_STDERR is set, capture daemon stderr there (for sanitizer
+    scans); otherwise discard it."""
+    path = os.environ.get("BF_E2E_STDERR")
+    if path:
+        return open(path, "a")
+    return subprocess.DEVNULL
+
+
+def check_sanitizer(output, label):
+    for marker in ("ERROR: AddressSanitizer", "ERROR: LeakSanitizer",
+                   "runtime error:", "SUMMARY: AddressSanitizer"):
+        assert marker not in output, f"{marker} in {label} stderr:\n{output}"
+
+
 def free_port():
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
@@ -230,7 +245,7 @@ async def test_daemon(binary, use_debug):
     if use_debug:
         cmd.append("-d")
     proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL)
+                            stderr=daemon_stderr())
     try:
         if not wait_port(raw_port) or not wait_port(ws_port):
             raise AssertionError("daemon did not open listening sockets")
@@ -255,7 +270,7 @@ async def test_daemon(binary, use_debug):
 async def test_embedded(binary):
     """examples/integration: embedded router over rawsocket TCP 8888."""
     proc = subprocess.Popen([binary], stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL)
+                            stderr=daemon_stderr())
     try:
         if not wait_port(8888):
             raise AssertionError("integration example did not open port 8888")
@@ -316,7 +331,7 @@ async def test_daemon_options(binary):
         ws_port = free_port()
         proc = subprocess.Popen([binary, "-r", REALM, "-w", str(ws_port),
                                  disable_flag], stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
+                                stderr=daemon_stderr())
         try:
             if not wait_port(ws_port):
                 raise AssertionError(f"daemon with {disable_flag} did not listen")
@@ -338,7 +353,7 @@ async def test_daemon_options(binary):
     raw_port = free_port()
     proc = subprocess.Popen([binary, "-r", REALM, "-t", str(raw_port),
                              "--no-msgpack"], stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL)
+                            stderr=daemon_stderr())
     try:
         if not wait_port(raw_port):
             raise AssertionError("daemon with --no-msgpack did not listen")
@@ -371,6 +386,12 @@ async def amain():
     await test_daemon_options(args.daemon)
     if args.integration:
         await test_embedded(args.integration)
+
+    err_path = os.environ.get("BF_E2E_STDERR")
+    if err_path and os.path.exists(err_path):
+        with open(err_path) as f:
+            check_sanitizer(f.read(), "daemon")
+
     print("ALL E2E TESTS PASSED")
 
 
