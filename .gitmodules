@@ -1,18 +1,18 @@
 [submodule "third-party/msgpack-c"]
 	path = third-party/msgpack-c
-	url = https://github.com/msgpack/msgpack-c.git
+	url = https://github.com/xliang76/msgpack-c.git
 [submodule "third-party/rapidjson"]
 	path = third-party/rapidjson
-	url = https://github.com/miloyip/rapidjson.git
+	url = https://github.com/xliang76/rapidjson.git
 [submodule "third-party/websocketpp"]
 	path = third-party/websocketpp
-	url = https://github.com/zaphoyd/websocketpp.git
+	url = https://github.com/xliang76/websocketpp.git
 [submodule "third-party/json-msgpack"]
 	path = third-party/json-msgpack
-	url = https://github.com/tplgy/json-msgpack.git
+	url = https://github.com/xliang76/json-msgpack.git
 [submodule "third-party/cppcodec"]
 	path = third-party/cppcodec
-	url = https://github.com/tplgy/cppcodec.git
+	url = https://github.com/xliang76/cppcodec.git
 [submodule "third-party/asio"]
 	path = third-party/asio
-	url = https://github.com/chriskohlhoff/asio.git
+	url = https://github.com/xliang76/asio.git
